@@ -11,7 +11,6 @@ import { MaterialSelector } from './panels/MaterialSelector'
 import { ProductPicker } from './panels/ProductPicker'
 import { QuoteRequest } from './panels/QuoteRequest'
 import { downloadFile } from './services/quote'
-import { onLabProductRequest } from './intent'
 import { useLab } from './store'
 import { Fallback2D } from './viewer/Fallback2D'
 import { ViewerBoundary } from './viewer/ViewerBoundary'
@@ -58,12 +57,12 @@ export default function CustomLab() {
   const design = useLab((s) => s.design)
   const viewMode = useLab((s) => s.viewMode)
   const capture = useLab((s) => s.capture)
-  const stageTab = useLab((s) => s.stageTab)
-  const { setViewMode, resetView, setStageTab } = useLab.getState()
+  const tab = useLab((s) => s.tab)
+  const { setViewMode, resetView, setTab } = useLab.getState()
   const [gl, setGl] = useState<'ok' | 'unsupported' | 'lost'>(() => (webglAvailable() ? 'ok' : 'unsupported'))
   const [toast, setToastText] = useState('')
   const [fullscreen, setFullscreen] = useState(false)
-  const stageRef = useRef<HTMLDivElement>(null)
+  const stageRef = useRef<HTMLElement>(null)
   const toastTimer = useRef<number | undefined>(undefined)
   const hintId = useId()
 
@@ -84,8 +83,6 @@ export default function CustomLab() {
     document.addEventListener('fullscreenchange', onChange)
     return () => document.removeEventListener('fullscreenchange', onChange)
   }, [])
-
-  useEffect(() => onLabProductRequest((id) => useLab.getState().setProduct(id)), [])
 
   // Las tipografías se cargan bajo demanda: al terminar, se mide y se dibuja de nuevo.
   const fontKey = designFonts(design).join(',')
@@ -142,22 +139,39 @@ export default function CustomLab() {
   const fallback2d = <Fallback2D product={product} surface={surface} design={design} />
 
   return (
-    <div className="lab" onKeyDown={onEditorKey}>
-      <div className="lab__stage" ref={stageRef} data-tab={stageTab}>
-        <div className="lab__tabs segmented" role="group" aria-label="Vista">
-          <button type="button" aria-pressed={stageTab === 'design'} onClick={() => setStageTab('design')}>
-            Diseñar
-          </button>
-          <button type="button" aria-pressed={stageTab === '3d'} onClick={() => setStageTab('3d')}>
-            Ver en 3D
-          </button>
-        </div>
+    <div className="lab" data-tab={tab} onKeyDown={onEditorKey}>
+      {/* Pestañas Editar / Ver en 3D: sólo en pantallas angostas (en escritorio se ven las dos mitades). */}
+      <div className="lab__tabs segmented" role="group" aria-label="Vista">
+        <button type="button" aria-pressed={tab === 'edit'} onClick={() => setTab('edit')}>
+          Editar
+        </button>
+        <button type="button" aria-pressed={tab === '3d'} onClick={() => setTab('3d')}>
+          Ver en 3D
+        </button>
+      </div>
 
-        <section className="lab__editor" aria-label="Editor del grabado">
+      <section className="lab__edit" aria-label="Edición">
+        <div className="lab__editor">
           <EditorToolbar />
           <DesignCanvas />
-        </section>
+        </div>
+        <div className="lab__panel">
+          <Step n={1} title="Elegí el objeto" open>
+            <ProductPicker />
+          </Step>
+          <Step n={2} title="Elegí el material" open>
+            <MaterialSelector />
+          </Step>
+          <Step n={3} title="Diseñá el grabado" open>
+            <DesignPanel />
+          </Step>
+          <Step n={4} title="Revisá y pedí tu presupuesto">
+            <QuoteRequest />
+          </Step>
+        </div>
+      </section>
 
+      <section className="lab__stage" ref={stageRef} aria-label="Vista 3D">
         <div className="lab__view3d">
           <div
             className="lab__canvas"
@@ -231,22 +245,7 @@ export default function CustomLab() {
         <p className="lab__toast" role="status" aria-atomic="true">
           {toast}
         </p>
-      </div>
-
-      <div className="lab__panel">
-        <Step n={1} title="Elegí el objeto" open>
-          <ProductPicker />
-        </Step>
-        <Step n={2} title="Elegí el material" open>
-          <MaterialSelector />
-        </Step>
-        <Step n={3} title="Diseñá el grabado" open>
-          <DesignPanel />
-        </Step>
-        <Step n={4} title="Revisá y pedí tu presupuesto">
-          <QuoteRequest />
-        </Step>
-      </div>
+      </section>
     </div>
   )
 }

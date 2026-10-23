@@ -9,7 +9,7 @@ import { PRODUCT_PARAM } from './intent'
 import { MAX_ELEMENTS, type DesignElement, type DesignState, type ImageElement, type ShapeElement, type StyleId, type TextElement } from './model/types'
 
 export type ViewMode = 'product' | 'zone'
-export type StageTab = 'design' | '3d'
+export type LabTab = 'edit' | '3d'
 
 /** Origen de un cambio grande que se puede deshacer (presets). */
 export type UndoOrigin = 'preset'
@@ -42,8 +42,8 @@ interface LabState {
   /** Se incrementa cuando termina de cargar una tipografía: obliga a medir y dibujar de nuevo. */
   fontsVersion: number
   viewMode: ViewMode
-  /** Pestaña visible del escenario en pantallas angostas. */
-  stageTab: StageTab
+  /** Mitad visible del Lab en pantallas angostas: edición o 3D. */
+  tab: LabTab
   /** Se incrementa para pedirle al visor que restablezca la cámara. */
   viewResetToken: number
   /** Función de captura registrada por el visor 3D (PNG en data URL). */
@@ -85,7 +85,7 @@ interface LabState {
   renormalize: () => void
   fontsLoaded: () => void
   setViewMode: (mode: ViewMode) => void
-  setStageTab: (tab: StageTab) => void
+  setTab: (tab: LabTab) => void
   resetView: () => void
   setCapture: (fn: (() => string | null) | null) => void
   setOrbit: (fn: OrbitFn | null) => void
@@ -146,7 +146,7 @@ export const useLab = create<LabState>((set, get) => {
     undo: null,
     fontsVersion: 0,
     viewMode: 'product',
-    stageTab: 'design',
+    tab: 'edit',
     viewResetToken: 0,
     capture: null,
     orbit: null,
@@ -246,7 +246,7 @@ export const useLab = create<LabState>((set, get) => {
       set((s) => ({ fontsVersion: s.fontsVersion + 1 }))
     },
     setViewMode: (viewMode) => set({ viewMode }),
-    setStageTab: (stageTab) => set({ stageTab }),
+    setTab: (tab) => set({ tab }),
     resetView: () => set((s) => ({ viewMode: 'product', viewResetToken: s.viewResetToken + 1 })),
     setCapture: (capture) => set({ capture }),
     setOrbit: (orbit) => set({ orbit }),

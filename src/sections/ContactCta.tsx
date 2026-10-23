@@ -1,3 +1,4 @@
+import { LAB_PATH } from '../lab/intent'
 import { business } from '../config/business'
 import { ContactLinks } from '../components/ContactLinks'
 
@@ -13,7 +14,7 @@ export function ContactCta() {
         </h2>
         <div className="closing__side">
           <div className="closing__actions">
-            <a className="button button--primary" href="#custom-lab">
+            <a className="button button--primary" href={LAB_PATH}>
               Diseñar mi grabado
             </a>
             {wa && (

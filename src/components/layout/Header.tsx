@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 import { NAV } from '../../content/site'
+import { LAB_PATH } from '../../lab/intent'
 import { Logo } from '../brand/Logo'
 
 /**
  * Header fijo. Toma el tono (claro/oscuro) de la sección que tiene debajo,
  * para mantener el contraste en toda la página.
+ * En la página del Custom Lab (`page="lab"`) no muestra el CTA y marca «Simulador 3D» como página actual.
  */
-export function Header() {
+export function Header({ page }: { page: 'home' | 'lab' }) {
+  const isLab = page === 'lab'
+  const current = (href: string) => (isLab && href === LAB_PATH ? 'page' : undefined)
   const [tone, setTone] = useState<'dark' | 'light'>('dark')
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
@@ -73,21 +77,25 @@ export function Header() {
       data-tone={open ? 'dark' : tone === 'light' ? 'light' : undefined}
     >
       <div className="site-header__inner wrap">
-        <a href="#inicio" className="site-header__brand" aria-label="AUREO Art Studio, ir al inicio">
+        <a href="/#inicio" className="site-header__brand" aria-label="AUREO Art Studio, ir al inicio">
           <Logo />
         </a>
         <nav className="site-nav" aria-label="Principal">
           <ul>
             {NAV.slice(1).map((n) => (
               <li key={n.href}>
-                <a href={n.href}>{n.label}</a>
+                <a href={n.href} aria-current={current(n.href)}>
+                  {n.label}
+                </a>
               </li>
             ))}
           </ul>
         </nav>
-        <a href="#custom-lab" className="button button--primary site-header__cta">
-          Personalizá tu producto
-        </a>
+        {!isLab && (
+          <a href={LAB_PATH} className="button button--primary site-header__cta">
+            Personalizá tu producto
+          </a>
+        )}
         <button
           ref={toggleRef}
           type="button"
@@ -105,16 +113,18 @@ export function Header() {
           <ul>
             {NAV.map((n) => (
               <li key={n.href}>
-                <a href={n.href} onClick={() => setOpen(false)}>
+                <a href={n.href} aria-current={current(n.href)} onClick={() => setOpen(false)}>
                   {n.label}
                 </a>
               </li>
             ))}
           </ul>
         </nav>
-        <a href="#custom-lab" className="button button--primary" onClick={() => setOpen(false)}>
-          Personalizá tu producto
-        </a>
+        {!isLab && (
+          <a href={LAB_PATH} className="button button--primary" onClick={() => setOpen(false)}>
+            Personalizá tu producto
+          </a>
+        )}
       </div>
     </header>
   )

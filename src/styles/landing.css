@@ -375,17 +375,42 @@
   }
 }
 
-/* ───────── Custom Lab (marco de sección) ───────── */
-.lab-section {
-  background:
-    linear-gradient(var(--carbon), var(--carbon)) padding-box;
-  border-top: 1px solid var(--rule);
+/* ───────── Página del Custom Lab ───────── */
+/* El Lab ocupa todo el ancho y el alto que queda debajo del header y del encabezado de una línea. */
+.lab-page {
+  --lab-head-h: 3.5rem;
+  padding-top: var(--header-h);
 }
-.section-head--lab {
-  grid-template-columns: minmax(0, 1.618fr) minmax(0, 1fr);
+.lab-page .lab {
+  --lab-h: max(560px, 100svh - var(--header-h) - var(--lab-head-h));
+}
+.lab-page__head {
+  height: var(--lab-head-h);
+  display: flex;
+  align-items: baseline;
+  gap: var(--s1);
+  padding: 0.9rem var(--gutter) 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+/* `text-wrap: balance` de los títulos pisa el `white-space`: se fuerza una sola línea. */
+.lab-page__head > * {
+  text-wrap: nowrap;
+}
+.lab-page__head .lab-section__name {
+  flex: none;
+}
+.lab-page__title {
+  min-width: 0;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .lab-section__name {
-  grid-column: 1 / -1;
+  margin: 0;
   font-family: var(--font-display);
   font-style: italic;
   font-size: var(--step-1);

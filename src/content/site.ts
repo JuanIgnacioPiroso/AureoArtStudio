@@ -1,11 +1,12 @@
+/** Enlaces absolutos: en la home son saltos dentro de la página; desde el Custom Lab vuelven a la home. */
 export const NAV = [
-  { href: '#inicio', label: 'Inicio' },
-  { href: '#productos', label: 'Productos' },
-  { href: '#custom-lab', label: 'Simulador 3D' },
-  { href: '#galeria', label: 'Galería' },
-  { href: '#proceso', label: 'Cómo trabajamos' },
-  { href: '#preguntas', label: 'Preguntas' },
-  { href: '#contacto', label: 'Contacto' },
+  { href: '/#inicio', label: 'Inicio' },
+  { href: '/#productos', label: 'Productos' },
+  { href: '/custom-lab/', label: 'Simulador 3D' },
+  { href: '/#galeria', label: 'Galería' },
+  { href: '/#proceso', label: 'Cómo trabajamos' },
+  { href: '/#preguntas', label: 'Preguntas' },
+  { href: '/#contacto', label: 'Contacto' },
 ] as const
 
 export interface ImageAsset {

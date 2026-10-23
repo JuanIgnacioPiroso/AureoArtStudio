@@ -1,41 +1,49 @@
-/* AUREO Custom Lab: visor + panel de herramienta. */
+/*
+ * AUREO Custom Lab: pantalla dividida en dos mitades verticales.
+ * Izquierda, la edición (editor fijo arriba y pasos con scroll propio); derecha, el 3D.
+ * --lab-h lo define la página que lo contiene (por defecto, el alto de la ventana).
+ */
 .lab {
   --panel: var(--graphite);
   --stage: #1d1f23;
+  --lab-h: 100svh;
   display: grid;
-  grid-template-columns: minmax(0, 1.618fr) minmax(340px, 1fr);
-  border: 1px solid var(--rule);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  height: var(--lab-h);
+  border-top: 1px solid var(--rule);
   background: var(--panel);
+}
+/* Pestañas Editar / Ver en 3D: sólo en pantallas angostas (en escritorio se ven las dos mitades). */
+.lab__tabs.segmented {
+  display: none;
+}
+
+.lab__edit {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--rule);
+}
+.lab__editor {
+  flex: none;
+  display: grid;
+  border-bottom: 1px solid var(--rule);
+  /* El lienzo (con su margen) ocupa como máximo el 45 % del alto de la columna. */
+  --canvas-max-h: calc(var(--lab-h) * 0.45 - 2rem);
 }
 
 .lab__stage {
-  position: sticky;
-  top: var(--header-h);
-  align-self: start;
-  height: calc(100svh - var(--header-h));
-  max-height: 900px;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   background: var(--stage);
   isolation: isolate;
 }
 .lab__stage:fullscreen {
-  max-height: none;
   height: 100vh;
-}
-.lab__stage:fullscreen .lab__editor,
-.lab__stage:fullscreen .lab__stage .lab__tabs {
-  display: none;
-}
-/* Pestañas Diseñar / Ver en 3D: sólo en pantallas angostas (en escritorio se ven las dos vistas). */
-.lab__stage .lab__tabs {
-  display: none;
-}
-.lab__editor {
-  flex: none;
-  display: grid;
-  border-bottom: 1px solid var(--rule);
-  --canvas-max-h: 40svh;
 }
 .lab__view3d {
   flex: 1;
@@ -150,10 +158,14 @@
   border-radius: var(--radius-s);
 }
 
-/* Panel de pasos */
+/* Panel de pasos: scroll propio dentro de la columna de edición. */
 .lab__panel {
-  border-left: 1px solid var(--rule);
+  flex: 1;
   min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
 }
 .step {
   border-bottom: 1px solid var(--rule);
@@ -166,7 +178,7 @@
   padding: var(--s1) var(--s2);
   cursor: pointer;
   position: sticky;
-  top: var(--header-h);
+  top: 0;
   z-index: 1;
   background: var(--panel);
 }
@@ -473,40 +485,40 @@
   width: 100%;
 }
 
-/* Responsive: flujo vertical con el visor fijo arriba mientras se edita. */
+/*
+ * Pantallas angostas: una sola columna con pestañas Editar / Ver en 3D.
+ * «Editar» usa el scroll de la página; «Ver en 3D» ocupa el alto que queda debajo de las pestañas.
+ */
 @media (max-width: 960px) {
   .lab {
+    /* Alto de la fila de pestañas: botón de 38 px, su borde y el margen. */
+    --lab-tabs-h: calc(38px + 2px + 1rem);
     grid-template-columns: 1fr;
-    margin-inline: calc(-1 * var(--gutter));
-    border-inline: 0;
-  }
-  .lab__stage {
     height: auto;
-    max-height: none;
-    z-index: 2;
   }
-  .lab__stage:fullscreen {
-    height: 100vh;
-  }
-  .lab__stage .lab__tabs {
+  .lab__tabs.segmented {
     display: inline-flex;
+    justify-self: start;
     margin: 0.5rem var(--gutter);
-    align-self: flex-start;
   }
-  .lab__stage[data-tab='3d'] .lab__editor,
-  .lab__stage[data-tab='design'] .lab__view3d {
+  .lab[data-tab='3d'] .lab__edit,
+  .lab[data-tab='edit'] .lab__stage {
     display: none;
   }
-  .lab__view3d {
-    height: 46svh;
-    min-height: 300px;
+  .lab__edit {
+    border-right: 0;
   }
   .lab__editor {
-    border-bottom: 0;
     --canvas-max-h: 34svh;
+    border-top: 1px solid var(--rule);
   }
   .lab__panel {
-    border-left: 0;
+    overflow: visible;
+  }
+  .lab__stage {
+    /* El alto del Lab menos las pestañas y el borde superior del Lab. */
+    height: max(300px, var(--lab-h) - var(--lab-tabs-h) - 1px);
+    border-top: 1px solid var(--rule);
   }
   .step__summary {
     position: static;

@@ -1,9 +1,9 @@
 import manifest from '../../content/image-credits.json'
 import { business } from '../../config/business'
 import { CATEGORIES, NAV } from '../../content/site'
+import { labProductHref } from '../../lab/intent'
 import { Logo } from '../brand/Logo'
 import { ContactLinks } from '../ContactLinks'
-import { LabProductLink } from '../LabProductLink'
 
 export function Footer() {
   const year = new Date().getFullYear()
@@ -32,9 +32,9 @@ export function Footer() {
             {CATEGORIES.filter((c) => c.enabled).map((c) => (
               <li key={c.id}>
                 {c.labProductId ? (
-                  <LabProductLink productId={c.labProductId}>{c.name}</LabProductLink>
+                  <a href={labProductHref(c.labProductId)}>{c.name}</a>
                 ) : (
-                  <a href="#productos">{c.name}</a>
+                  <a href="/#productos">{c.name}</a>
                 )}
               </li>
             ))}

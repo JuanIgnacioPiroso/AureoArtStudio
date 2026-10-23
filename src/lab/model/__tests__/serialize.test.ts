@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { decodeDesign, designId, encodeDesign } from '../serialize'
+import { decodeDesign, designId, designUrl, encodeDesign } from '../serialize'
 import { getProduct } from '../catalog'
 import { imageElement, shapeElement } from '../elements'
 import type { DesignState, MeasureText, TextElement } from '../types'
@@ -78,5 +78,20 @@ describe('serialize', () => {
     const moved = { ...base, elements: base.elements.map((e, i) => (i === 0 ? { ...e, x: e.x + 1 } : e)) }
     expect(designId(base)).not.toBe(designId(moved))
     expect(designId(base)).toMatch(/^AU-[0-9A-Z]{7}$/)
+  })
+})
+
+describe('designUrl', () => {
+  it.each([
+    'https://aureo.example/custom-lab/?producto=knife#x',
+    'https://aureo.example/?d=viejo#custom-lab',
+    'https://aureo.example/',
+  ])('apunta a /custom-lab/ con sólo el parámetro d y sin ancla (%s)', (page) => {
+    const url = new URL(designUrl(base, page))
+    expect(url.origin).toBe('https://aureo.example')
+    expect(url.pathname).toBe('/custom-lab/')
+    expect([...url.searchParams.keys()]).toEqual(['d'])
+    expect(url.hash).toBe('')
+    expect(decodeDesign(url.searchParams.get('d')!, measure)).toEqual(decodeDesign(encodeDesign(base), measure))
   })
 })

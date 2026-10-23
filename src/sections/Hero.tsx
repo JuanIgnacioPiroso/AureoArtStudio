@@ -1,3 +1,5 @@
+import { LAB_PATH } from '../lab/intent'
+
 /**
  * Hero: titular editorial y una vista real del Custom Lab. La línea dorada se "traza" una vez
  * sobre el grabado, como el paso del láser: es el único movimiento automático de la página.
@@ -17,7 +19,7 @@ export function Hero() {
             pedir tu presupuesto.
           </p>
           <div className="hero__actions">
-            <a className="button button--primary" href="#custom-lab">
+            <a className="button button--primary" href={LAB_PATH}>
               Crear mi grabado
             </a>
             <a className="button" href="#galeria">

@@ -1,6 +1,6 @@
 # SPEC 04 — Custom Lab en una página aparte
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** —
 > **Fecha:** 2026-10-23
 > **Objetivo:** Sacar el Custom Lab de la landing y servirlo en su propia página, `/custom-lab/`, con la edición y el 3D en dos mitades lado a lado, sin romper los enlaces de diseños ya compartidos.

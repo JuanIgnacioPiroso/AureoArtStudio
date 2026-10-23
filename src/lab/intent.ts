@@ -1,33 +1,24 @@
 /**
- * Puente liviano entre la landing y el Custom Lab (que se carga diferido):
- * la landing pide un producto sin importar el store ni el catálogo.
+ * URLs del Custom Lab, en un módulo liviano: la home las usa sin importar el store ni el catálogo.
  */
-const EVENT = 'aureo:select-product'
-let pending: string | null = null
+
+/** Ruta de la página del Custom Lab. */
+export const LAB_PATH = '/custom-lab/'
 
 /** Parámetro de URL con el que un enlace abre el Lab con un producto elegido. */
 export const PRODUCT_PARAM = 'producto'
 
-/** URL compartible (y apta para Cmd/Ctrl+clic) que abre el Lab con el producto elegido. */
+/** URL compartible que abre la página del Lab con el producto elegido. */
 export function labProductHref(productId: string): string {
-  return `?${PRODUCT_PARAM}=${encodeURIComponent(productId)}#custom-lab`
+  return `${LAB_PATH}?${PRODUCT_PARAM}=${encodeURIComponent(productId)}`
 }
 
-export function requestLabProduct(productId: string) {
-  pending = productId
-  window.dispatchEvent(new CustomEvent(EVENT, { detail: productId }))
-}
-
-/** El Lab consume el pedido pendiente al montarse y escucha los siguientes. */
-export function onLabProductRequest(handler: (productId: string) => void): () => void {
-  if (pending) {
-    handler(pending)
-    pending = null
-  }
-  const listener = (e: Event) => {
-    pending = null
-    handler((e as CustomEvent<string>).detail)
-  }
-  window.addEventListener(EVENT, listener)
-  return () => window.removeEventListener(EVENT, listener)
+/**
+ * Enlaces viejos, de cuando el Lab era una sección de la home (`/?d=…#custom-lab`, `/?producto=…`):
+ * devuelve la URL equivalente en la página del Lab, con los mismos parámetros, o null si no hace falta redirigir.
+ */
+export function legacyLabRedirect(search: string): string | null {
+  const params = new URLSearchParams(search)
+  if (!params.has('d') && !params.has(PRODUCT_PARAM)) return null
+  return `${LAB_PATH}?${params.toString()}`
 }

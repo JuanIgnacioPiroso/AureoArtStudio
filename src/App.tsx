@@ -7,7 +7,6 @@ import { Differentials } from './sections/Differentials'
 import { Faq } from './sections/Faq'
 import { Gallery } from './sections/Gallery'
 import { Hero } from './sections/Hero'
-import { LabSection } from './sections/LabSection'
 import { Process } from './sections/Process'
 
 export default function App() {
@@ -16,11 +15,10 @@ export default function App() {
       <a className="skip-link" href="#contenido">
         Saltar al contenido
       </a>
-      <Header />
+      <Header page="home" />
       <main id="contenido">
         <Hero />
         <Categories />
-        <LabSection />
         <Gallery />
         <Process />
         <Differentials />

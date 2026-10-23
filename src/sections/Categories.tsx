@@ -1,5 +1,5 @@
 import { CATEGORIES } from '../content/site'
-import { LabProductLink } from '../components/LabProductLink'
+import { labProductHref } from '../lab/intent'
 import { Picture } from '../components/Picture'
 
 export function Categories() {
@@ -21,9 +21,9 @@ export function Categories() {
                 <h3 className="category__name display">{c.name}</h3>
                 <p>{c.description}</p>
                 {c.labProductId ? (
-                  <LabProductLink className="text-link" productId={c.labProductId}>
+                  <a className="text-link" href={labProductHref(c.labProductId)}>
                     Diseñarlo en el <span translate="no">Custom Lab</span>
-                  </LabProductLink>
+                  </a>
                 ) : (
                   <a className="text-link" href="#contacto">
                     Consultar por este producto
