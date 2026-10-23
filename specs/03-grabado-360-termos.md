@@ -1,6 +1,6 @@
 # SPEC 03 — Grabado 360° en los termos
 
-> **Estado:** Borrador
+> **Estado:** Aprobado
 > **Depende de:** SPEC 02
 > **Fecha:** 2026-10-22
 > **Objetivo:** Sumar a los dos termos del Custom Lab una zona «Vuelta completa» de 250 × 120 mm que rodea el cuerpo, salvo la franja de la manija, con una proyección cilíndrica sin estiramiento.
