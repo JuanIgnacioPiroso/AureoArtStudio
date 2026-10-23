@@ -1,6 +1,6 @@
 # SPEC 05 — Custom Lab más claro: barra de objeto y pestañas de edición
 
-> **Estado:** Borrador
+> **Estado:** Aprobado
 > **Depende de:** SPEC 04
 > **Fecha:** 2026-10-23
 > **Objetivo:** Reemplazar los cuatro pasos apilados de la columna de edición por una barra compacta de objeto y material y cuatro pestañas («Capa», «Capas», «Grabado», «Pedir»), para que cada control esté a la vista sin scroll largo.
