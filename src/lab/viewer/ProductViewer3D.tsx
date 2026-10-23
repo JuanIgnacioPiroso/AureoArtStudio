@@ -1,0 +1,270 @@
+import { ContactShadows, Environment, Lightformer, OrbitControls } from '@react-three/drei'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { useCallback, useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
+import * as THREE from 'three'
+import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
+import { getProduct, getSurface, partMaterial } from '../model/catalog'
+import type { DesignState, ProductDef } from '../model/types'
+import { useRenderRevision } from '../render/preview'
+import { useLab, type ViewMode } from '../store'
+import { EngravingDecal } from './EngravingDecal'
+import { Board } from './meshes/Board'
+import { Knife } from './meshes/Knife'
+import type { ProductMeshProps } from './meshes/types'
+import { zoneCamera } from './surfaceFrame'
+
+const MODELS: Record<ProductDef['modelId'], { Component: ComponentType<ProductMeshProps>; rest: number }> = {
+  'knife-v1': { Component: Knife, rest: 0.1 },
+  'board-v1': { Component: Board, rest: 0.11 },
+}
+
+const BG = '#1D1F23'
+const MIN_DISTANCE = 0.9
+const MAX_DISTANCE = 12
+const MAX_POLAR = Math.PI * 0.44
+
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+type Parts = Partial<Record<string, THREE.Mesh>>
+
+/** Encuadre de producto: misma dirección de cámara, distancia ajustada al aspecto del canvas. */
+function productCamera(product: ProductDef, cam: THREE.PerspectiveCamera) {
+  const target = new THREE.Vector3(...product.camera.target)
+  const dir = new THREE.Vector3(...product.camera.position).sub(target).normalize()
+  const vFov = THREE.MathUtils.degToRad(cam.fov)
+  const hFov = 2 * Math.atan(Math.tan(vFov / 2) * cam.aspect)
+  const dist = (product.frameRadius / Math.sin(Math.min(vFov, hFov) / 2)) * 1.02
+  return { eye: target.clone().addScaledVector(dir, dist), target }
+}
+
+function CameraRig({
+  product,
+  design,
+  parts,
+  viewMode,
+  resetToken,
+}: {
+  product: ProductDef
+  design: DesignState
+  parts: Parts
+  viewMode: ViewMode
+  resetToken: number
+}) {
+  const camera = useThree((s) => s.camera)
+  const aspect = useThree((s) => s.size.width / s.size.height)
+  const scene = useThree((s) => s.scene)
+  const controls = useThree((s) => s.controls) as OrbitControlsImpl | null
+  const invalidate = useThree((s) => s.invalidate)
+  const goal = useRef<{ eye: THREE.Vector3; target: THREE.Vector3 } | null>(null)
+  const surface = getSurface(product, design.surfaceId)
+  const zoneMesh = parts[surface.part]
+
+  useEffect(() => {
+    if (!controls) return
+    let next: { eye: THREE.Vector3; target: THREE.Vector3 }
+    if (viewMode === 'zone' && zoneMesh) {
+      zoneMesh.updateWorldMatrix(true, false)
+      next = zoneCamera(zoneMesh, surface)
+    } else {
+      next = productCamera(product, camera as THREE.PerspectiveCamera)
+    }
+    if (prefersReducedMotion()) {
+      camera.position.copy(next.eye)
+      controls.target.copy(next.target)
+      controls.update()
+      goal.current = null
+    } else {
+      goal.current = next
+    }
+    invalidate()
+  }, [product, surface, zoneMesh, viewMode, resetToken, controls, camera, invalidate, aspect])
+
+  // Sólo en desarrollo: acceso a cámara y controles para capturas y depuración.
+  useEffect(() => {
+    if (!import.meta.env.DEV || !controls) return
+    ;(window as unknown as Record<string, unknown>).__aureoLab = { camera, controls, invalidate, scene }
+  }, [camera, controls, invalidate, scene])
+
+  useEffect(() => {
+    if (!controls) return
+    const stop = () => (goal.current = null)
+    controls.addEventListener('start', stop)
+    return () => controls.removeEventListener('start', stop)
+  }, [controls])
+
+  // Alternativa de teclado al arrastre: gira sobre el objetivo con los mismos límites que OrbitControls.
+  const setOrbit = useLab((s) => s.setOrbit)
+  useEffect(() => {
+    if (!controls) return
+    const spherical = new THREE.Spherical()
+    const offset = new THREE.Vector3()
+    setOrbit((azimuth, polar, zoom) => {
+      goal.current = null
+      offset.copy(camera.position).sub(controls.target)
+      spherical.setFromVector3(offset)
+      spherical.theta += azimuth
+      spherical.phi = THREE.MathUtils.clamp(spherical.phi + polar, 0.05, MAX_POLAR)
+      spherical.radius = THREE.MathUtils.clamp(spherical.radius * zoom, MIN_DISTANCE, MAX_DISTANCE)
+      camera.position.copy(controls.target).add(offset.setFromSpherical(spherical))
+      controls.update()
+      invalidate()
+    })
+    return () => setOrbit(null)
+  }, [controls, camera, invalidate, setOrbit])
+
+  useFrame((_, dt) => {
+    const g = goal.current
+    if (!g || !controls) return
+    const k = 1 - Math.exp(-dt * 7)
+    camera.position.lerp(g.eye, k)
+    controls.target.lerp(g.target, k)
+    controls.update()
+    if (camera.position.distanceTo(g.eye) < 0.002 && controls.target.distanceTo(g.target) < 0.002) {
+      goal.current = null
+    }
+    invalidate()
+  })
+  return null
+}
+
+/** Registra en el store una función que captura la vista actual como PNG. */
+function CaptureBridge() {
+  const gl = useThree((s) => s.gl)
+  const scene = useThree((s) => s.scene)
+  const camera = useThree((s) => s.camera)
+  const setCapture = useLab((s) => s.setCapture)
+  useEffect(() => {
+    setCapture(() => {
+      try {
+        gl.render(scene, camera)
+        return gl.domElement.toDataURL('image/png')
+      } catch {
+        return null
+      }
+    })
+    return () => setCapture(null)
+  }, [gl, scene, camera, setCapture])
+  return null
+}
+
+/**
+ * Estudio de producto: cajas de luz rectangulares sobre fondo oscuro. Los metales reflejan
+ * el entorno, así que el contraste entre las cajas y el fondo es lo que define el acero.
+ */
+function Studio() {
+  return (
+    <>
+      <color attach="background" args={[BG]} />
+      <ambientLight intensity={0.12} />
+      <directionalLight position={[-3, 6, 3]} intensity={1.5} />
+      <directionalLight position={[4, 3, -4]} intensity={0.45} color="#E8D9BE" />
+      <Environment resolution={512} frames={1}>
+        <color attach="background" args={['#15161a']} />
+        <Lightformer form="rect" intensity={0.6} position={[0, -3, 0]} rotation-x={-Math.PI / 2} scale={[12, 12, 1]} color="#24262b" />
+        {/* Caja principal cenital, desplazada para que la hoja refleje un degradé y no un plano uniforme. */}
+        <Lightformer form="rect" intensity={1.3} position={[-1.2, 5, -1]} rotation-x={Math.PI / 2} scale={[5, 2.2, 1]} />
+        <Lightformer form="rect" intensity={1} position={[2.5, 4.5, 1.5]} rotation-x={Math.PI / 2} scale={[1.2, 6, 1]} />
+        <Lightformer form="rect" intensity={1.4} position={[-5, 2, 1]} rotation-y={Math.PI / 2} scale={[6, 1.2, 1]} />
+        <Lightformer form="rect" intensity={0.8} color="#F2EBDF" position={[5, 1.5, -1]} rotation-y={-Math.PI / 2} scale={[6, 1, 1]} />
+        <Lightformer form="rect" intensity={1.4} position={[0.5, 2.5, 5]} scale={[7, 0.35, 1]} />
+        {/* Relleno bajo y frontal: las caras verticales del metal no se ven negras. */}
+        <Lightformer form="rect" intensity={0.7} position={[0, 0.6, 6]} scale={[10, 1.2, 1]} />
+        <Lightformer form="rect" intensity={1.1} position={[-3, 3.5, -3]} rotation-y={2.4} scale={[4, 2, 1]} color="#F2EDE4" />
+      </Environment>
+      <mesh rotation-x={-Math.PI / 2} position={[0, -0.001, 0]}>
+        <planeGeometry args={[40, 40]} />
+        {/* Sin iluminar: coincide exactamente con el fondo y sólo recibe las sombras de contacto. */}
+        <meshBasicMaterial color={BG} toneMapped={false} />
+      </mesh>
+    </>
+  )
+}
+
+function Scene({ design, maxTexturePx }: { design: DesignState; maxTexturePx: number }) {
+  const revision = useRenderRevision()
+  const viewMode = useLab((s) => s.viewMode)
+  const resetToken = useLab((s) => s.viewResetToken)
+  const product = useLab((s) => s.design.productId)
+  const productDef = useMemo(() => getProduct(product), [product])
+  const surface = getSurface(productDef, design.surfaceId)
+  const model = MODELS[productDef.modelId]
+
+  const [parts, setParts] = useState<Parts>({})
+  const registerPart = useCallback((partId: string, mesh: THREE.Mesh | null) => {
+    setParts((prev) => (prev[partId] === (mesh ?? undefined) ? prev : { ...prev, [partId]: mesh ?? undefined }))
+  }, [])
+  const materialFor = useCallback(
+    (partId: string) => partMaterial(productDef, partId, design.materialId),
+    [productDef, design.materialId],
+  )
+
+  return (
+    <>
+      <Studio />
+      <group key={productDef.id} position={[0, model.rest, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <model.Component materialFor={materialFor} registerPart={registerPart} />
+      </group>
+      <EngravingDecal
+        key={`${productDef.id}:${surface.id}`}
+        design={design}
+        surface={surface}
+        target={parts[surface.part] ?? null}
+        maxTexturePx={maxTexturePx}
+        revision={revision}
+      />
+      {/* Dos capas: penumbra amplia y oclusión ajustada donde el objeto toca la mesa. */}
+      <ContactShadows key={`shadow-${productDef.id}`} frames={1} position={[0, 0, 0]} scale={7} blur={2.6} opacity={0.6} far={1.2} resolution={512} />
+      <ContactShadows key={`ao-${productDef.id}`} frames={1} position={[0, 0.0005, 0]} scale={7} blur={0.9} opacity={0.55} far={0.25} resolution={1024} />
+      <CameraRig product={productDef} design={design} parts={parts} viewMode={viewMode} resetToken={resetToken} />
+      <CaptureBridge />
+    </>
+  )
+}
+
+interface ViewerProps {
+  design: DesignState
+  onContextLost: () => void
+  label: string
+}
+
+/** Visor 3D del producto con el grabado aplicado. Se carga de forma diferida. */
+export default function ProductViewer3D({ design, onContextLost, label }: ViewerProps) {
+  const product = getProduct(design.productId)
+  const [coarse] = useState(() => typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches)
+  const maxTexturePx = coarse ? 1024 : 2048
+
+  return (
+    <Canvas
+      frameloop="demand"
+      dpr={[1, coarse ? 1.5 : 1.75]}
+      camera={{ position: [...product.camera.position], fov: 35, near: 0.05, far: 60 }}
+      // Tone mapping neutro: conserva el color real de la madera y del acero.
+      gl={{ antialias: true, powerPreference: 'high-performance', toneMapping: THREE.NeutralToneMapping, toneMappingExposure: 1 }}
+      onCreated={({ gl }) => {
+        // El listener vive lo mismo que el canvas: al desmontarse el visor, el elemento se descarta con él.
+        gl.domElement.addEventListener(
+          'webglcontextlost',
+          (e) => {
+            e.preventDefault()
+            onContextLost()
+          },
+          { once: true },
+        )
+      }}
+      aria-label={label}
+      role="img"
+    >
+      <Scene design={design} maxTexturePx={maxTexturePx} />
+      <OrbitControls
+        makeDefault
+        enablePan={false}
+        enableDamping={false}
+        minDistance={MIN_DISTANCE}
+        maxDistance={MAX_DISTANCE}
+        maxPolarAngle={MAX_POLAR}
+        target={[...product.camera.target]}
+      />
+    </Canvas>
+  )
+}

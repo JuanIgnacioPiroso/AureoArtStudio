@@ -1,0 +1,63 @@
+:root {
+  /* Paleta */
+  --carbon: #16171a;
+  --graphite: #24262b;
+  --graphite-2: #2e3036;
+  --champagne: #c9ae7c;
+  --champagne-deep: #9c8150;
+  --ivory: #efeae0;
+  --ivory-2: #e4ded1;
+  --ash: #8c8a85;
+  --ash-light: #b5b2ab;
+  --burn: #5a3a22;
+  --ink: #1c1d20;
+
+  /* Roles (oscuro por defecto; las secciones claras los redefinen) */
+  --bg: var(--carbon);
+  --fg: var(--ivory);
+  --fg-muted: var(--ash-light);
+  --rule: rgb(239 234 224 / 0.14);
+  --accent: var(--champagne);
+  --panel: var(--graphite);
+  --focus: var(--champagne);
+
+  /* Tipografía */
+  --font-display: 'Bodoni Moda', 'Didot', 'Bodoni 72', Georgia, serif;
+  --font-ui: 'Hanken Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --step--1: 0.85rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.33rem;
+  --step-2: 1.66rem;
+  --step-3: 2.075rem;
+  --step-4: clamp(2.2rem, 1.6rem + 2.4vw, 2.6rem);
+  --step-5: clamp(2.6rem, 1.7rem + 3.6vw, 3.25rem);
+  --step-6: clamp(2.9rem, 1.6rem + 5.4vw, 5.4rem);
+
+  /* Espaciado (proporción áurea) */
+  --s-1: 0.38rem;
+  --s0: 0.62rem;
+  --s1: 1rem;
+  --s2: 1.618rem;
+  --s3: 2.618rem;
+  --s4: 4.236rem;
+  --s5: 6.854rem;
+  --gutter: clamp(1rem, 4vw, 3rem);
+  --measure: 66ch;
+  --max: 1320px;
+  --header-h: 68px;
+
+  --radius-s: 3px;
+  --radius-m: 6px;
+  --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+}
+
+[data-tone='light'] {
+  color-scheme: light;
+  --bg: var(--ivory);
+  --fg: var(--ink);
+  --fg-muted: #5d5b56;
+  --rule: rgb(28 29 32 / 0.16);
+  --accent: var(--champagne-deep);
+  --panel: var(--ivory-2);
+  --focus: #7a6234;
+}

@@ -1,0 +1,77 @@
+[
+  {
+    "id": "knife-stone",
+    "files": [
+      "/img/placeholder/knife-stone-1600.webp",
+      "/img/placeholder/knife-stone-800.webp"
+    ],
+    "width": 1920,
+    "height": 1080,
+    "title": "Moritaka 8.25-Inch Aogami Super Carbon Steel Gyuto (2026)-104A7336.jpg",
+    "author": "Frank Schulenburg",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Moritaka_8.25-Inch_Aogami_Super_Carbon_Steel_Gyuto_(2026)-104A7336.jpg",
+    "status": "provisional: reemplazar por fotografía propia"
+  },
+  {
+    "id": "laser-wood-crest",
+    "files": [
+      "/img/placeholder/laser-wood-crest-1600.webp",
+      "/img/placeholder/laser-wood-crest-800.webp"
+    ],
+    "width": 1920,
+    "height": 1102,
+    "title": "Laser engraved wood.webp",
+    "author": "Wikideas1",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:Laser_engraved_wood.webp",
+    "status": "provisional: reemplazar por fotografía propia"
+  },
+  {
+    "id": "engraved-box",
+    "files": [
+      "/img/placeholder/engraved-box-1600.webp",
+      "/img/placeholder/engraved-box-800.webp"
+    ],
+    "width": 1920,
+    "height": 1280,
+    "title": "Cherry wood with binary computer engraving.jpg",
+    "author": "Jared Tarbell",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Cherry_wood_with_binary_computer_engraving.jpg",
+    "status": "provisional: reemplazar por fotografía propia"
+  },
+  {
+    "id": "olive-wood-grain",
+    "files": [
+      "/img/placeholder/olive-wood-grain-1600.webp",
+      "/img/placeholder/olive-wood-grain-800.webp"
+    ],
+    "width": 1920,
+    "height": 1280,
+    "title": "Olive-wood-364426.jpg",
+    "author": "Stefan Schweihofer (stux)",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:Olive-wood-364426.jpg",
+    "status": "provisional: reemplazar por fotografía propia"
+  },
+  {
+    "id": "end-grain-board",
+    "files": [
+      "/img/placeholder/end-grain-board-1600.webp",
+      "/img/placeholder/end-grain-board-800.webp"
+    ],
+    "width": 1920,
+    "height": 2560,
+    "title": "End grain cutting board.jpg",
+    "author": "Hu Nhu",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:End_grain_cutting_board.jpg",
+    "status": "provisional: reemplazar por fotografía propia"
+  }
+]
