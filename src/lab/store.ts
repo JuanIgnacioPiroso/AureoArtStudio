@@ -11,8 +11,8 @@ import { MAX_ELEMENTS, type DesignElement, type DesignState, type ImageElement, 
 export type ViewMode = 'product' | 'zone'
 export type StageTab = 'design' | '3d'
 
-/** Origen de un cambio grande que se puede deshacer (presets o propuestas de la IA). */
-export type UndoOrigin = 'preset' | 'assistant'
+/** Origen de un cambio grande que se puede deshacer (presets). */
+export type UndoOrigin = 'preset'
 
 /** Giro de cámara pedido desde el teclado: radianes y factor de zoom. */
 export type OrbitFn = (azimuth: number, polar: number, zoom: number) => void
@@ -37,7 +37,7 @@ interface LabState {
   selection: string[]
   past: DesignState[]
   future: DesignState[]
-  /** Última plantilla o propuesta aplicada, para ofrecer deshacerla. Se descarta con cualquier otro cambio. */
+  /** Última plantilla aplicada, para ofrecer deshacerla. Se descarta con cualquier otro cambio. */
   undo: { label: string; origin: UndoOrigin } | null
   /** Se incrementa cuando termina de cargar una tipografía: obliga a medir y dibujar de nuevo. */
   fontsVersion: number
@@ -66,7 +66,7 @@ interface LabState {
   reorder: (id: string, dir: ReorderDir) => void
   align: (ids: readonly string[], edge: AlignEdge) => void
   distribute: (ids: readonly string[], axis: 'x' | 'y') => void
-  /** Reemplaza todas las capas (presets y propuestas del asistente) y ofrece deshacer. */
+  /** Reemplaza todas las capas (presets) y ofrece deshacer. */
   applyTemplate: (
     elements: DesignElement[],
     opts: { source: DesignState['source']; label: string; origin: UndoOrigin; styleId?: StyleId },

@@ -7,9 +7,7 @@ import { FONTS, getProduct, getSurface, MATERIALS } from './model/catalog'
 import { elementHasContent, elementLabel } from './model/elements'
 import { designFonts, ensureFonts } from './model/measure'
 import { designUrl } from './model/serialize'
-import { DesignAssistant } from './panels/DesignAssistant'
 import { MaterialSelector } from './panels/MaterialSelector'
-import { PreviewGenerator } from './panels/PreviewGenerator'
 import { ProductPicker } from './panels/ProductPicker'
 import { QuoteRequest } from './panels/QuoteRequest'
 import { downloadFile } from './services/quote'
@@ -221,7 +219,6 @@ export default function CustomLab() {
               <button type="button" className="tool" onClick={copyLink}>
                 Copiar enlace
               </button>
-              <PreviewGenerator />
             </div>
           )}
           <p className="lab__hint" id={hintId}>
@@ -246,10 +243,7 @@ export default function CustomLab() {
         <Step n={3} title="Diseñá el grabado" open>
           <DesignPanel />
         </Step>
-        <Step n={4} title="Pedile ideas a la IA">
-          <DesignAssistant />
-        </Step>
-        <Step n={5} title="Revisá y pedí tu presupuesto">
+        <Step n={4} title="Revisá y pedí tu presupuesto">
           <QuoteRequest />
         </Step>
       </div>

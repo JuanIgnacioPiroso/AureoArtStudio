@@ -24,7 +24,7 @@ describe('buildQuoteMessage', () => {
     expect(msg).toContain('Madera oscura (mango)')
     expect(msg).toContain('Notas: Para el Día del Padre')
     expect(msg).toMatch(/AU-[0-9A-Z]{7}/)
-    expect(msg).toContain('Propuesta del asistente')
+    expect(msg).not.toContain('asistente')
   })
 
   it('el enlace restaura exactamente el diseño', () => {

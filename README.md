@@ -1,31 +1,18 @@
 # AUREO Art Studio
 
-Landing de grabado personalizado con **AUREO Custom Lab**, un simulador 3D de grabados con asistente de IA.
+Landing de grabado personalizado con **AUREO Custom Lab**, un simulador 3D de grabados.
 
-Stack: Vite + React 19 + TypeScript estricto, three.js / React Three Fiber / drei, zustand, zod. Funciones serverless de Vercel en `api/`.
+Stack: Vite + React 19 + TypeScript estricto, three.js / React Three Fiber / drei, zustand, zod.
 
 ## Comandos
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173 (también sirve /api/* con las claves de .env.local)
+npm run dev        # http://localhost:5173
 npm run build      # tsc + build de producción
 npm run lint
 npm run test
 ```
-
-## Variables de entorno
-
-Copiá `.env.example` a `.env.local` (local) o cargalas en Vercel:
-
-| Variable | Requerida | Uso |
-|---|---|---|
-| `ANTHROPIC_API_KEY` | Para IA real | Asistente de diseño (`/api/design-suggestions`). Sin ella, el Lab muestra ejemplos rotulados como **Modo demostración**. |
-| `AI_MODEL` | No | Modelo de Claude. Default `claude-sonnet-5`. |
-| `IMAGE_PROVIDER`, `IMAGE_API_KEY` | Para "Generar imagen" | Botón del visor 3D que convierte la vista actual en una foto realista (`/api/mockup`). `IMAGE_PROVIDER` es `gemini` u `openai`. Sin ellas el botón no aparece (en desarrollo se ve deshabilitado). Cada imagen tiene costo en el proveedor. |
-| `IMAGE_MODEL` | No | Modelo de imágenes. Default `gemini-3.1-flash-image` u `gpt-image-2`. El prompt está en `server/imageProviders.ts`. |
-
-Las claves nunca se exponen al navegador (no usan prefijo `VITE_`).
 
 ## Datos pendientes del negocio
 

@@ -66,10 +66,7 @@ export function summaryRows(design: DesignState, measure: MeasureText): QuoteSum
   if (hasLogos(design)) {
     rows.push({ label: 'Logo', value: 'Adjuntá el archivo del logo al enviar el mensaje: no viaja en el enlace.' })
   }
-  rows.push(
-    { label: 'Origen del diseño', value: design.source === 'ai' ? 'Propuesta del asistente, revisada' : 'Diseño manual' },
-    { label: 'Código de diseño', value: `${designId(design)} · modelo ${product.modelId}` },
-  )
+  rows.push({ label: 'Código de diseño', value: `${designId(design)} · modelo ${product.modelId}` })
   return rows
 }
 

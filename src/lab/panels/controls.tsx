@@ -96,7 +96,7 @@ export function Slider({
   )
 }
 
-/** Confirma el último preset o propuesta aplicada y ofrece volver al diseño anterior. */
+/** Confirma el último preset aplicado y ofrece volver al diseño anterior. */
 export function UndoNotice({ origin, hint }: { origin: UndoOrigin; hint?: string }) {
   const undo = useLab((s) => s.undo)
   const undoStep = useLab((s) => s.undoStep)

@@ -127,10 +127,6 @@ export const FAQ: Faq[] = [
     q: '¿Puedo retomar un diseño más tarde?',
     a: 'Sí. Con «Copiar enlace del diseño» guardás un link que abre el simulador con tu configuración exacta. No guardamos tus diseños en ningún servidor.',
   },
-  {
-    q: '¿Para qué sirve el asistente de IA?',
-    a: 'Te ayuda a pasar de una idea («un regalo para mi papá, algo elegante») a propuestas concretas de texto, tipografía y tamaño que entran en la zona. Podés aplicar una propuesta y seguir editándola a mano.',
-  },
   { q: '¿Puedo enviar mi propio diseño o logo?', a: null },
   { q: '¿Qué materiales se pueden grabar?', a: null },
   { q: '¿Cómo se coordinan los pagos y las entregas?', a: null },

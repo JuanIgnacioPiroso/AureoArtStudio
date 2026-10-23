@@ -85,20 +85,19 @@ source: z.enum(['manual', 'ai']),
    - Borrar `src/lab/panels/DesignAssistant.tsx` y el bloque «Asistente» de `lab.css`.
    - Reducir `UndoOrigin` a `'preset'`.
    - Prueba manual: el Lab muestra los pasos 1 a 4 y deshacer un preset sigue funcionando.
-3. **Quitar los servicios de IA del cliente.**
+3. **Quitar los servicios de IA del cliente y el backend.**
    - Borrar `src/lab/services/ai.ts`, `aiContract.ts` y `__tests__/aiContract.test.ts`.
    - Borrar `MAX_LINE_LENGTH` de `types.ts`.
-   - `npm run typecheck` pasa.
-4. **Quitar el backend.**
    - Borrar `api/` y `server/`.
    - Quitar `devApi()` y sus imports sin uso de `vite.config.ts`.
    - Quitar `functions` de `vercel.json`.
    - Quitar `"api"` y `"server"` de `tsconfig.node.json`.
-   - `npm run build` pasa.
-5. **Quitar la dependencia.**
+   - `npm run typecheck` y `npm run build` pasan.
+   - Este paso junta los originales 3 y 4: `api/` y `server/` importan de `aiContract.ts` y `types.ts`, así que no se pueden borrar los servicios sin borrar el backend.
+4. **Quitar la dependencia.**
    - Ejecutar `npm uninstall @anthropic-ai/sdk`.
    - `npm run build` y `npm run test` pasan.
-6. **Actualizar textos y documentación.**
+5. **Actualizar textos y documentación.**
    - Borrar la pregunta del FAQ sobre el asistente en `src/content/site.ts`.
    - En `README.md`:
      - quitar «con asistente de IA» de la descripción;
@@ -106,6 +105,7 @@ source: z.enum(['manual', 'ai']),
      - quitar «/api/\*» de la línea de `npm run dev`;
      - quitar la mención a «funciones serverless de Vercel en `api/`».
    - Borrar `.env.example`, que solo contenía variables de IA.
+   - Quitar la fila «Origen del diseño» de `summaryRows` (`src/lab/services/quote.ts`). Con un enlace viejo (`source: 'ai'`) mostraba «Propuesta del asistente, revisada» en el resumen y en el mensaje del presupuesto. El test de `quote.test.ts` pasa a verificar que el mensaje no contiene «asistente».
    - Actualizar los comentarios de `store.ts`, `types.ts`, `legacy.ts` y `Fallback2D.tsx` que mencionan al asistente o a la IA.
 
 ---
@@ -141,6 +141,8 @@ source: z.enum(['manual', 'ai']),
 - **Sí:** que la barra del visor se reacomode sola, sin agregar un reemplazo.
 - **Sí:** conservar `capture` en el store, porque lo usan «Descargar imagen» y el presupuesto.
 - **Sí:** borrar `.env.example`. Solo contenía variables de IA.
+- **Sí:** quitar la fila «Origen del diseño» del presupuesto. Sin asistente, todo diseño es manual y la fila no aporta nada.
+- **No:** mostrar siempre «Diseño manual» ni dejar el texto viejo como excepción para enlaces con `source: 'ai'`.
 - **Sí:** las variables de Vercel solo se anotan como recordatorio. El código no toca la infraestructura.
 
 ---
@@ -150,7 +152,7 @@ source: z.enum(['manual', 'ai']),
 | Riesgo                                                                                                | Mitigación                                                                                                                                                              |
 | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Un enlace viejo con `source: 'ai'` deja de validar.                                                   | El enum no cambia. Hay un criterio de aceptación que lo verifica.                                                                                                       |
-| Quitar `devApi` deja imports sin uso en `vite.config.ts` (`loadEnv`, `Plugin`, tipos de `node:http`). | Se limpian en el paso 4 y `npm run lint` lo verifica.                                                                                                                   |
+| Quitar `devApi` deja imports sin uso en `vite.config.ts` (`loadEnv`, `Plugin`, tipos de `node:http`). | Se limpian en el paso 3 y `npm run lint` lo verifica.                                                                                                                   |
 | Las claves de IA siguen cargadas en Vercel aunque ya no se usen.                                      | Recordatorio: borrar a mano `ANTHROPIC_API_KEY`, `AI_MODEL`, `IMAGE_PROVIDER`, `IMAGE_API_KEY` e `IMAGE_MODEL` en el proyecto de Vercel y revocarlas en cada proveedor. |
 | Algún texto de la landing fuera del Lab promete «IA».                                                 | El criterio de `grep` y la revisión de la UI lo detectan.                                                                                                               |
 

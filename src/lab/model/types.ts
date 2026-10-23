@@ -37,8 +37,6 @@ export type Align = (typeof ALIGNS)[number]
 export const SHAPES = ['rect', 'ellipse', 'line'] as const
 export type ShapeKind = (typeof SHAPES)[number]
 
-/** Largo máximo de una línea que propone el asistente. */
-export const MAX_LINE_LENGTH = 40
 /** Largo máximo del contenido de una capa de texto (admite saltos de línea). */
 export const MAX_TEXT_LENGTH = 120
 export const MAX_ELEMENTS = 20
@@ -155,7 +153,7 @@ export interface SurfaceDef {
   /** Profundidad de proyección del decal, en mm (mayor en superficies curvas). */
   depthMm: number
   curved: boolean
-  /** Rango de referencia para el texto principal (presets, IA y avisos de legibilidad). */
+  /** Rango de referencia para el texto principal (presets y avisos de legibilidad). */
   sizeRange: readonly [number, number]
   /** Cámara de la "vista de zona", en el marco local de la zona (Z = hacia afuera). */
   cameraOffset: Vec3
