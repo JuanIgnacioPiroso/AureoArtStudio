@@ -19,7 +19,8 @@ npm run test
 - **`src/config/business.ts`**: WhatsApp, email, Instagram, Facebook, ciudad, dirección, razón social y URL del sitio están en `null`. Mientras falten, se ocultan los botones que los usan (en desarrollo, un aviso los lista).
 - **Categorías** (`src/content/site.ts`): validar cuáles trabaja el negocio (`enabled`).
 - **Tipografías** (`FONTS` en `src/lab/model/catalog.ts` + URL de Google Fonts en `index.html`): 19 fuentes en 5 categorías. Para sumar una, agregá su id en `FONT_IDS` (`types.ts`), su entrada en `FONTS` y la familia en la URL.
-- **Estilos de grabado** (`src/lab/model/catalog.ts`): quemado en madera, y marcado oscuro o esmerilado en acero. Confirmar que el taller los ofrece.
+- **Estilos de grabado** (`src/lab/model/catalog.ts`): quemado en madera, marcado oscuro o esmerilado en acero, y grabado a metal (el láser retira la pintura y deja ver el acero) sobre negro mate. Confirmar que el taller los ofrece.
+- **Termos** (`thermos-handle` y `thermos-half` en `src/lab/model/catalog.ts`): las medidas son estándar y hay que confirmarlas con el stock del taller. Termo con manija: Ø 90 mm × 330 mm de alto. Termo media manija: Ø 90 mm × 300 mm. Zona de grabado frontal de 60 × 120 mm en los dos. Confirmar también que los dos modelos se ofrecen en acero y en negro mate. Las formas viven en `ThermosHandle.tsx` y `ThermosHalf.tsx` (perfiles en unidades de escena, 1 unidad = 100 mm), las piezas comunes en `meshes/thermos.ts` y la zona en `thermosFront`.
 - **FAQ**: las preguntas con `a: null` (diseño propio, materiales, pagos y entregas, plazos) no se muestran hasta completarlas.
 - **Fotos**: las imágenes de `public/img/placeholder/` son provisionales, de Wikimedia Commons (créditos en `src/content/image-credits.json` y en el footer). Reemplazalas por fotos propias y marcá `illustrative: false`.
 - **Legales**: no hay páginas de privacidad ni términos, así que no se enlazan.

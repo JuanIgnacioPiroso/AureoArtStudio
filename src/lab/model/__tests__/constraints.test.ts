@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getProduct, getSurface } from '../catalog'
+import { getProduct, getSurface, stylesForSurface } from '../catalog'
 import { checkDesign, elementBounds, layoutText, normalizeDesign, rescaleElements } from '../constraints'
 import { shapeElement, textElement } from '../elements'
 import type { DesignElement, DesignState, MeasureText } from '../types'
@@ -123,5 +123,18 @@ describe('rescaleElements', () => {
     const k = Math.min(80 / 120, 15 / 22)
     expect(el!.x).toBeCloseTo(30 * k)
     expect((el as { sizeMm: number }).sizeMm).toBeCloseTo(10 * k)
+  })
+})
+
+describe('stylesForSurface', () => {
+  const handle = getSurface(getProduct('knife'), 'handle')
+  const ids = (materialId: string) => stylesForSurface(getProduct('knife'), handle, materialId).map((s) => s.id)
+
+  it('ofrece sólo el grabado a metal sobre negro mate', () => {
+    expect(ids('black-matte')).toEqual(['reveal'])
+  })
+
+  it('no ofrece el grabado a metal sobre acero', () => {
+    expect(ids('steel')).not.toContain('reveal')
   })
 })

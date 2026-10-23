@@ -73,5 +73,20 @@
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
     "source": "https://commons.wikimedia.org/wiki/File:End_grain_cutting_board.jpg",
     "status": "provisional: reemplazar por fotografía propia"
+  },
+  {
+    "id": "thermos-mate",
+    "files": [
+      "/img/placeholder/thermos-mate-1600.webp",
+      "/img/placeholder/thermos-mate-800.webp"
+    ],
+    "width": 3024,
+    "height": 4032,
+    "title": "Mate with straw and thermos.jpg",
+    "author": "Syced2",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:Mate_with_straw_and_thermos.jpg",
+    "status": "provisional: reemplazar por fotografía propia"
   }
 ]

@@ -1,6 +1,6 @@
 # SPEC 02 — Termos de mate en el Custom Lab
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 01
 > **Fecha:** 2026-10-22
 > **Objetivo:** Sumar al Custom Lab dos termos de mate (con manija y media manija), en acero inoxidable o negro mate, con una zona de grabado frontal y su categoría en la landing.
@@ -24,14 +24,19 @@ El grabado 360° necesita una proyección cilíndrica, un lienzo envolvente en e
 
 - Un acabado nuevo, «Negro mate» (`black-matte`), con un tipo de material nuevo (`coated`) y una textura nueva (`matte`).
 - Un estilo de grabado nuevo, «Grabado a metal» (`reveal`), exclusivo del negro mate: el láser retira la pintura y deja ver el acero.
-- Un producto «Termo 1 L con manija» (`thermos-handle`, modelo `thermos-handle-v1`):
-  - forma tipo Stanley;
-  - cuerpo cilíndrico, tapa con pico cebador y manija lateral completa.
+- Un producto «Termo 1 L con manija» (`thermos-handle`, modelo `thermos-handle-v1`), tipo Stanley Mate System:
+  - base de acero;
+  - cuerpo cilíndrico con hombro que se angosta hacia una tapa-vaso de acero, cerrada (el pico cebador queda tapado);
+  - manija plana de plástico negro al costado (+X), con dos enganches de alambre de acero.
 - Un producto «Termo media manija» (`thermos-half`, modelo `thermos-half-v1`):
-  - forma tipo Lumilagro;
-  - cuerpo liso, tapa con pico cebador y un asa corta que sale del hombro y baja unos 100 mm.
-- Los dos termos se ofrecen en acero (`steel`) y negro mate (`black-matte`), y todas sus partes toman el acabado elegido.
-- Cada termo tiene una sola zona de grabado: el «Frente», de 60 × 120 mm, vertical, centrado en el cuerpo y opuesto a la manija.
+  - base de acero;
+  - cuerpo recto;
+  - collar y tapa de plástico negro, con rosca y aro estriado;
+  - pico cebador rojo;
+  - asa fina en L de plástico negro al costado (−X), que sale del collar y baja hasta un tercio del alto.
+- Los dos termos se ofrecen en acero (`steel`) y negro mate (`black-matte`). Solo el cuerpo toma el acabado elegido. La base y el vaso son siempre de acero; el collar, la tapa y las manijas, de plástico negro (`black-plastic`); el pico, de plástico rojo (`red-plastic`).
+- Cada termo tiene una sola zona de grabado: el «Frente», de 60 × 120 mm, vertical, centrado en el cuerpo, con la manija al costado (a 90°).
+- Las formas se basan en dos fotos de referencia que pasó el usuario: un termo media manija negro y un Stanley Mate System negro.
 - Las mallas son procedurales y se arman con three.js, igual que las del cuchillo y la tabla.
 - Una categoría nueva en la landing, «Termos y mates», que abre el Lab con `thermos-handle`.
 - Una foto placeholder de Wikimedia Commons para esa categoría, con su crédito.
@@ -68,11 +73,15 @@ modelId: "knife-v1" | "board-v1" | "thermos-handle-v1" | "thermos-half-v1";
   id: 'black-matte',
   name: 'Negro mate',
   kind: 'coated',
-  color: '#1E1F21',
-  roughness: 0.9,
+  color: '#2A2B2E',
+  roughness: 0.7,
   metalness: 0,
   texture: 'matte',
 }
+
+// Plásticos fijos de los termos (no se eligen ni se graban)
+'black-plastic': { id: 'black-plastic', name: 'Plástico negro', kind: 'coated', color: '#1B1C1E', roughness: 0.6, metalness: 0, texture: 'matte' }
+'red-plastic': { id: 'red-plastic', name: 'Plástico rojo', kind: 'coated', color: '#C8231E', roughness: 0.45, metalness: 0, texture: 'matte' }
 
 // ENGRAVING_STYLES
 reveal: {
@@ -84,8 +93,8 @@ reveal: {
 ```
 
 ```ts
-// src/lab/viewer/engravingTexture.ts — ENGRAVING_LOOKS (acero claro, poco profundo)
-reveal: { rgb: [200, 203, 207], alpha: 0.95, roughness: 0.35, metalness: 1, depth: 0.4, mottle: 0.08 }
+// src/lab/viewer/engravingTexture.ts — ENGRAVING_LOOKS (acero claro y satinado, poco profundo)
+reveal: { rgb: [214, 217, 221], alpha: 0.95, roughness: 0.55, metalness: 0.45, depth: 0.4, mottle: 0.08 }
 ```
 
 Los dos productos tienen la misma estructura:
@@ -98,8 +107,11 @@ Los dos productos tienen la misma estructura:
   modelId: 'thermos-handle-v1',       // o 'thermos-half-v1'
   parts: [
     { id: 'body', name: 'Cuerpo', fixedMaterialId: null },
-    { id: 'cap', name: 'Tapa', fixedMaterialId: null },
-    { id: 'handle', name: 'Manija', fixedMaterialId: null },
+    { id: 'base', name: 'Base', fixedMaterialId: 'steel' },
+    // thermos-handle: { id: 'cup', name: 'Vaso', fixedMaterialId: 'steel' }
+    // thermos-half: { id: 'cap', name: 'Tapa', fixedMaterialId: 'black-plastic' },
+    //               { id: 'spout', name: 'Pico cebador', fixedMaterialId: 'red-plastic' }
+    { id: 'handle', name: 'Manija', fixedMaterialId: 'black-plastic' },
   ],
   selectablePart: 'body',
   materialIds: ['steel', 'black-matte'],
@@ -185,15 +197,14 @@ Los archivos de la foto son `public/img/placeholder/thermos-mate-1600.webp` y `t
 
 - [ ] «Elegí el objeto» muestra 4 productos: cuchillo, tabla, «Termo 1 L con manija» y «Termo media manija».
 - [ ] Los dos termos se ven parados en el visor 3D, completos y dentro del encuadre de la vista de producto.
-- [ ] El termo con manija tiene una manija lateral que va del hombro a la parte baja del cuerpo.
-- [ ] El termo media manija tiene un asa corta que no llega a la mitad del alto.
-- [ ] Los dos termos tienen tapa con pico cebador.
+- [ ] El termo con manija tiene base de acero, hombro, tapa-vaso de acero cerrada y una manija plana al costado con dos enganches de alambre.
+- [ ] El termo media manija tiene base de acero, collar y tapa negros, pico cebador rojo y un asa en L al costado que no llega a la mitad del alto.
 - [ ] En los dos termos, «Elegí el material» ofrece exactamente «Acero inoxidable» y «Negro mate».
-- [ ] Con «Negro mate», el cuerpo, la tapa y la manija se ven negros y mate (sin reflejo metálico).
+- [ ] Con «Negro mate», el cuerpo se ve negro y mate (sin reflejo metálico). La base y el vaso siguen de acero, y las piezas de plástico no cambian.
 - [ ] Con «Acero inoxidable», los estilos disponibles son «Marcado oscuro» y «Esmerilado».
 - [ ] Con «Negro mate», el único estilo disponible es «Grabado a metal» y el grabado se ve plateado.
 - [ ] Al cambiar de acero a negro mate con «Marcado oscuro» elegido, el estilo pasa solo a «Grabado a metal».
-- [ ] La zona «Frente» mide 60 × 120 mm, está opuesta a la manija y el editor dice «superficie curva».
+- [ ] La zona «Frente» mide 60 × 120 mm, mira a la cámara con la manija al costado y el editor dice «superficie curva».
 - [ ] El grabado se proyecta sobre el frente sin quedar flotando ni cortado en los bordes de la zona.
 - [ ] El termo con manija abre en acero con «Marcado oscuro» y el texto «Lucas» / «Mateando desde 2026».
 - [ ] El termo media manija abre en negro mate con «Grabado a metal» y el mismo texto.
@@ -215,7 +226,10 @@ Los archivos de la foto son `public/img/placeholder/thermos-mate-1600.webp` y `t
 - **Sí:** un tipo de material nuevo, `coated`. Así `stylesForSurface` filtra solo y no se mezclan los estilos de acero con el de pintura.
 - **Sí:** el grabado sobre negro mate se ve plateado. El láser retira la pintura epoxi y deja ver el acero.
 - **Sí:** las dos versiones de termo se ofrecen en negro mate.
-- **Sí:** todas las partes toman el acabado elegido. Un termo negro mate es negro entero.
+- **Sí:** solo el cuerpo toma el acabado elegido. La base y el vaso son de acero y el resto es de plástico, como en las fotos de referencia. Reemplaza la decisión original de que todas las partes tomaran el acabado.
+- **Sí:** la manija va al costado, a 90° del frente, como en las fotos. Así se ve desde la vista inicial. Reemplaza la decisión original de ponerla opuesta al frente.
+- **Sí:** el Stanley se muestra con la tapa-vaso cerrada, como en la foto. El pico cebador rojo se ve solo en el media manija.
+- **No:** usar «Stanley» en los nombres ni grabar el logo de la marca, aunque la forma se base en ese modelo.
 - **Sí:** una zona frontal de 60 × 120 mm. Con ese ancho, la proyección plana sobre Ø 90 mm no deforma de forma visible.
 - **Sí:** medidas estándar (Ø 90 mm; 330 mm y 300 mm de alto), anotadas en el README para confirmar con el taller.
 - **Sí:** los ids `thermos-handle` y `thermos-half`. **No:** usar «Stanley» en los nombres, porque es una marca registrada.
@@ -225,6 +239,8 @@ Los archivos de la foto son `public/img/placeholder/thermos-mate-1600.webp` y `t
 - **Sí:** «Termos y mates» abre `thermos-handle`, el modelo más conocido.
 - **Sí (a confirmar al revisar la spec):** los termos se muestran **parados** sobre la mesa. Así es como se usan y como se ven en las fotos. El cuchillo y la tabla, en cambio, están acostados.
 - **Sí:** la tipografía del diseño por defecto sale de las 19 fuentes existentes. No se agregan fuentes nuevas.
+- **Sí:** `reveal` satinado (metalness 0.45, roughness 0.55) y negro mate `#2A2B2E` con roughness 0.7 y `specularIntensity` 1. Se ajustó durante el paso 3: con los valores originales (metalness 1, `#1E1F21`, roughness 0.9) el grabado no se veía y el termo quedaba como una silueta plana.
+- **Sí:** el centro del «Frente» va 5,75 mm hacia adentro del cuerpo. Con `depthMm: 16`, así la caja del decal cubre los bordes laterales, que por la curvatura quedan 11,5 mm detrás del frente.
 - **Sí:** esta spec depende de la SPEC 01. Se implementa sobre una rama que parte de `master` con la SPEC 01 ya mergeada.
 
 ---
@@ -238,6 +254,7 @@ Los archivos de la foto son `public/img/placeholder/thermos-mate-1600.webp` y `t
 | El cepillado del acero (anisotropía sobre el eje X) se ve horizontal en un termo parado, cuando en los termos reales es vertical.         | La geometría del termo genera UV con U a lo largo del alto, o `PartMaterial` rota la anisotropía para los termos.                |
 | La foto de Wikimedia no tiene licencia compatible o no muestra un termo de mate.                                                          | Solo se aceptan CC BY, CC BY-SA o dominio público. Si no aparece nada adecuado, se usa una foto de un mate y se aclara en `alt`. |
 | `ENGRAVING_LOOKS` y `ENGRAVING_STYLES` son `Record<StyleId, …>`, así que olvidar `reveal` rompe la compilación.                           | Es intencional: `typecheck` lo detecta en el paso 1.                                                                             |
+| El acero de la parte alta (la tapa-vaso del Stanley) se ve casi negro: el estudio de luces está pensado para objetos acostados y refleja una zona oscura a esa altura. | El vaso usa acero satinado (roughness 0.55, como la virola del cuchillo). Si igual se ve oscuro, se ajusta la iluminación en otra spec. |
 | Se implementa antes de mergear la SPEC 01 y los cambios se mezclan.                                                                       | La rama `spec-02-termos-de-mate` se crea desde `master` después del merge de la SPEC 01.                                         |
 
 ---

@@ -169,6 +169,23 @@ function woodCanvases(base: string, seed: number): WoodCanvases {
   return { color, rough, bump }
 }
 
+/** Pintura en polvo: grano fino y parejo, sin dirección. Se usa como mapa de rugosidad. */
+function matteCanvas(seed: number): HTMLCanvasElement {
+  const size = 512
+  const c = document.createElement('canvas')
+  c.width = c.height = size
+  const ctx = c.getContext('2d')!
+  const img = ctx.createImageData(size, size)
+  const rand = rng(seed)
+  for (let i = 0; i < img.data.length; i += 4) {
+    const v = 215 + rand() * 40
+    img.data[i] = img.data[i + 1] = img.data[i + 2] = v
+    img.data[i + 3] = 255
+  }
+  ctx.putImageData(img, 0, 0)
+  return c
+}
+
 /** Cepillado fino del acero (rayas a lo largo de X). Se usa como mapa de rugosidad. */
 function brushedCanvas(seed: number): HTMLCanvasElement {
   const w = 1024
@@ -223,6 +240,8 @@ export function surfaceMaps(material: MaterialDef): SurfaceMaps {
       roughnessMap: canvasTexture(c.rough, repeat, false),
       bumpMap: canvasTexture(c.bump, repeat, false),
     }
+  } else if (material.texture === 'matte') {
+    maps = { map: null, roughnessMap: canvasTexture(matteCanvas(13), [4, 4], false), bumpMap: null }
   } else {
     maps = { map: null, roughnessMap: canvasTexture(brushedCanvas(7), [0.6, 3], false), bumpMap: null }
   }

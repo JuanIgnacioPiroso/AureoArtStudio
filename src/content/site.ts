@@ -33,6 +33,7 @@ export const IMAGES = {
   box: ph('engraved-box', 1600, 1067, 'Caja de madera con un diseño geométrico grabado a láser'),
   laser: ph('laser-wood-crest', 1600, 918, 'Cabezal láser grabando un escudo sobre una tabla de madera'),
   grain: ph('olive-wood-grain', 1600, 1067, 'Veta de madera de olivo vista de cerca'),
+  thermos: ph('thermos-mate', 1600, 2133, 'Mate de madera con yerba y bombilla delante de un termo de acero'),
 } satisfies Record<string, ImageAsset>
 
 export interface Category {
@@ -61,6 +62,14 @@ export const CATEGORIES: Category[] = [
     description: 'Tablas para regalar o para el uso de todos los días, con el grabado sobre la cara principal.',
     image: IMAGES.board,
     labProductId: 'board',
+    enabled: true,
+  },
+  {
+    id: 'termos',
+    name: 'Termos y mates',
+    description: 'Termos de acero o negro mate con un nombre o una frase en el frente.',
+    image: IMAGES.thermos,
+    labProductId: 'thermos-handle',
     enabled: true,
   },
   {

@@ -1,6 +1,6 @@
 # SPEC 01 — Quitar la IA del sitio
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** —
 > **Fecha:** 2026-10-22
 > **Objetivo:** Eliminar por completo el botón «Generar imagen» y el asistente de diseño con IA, para que el sitio quede 100 % estático y sin dependencias de proveedores de IA.

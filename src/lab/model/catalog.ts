@@ -32,6 +32,34 @@ export const MATERIALS: Record<string, MaterialDef> = {
     metalness: 1,
     texture: 'brushed',
   },
+  'black-matte': {
+    id: 'black-matte',
+    name: 'Negro mate',
+    kind: 'coated',
+    color: '#2A2B2E',
+    roughness: 0.7,
+    metalness: 0,
+    texture: 'matte',
+  },
+  // Plásticos fijos de los termos: no se eligen ni se graban.
+  'black-plastic': {
+    id: 'black-plastic',
+    name: 'Plástico negro',
+    kind: 'coated',
+    color: '#1B1C1E',
+    roughness: 0.6,
+    metalness: 0,
+    texture: 'matte',
+  },
+  'red-plastic': {
+    id: 'red-plastic',
+    name: 'Plástico rojo',
+    kind: 'coated',
+    color: '#C8231E',
+    roughness: 0.45,
+    metalness: 0,
+    texture: 'matte',
+  },
 }
 
 export const ENGRAVING_STYLES: Record<StyleId, EngravingStyleDef> = {
@@ -52,6 +80,12 @@ export const ENGRAVING_STYLES: Record<StyleId, EngravingStyleDef> = {
     name: 'Esmerilado',
     description: 'Acabado claro y satinado, más sutil.',
     kind: 'steel',
+  },
+  reveal: {
+    id: 'reveal',
+    name: 'Grabado a metal',
+    description: 'El láser retira la pintura y deja ver el acero.',
+    kind: 'coated',
   },
 }
 
@@ -150,6 +184,38 @@ const boardFace: SurfaceDef = {
   cameraOffset: [0, -1.3, 3.3],
 }
 
+/**
+ * Frente de un termo parado (Ø 90 mm): la Z local de la zona apunta hacia -Y, con la
+ * manija al costado. El centro va 5,75 mm hacia adentro para que la caja del decal (16 mm) abarque
+ * también los bordes laterales, que por la curvatura quedan 11,5 mm detrás del frente.
+ */
+function thermosFront(centerZ: number): SurfaceDef {
+  return {
+    id: 'front',
+    name: 'Frente',
+    part: 'body',
+    position: [0, -(0.45 - 0.0575), centerZ],
+    orientation: [Math.PI / 2, 0, 0],
+    widthMm: 60,
+    heightMm: 120,
+    depthMm: 16,
+    curved: true,
+    sizeRange: [5, 20],
+    cameraOffset: [0, 0.35, 2.3],
+  }
+}
+
+/** Diseño inicial de los termos: un nombre y una frase, centrados. */
+const thermosElements = (prefix: string) => [
+  textElement({ id: `${prefix}-name`, text: 'Lucas', fontId: 'great-vibes', sizeMm: 16, y: 10 }),
+  textElement({ id: `${prefix}-phrase`, text: 'Mateando desde 2026', fontId: 'montserrat', sizeMm: 3.6, y: -9 }),
+]
+
+/** Sólo el cuerpo toma el acabado elegido; base y vaso son de acero y el resto, de plástico. */
+const thermosBody = { id: 'body', name: 'Cuerpo', fixedMaterialId: null }
+const thermosBase = { id: 'base', name: 'Base', fixedMaterialId: 'steel' }
+const thermosHandle = { id: 'handle', name: 'Manija', fixedMaterialId: 'black-plastic' }
+
 export const PRODUCTS: readonly ProductDef[] = [
   {
     id: 'knife',
@@ -194,6 +260,48 @@ export const PRODUCTS: readonly ProductDef[] = [
         textElement({ id: 'board-name', text: 'Familia Ríos', fontId: 'cinzel', sizeMm: 24, y: 12 }),
         textElement({ id: 'board-since', text: 'Desde 1998', fontId: 'cinzel', sizeMm: 13.2, y: -17.4 }),
       ],
+    },
+  },
+  {
+    id: 'thermos-handle',
+    name: 'Termo 1 L con manija',
+    description: 'Termo de 1 L con tapa-vaso de acero y manija lateral. Se graba en el frente.',
+    modelId: 'thermos-handle-v1',
+    parts: [thermosBody, thermosBase, { id: 'cup', name: 'Vaso', fixedMaterialId: 'steel' }, thermosHandle],
+    selectablePart: 'body',
+    materialIds: ['steel', 'black-matte'],
+    surfaces: [thermosFront(1.3)],
+    camera: { position: [1, 3.7, 6.8], target: [0, 1.65, 0] },
+    frameRadius: 1.85,
+    defaultDesign: {
+      materialId: 'steel',
+      surfaceId: 'front',
+      styleId: 'mark-dark',
+      elements: thermosElements('thermos-handle'),
+    },
+  },
+  {
+    id: 'thermos-half',
+    name: 'Termo media manija',
+    description: 'Termo con asa en L, tapa negra y pico cebador. Se graba en el frente.',
+    modelId: 'thermos-half-v1',
+    parts: [
+      thermosBody,
+      thermosBase,
+      { id: 'cap', name: 'Tapa', fixedMaterialId: 'black-plastic' },
+      { id: 'spout', name: 'Pico cebador', fixedMaterialId: 'red-plastic' },
+      thermosHandle,
+    ],
+    selectablePart: 'body',
+    materialIds: ['steel', 'black-matte'],
+    surfaces: [thermosFront(1.27)],
+    camera: { position: [1, 3.5, 6.8], target: [0, 1.5, 0] },
+    frameRadius: 1.75,
+    defaultDesign: {
+      materialId: 'black-matte',
+      surfaceId: 'front',
+      styleId: 'reveal',
+      elements: thermosElements('thermos-half'),
     },
   },
 ]

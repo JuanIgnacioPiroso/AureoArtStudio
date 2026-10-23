@@ -28,7 +28,7 @@ export const FONT_CATEGORIES = ['classic', 'display', 'modern', 'script', 'techn
 export type FontCategory = (typeof FONT_CATEGORIES)[number]
 
 /** Estilos de grabado. Cada superficie habilita solo los compatibles con su material. */
-export const STYLE_IDS = ['burn', 'mark-dark', 'frost'] as const
+export const STYLE_IDS = ['burn', 'mark-dark', 'frost', 'reveal'] as const
 export type StyleId = (typeof STYLE_IDS)[number]
 
 export const ALIGNS = ['left', 'center', 'right'] as const
@@ -116,7 +116,7 @@ export type DesignState = z.infer<typeof DesignStateSchema>
 
 export type Vec3 = readonly [number, number, number]
 
-export type MaterialKind = 'wood' | 'steel'
+export type MaterialKind = 'wood' | 'steel' | 'coated'
 
 export interface MaterialDef {
   id: string
@@ -127,7 +127,7 @@ export interface MaterialDef {
   roughness: number
   metalness: number
   /** Veta / textura procedural. */
-  texture: 'wood-grain' | 'brushed'
+  texture: 'wood-grain' | 'brushed' | 'matte'
 }
 
 export interface EngravingStyleDef {
@@ -171,7 +171,7 @@ export interface ProductDef {
   name: string
   description: string
   /** Identificador del modelo 3D que renderiza el visor. */
-  modelId: 'knife-v1' | 'board-v1'
+  modelId: 'knife-v1' | 'board-v1' | 'thermos-handle-v1' | 'thermos-half-v1'
   parts: readonly ProductPart[]
   /** Parte cuyo material elige el usuario. */
   selectablePart: string

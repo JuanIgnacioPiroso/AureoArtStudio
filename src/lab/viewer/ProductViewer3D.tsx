@@ -10,12 +10,17 @@ import { useLab, type ViewMode } from '../store'
 import { EngravingDecal } from './EngravingDecal'
 import { Board } from './meshes/Board'
 import { Knife } from './meshes/Knife'
+import { ThermosHalf } from './meshes/ThermosHalf'
+import { ThermosHandle } from './meshes/ThermosHandle'
 import type { ProductMeshProps } from './meshes/types'
 import { zoneCamera } from './surfaceFrame'
 
 const MODELS: Record<ProductDef['modelId'], { Component: ComponentType<ProductMeshProps>; rest: number }> = {
   'knife-v1': { Component: Knife, rest: 0.1 },
   'board-v1': { Component: Board, rest: 0.11 },
+  // Los termos se arman parados con la base en z = 0.
+  'thermos-handle-v1': { Component: ThermosHandle, rest: 0 },
+  'thermos-half-v1': { Component: ThermosHalf, rest: 0 },
 }
 
 const BG = '#1D1F23'

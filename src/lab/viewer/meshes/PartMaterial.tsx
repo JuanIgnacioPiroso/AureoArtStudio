@@ -20,6 +20,19 @@ export function PartMaterial({ material }: { material: MaterialDef }) {
       />
     )
   }
+  if (material.texture === 'matte') {
+    // Pintura en polvo: difusa y sin reflejo metálico.
+    return (
+      <meshPhysicalMaterial
+        color={material.color}
+        roughnessMap={maps.roughnessMap}
+        roughness={material.roughness}
+        metalness={0}
+        clearcoat={0}
+        specularIntensity={1}
+      />
+    )
+  }
   // Acero cepillado: el reflejo se estira a lo largo del cepillado (eje U = X del modelo).
   return (
     <meshPhysicalMaterial

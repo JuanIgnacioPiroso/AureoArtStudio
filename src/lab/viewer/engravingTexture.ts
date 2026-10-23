@@ -27,6 +27,8 @@ export const ENGRAVING_LOOKS: Record<StyleId, EngravingLook> = {
   },
   'mark-dark': { rgb: [30, 31, 34], alpha: 0.95, roughness: 0.5, metalness: 0.6, depth: 0.6, mottle: 0.12 },
   frost: { rgb: [214, 217, 221], alpha: 0.85, roughness: 0.85, metalness: 0.7, depth: 1.2, mottle: 0.1 },
+  // Acero claro que asoma bajo la pintura retirada. Satinado: con metal espejo no se ve contra el estudio.
+  reveal: { rgb: [214, 217, 221], alpha: 0.95, roughness: 0.55, metalness: 0.45, depth: 0.4, mottle: 0.08 },
 }
 
 export interface EngravingMaps {
