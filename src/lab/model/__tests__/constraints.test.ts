@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { getProduct, getSurface, stylesForSurface } from '../catalog'
-import { checkDesign, elementBounds, layoutText, normalizeDesign, rescaleElements } from '../constraints'
+import { checkDesign, elementBounds, layoutText, normalizeDesign, rescaleElements, transferElements } from '../constraints'
 import { shapeElement, textElement } from '../elements'
-import type { DesignElement, DesignState, MeasureText } from '../types'
+import type { DesignElement, DesignState, MeasureText, SurfaceDef } from '../types'
 
 /** Medidor determinista: cada carácter ocupa 0.6 × la altura. */
 const measure: MeasureText = (text, _font, h) => text.length * h * 0.6
@@ -123,6 +123,36 @@ describe('rescaleElements', () => {
     const k = Math.min(80 / 120, 15 / 22)
     expect(el!.x).toBeCloseTo(30 * k)
     expect((el as { sizeMm: number }).sizeMm).toBeCloseTo(10 * k)
+  })
+})
+
+describe('transferElements', () => {
+  const front = getSurface(getProduct('thermos-handle'), 'front')
+  // Tira de prueba con la forma de la «Vuelta completa» del termo con manija (manija en +X).
+  const wrap: SurfaceDef = { ...front, id: 'wrap', widthMm: 250, wrap: { radiusMm: 45, centerAngle: Math.PI, frontOffsetMm: 70.7 } }
+  const layers = [textElement({ sizeMm: 16, x: 0, y: 10 }), shapeElement('rect', { widthMm: 20, heightMm: 8, x: -5, y: -9 })]
+
+  it('del frente a la tira corre x hasta el frente sin cambiar tamaños', () => {
+    const moved = transferElements(layers, front, wrap)
+    expect(moved[0]!.x).toBeCloseTo(70.7)
+    expect(moved[1]!.x).toBeCloseTo(65.7)
+    expect(moved.map((e) => e.y)).toEqual([10, -9])
+    expect((moved[0] as { sizeMm: number }).sizeMm).toBe(16)
+    expect((moved[1] as { widthMm: number }).widthMm).toBe(20)
+  })
+
+  it('de la tira al frente lo revierte', () => {
+    const back = transferElements(transferElements(layers, front, wrap), wrap, front)
+    back.forEach((el, i) => {
+      expect(el.x).toBeCloseTo(layers[i]!.x)
+      expect(el).toEqual({ ...layers[i], x: el.x })
+    })
+  })
+
+  it('entre zonas sin tira reescala igual que rescaleElements', () => {
+    const handle = getSurface(getProduct('knife'), 'handle')
+    const els = [textElement({ sizeMm: 10, x: 30, y: 4 })]
+    expect(transferElements(els, blade, handle)).toEqual(rescaleElements(els, blade, handle))
   })
 })
 

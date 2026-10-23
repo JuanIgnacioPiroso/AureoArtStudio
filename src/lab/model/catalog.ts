@@ -205,6 +205,31 @@ function thermosFront(centerZ: number): SurfaceDef {
   }
 }
 
+/**
+ * Vuelta completa de un termo (Ø 90 mm): tira de 250 × 120 mm centrada en el lado opuesto a la
+ * manija, con los dos bordes detrás de ella. handleSide: +1 = manija en +X, −1 = manija en −X.
+ * El frente (-Y) queda a un cuarto de vuelta del centro de la tira: 282,74 / 4 ≈ 70,7 mm.
+ */
+function thermosWrap(centerZ: number, handleSide: 1 | -1): SurfaceDef {
+  const centerAngle = handleSide === 1 ? Math.PI : 0
+  return {
+    id: 'wrap',
+    name: 'Vuelta completa',
+    part: 'body',
+    position: [-handleSide * 0.45, 0, centerZ],
+    // Como el frente, pero girado sobre el eje del termo hasta mirar al centro de la tira.
+    orientation: [Math.PI / 2, centerAngle + Math.PI / 2, 0],
+    widthMm: 250,
+    heightMm: 120,
+    // No se usa: la tira no se proyecta con un decal.
+    depthMm: 0,
+    curved: true,
+    sizeRange: [5, 20],
+    cameraOffset: [0, 0.35, 2.3],
+    wrap: { radiusMm: 45, centerAngle, frontOffsetMm: handleSide * 70.7 },
+  }
+}
+
 /** Diseño inicial de los termos: un nombre y una frase, centrados. */
 const thermosElements = (prefix: string) => [
   textElement({ id: `${prefix}-name`, text: 'Lucas', fontId: 'great-vibes', sizeMm: 16, y: 10 }),
@@ -270,7 +295,7 @@ export const PRODUCTS: readonly ProductDef[] = [
     parts: [thermosBody, thermosBase, { id: 'cup', name: 'Vaso', fixedMaterialId: 'steel' }, thermosHandle],
     selectablePart: 'body',
     materialIds: ['steel', 'black-matte'],
-    surfaces: [thermosFront(1.3)],
+    surfaces: [thermosFront(1.3), thermosWrap(1.3, 1)],
     camera: { position: [1, 3.7, 6.8], target: [0, 1.65, 0] },
     frameRadius: 1.85,
     defaultDesign: {
@@ -294,7 +319,7 @@ export const PRODUCTS: readonly ProductDef[] = [
     ],
     selectablePart: 'body',
     materialIds: ['steel', 'black-matte'],
-    surfaces: [thermosFront(1.27)],
+    surfaces: [thermosFront(1.27), thermosWrap(1.27, -1)],
     camera: { position: [1, 3.5, 6.8], target: [0, 1.5, 0] },
     frameRadius: 1.75,
     defaultDesign: {

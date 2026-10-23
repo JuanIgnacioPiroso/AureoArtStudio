@@ -54,6 +54,27 @@ describe('summaryRows', () => {
     expect(values.some((v) => v.startsWith('Logo: Adjuntá el archivo'))).toBe(true)
   })
 
+  it('en la vuelta completa describe la posición respecto del frente', () => {
+    const product = getProduct('thermos-handle')
+    const front = product.surfaces.find((sf) => sf.id === 'wrap')!.wrap!.frontOffsetMm
+    const d: DesignState = {
+      v: 2,
+      productId: 'thermos-handle',
+      notes: '',
+      source: 'manual',
+      ...structuredClone(product.defaultDesign),
+      surfaceId: 'wrap',
+      elements: [
+        shapeElement('rect', { widthMm: 10, heightMm: 10, x: front }),
+        shapeElement('rect', { widthMm: 10, heightMm: 10, x: front - 40, y: 5 }),
+      ],
+    }
+    const values = summaryRows(d, measure).map((r) => `${r.label}: ${r.value}`)
+    expect(values).toContain('Zona de grabado: Vuelta completa (acero inoxidable), 250 × 120 mm')
+    expect(values.some((v) => v.startsWith('Capa 1:') && v.endsWith('; centrado en el frente'))).toBe(true)
+    expect(values.some((v) => v.startsWith('Capa 2:') && v.endsWith('; 40 mm a la izquierda del frente, 5 mm arriba'))).toBe(true)
+  })
+
   it('indica cuando no hay nada para grabar', () => {
     const rows = summaryRows({ ...design, elements: [] }, measure)
     expect(rows.find((r) => r.label === 'Diseño')?.value).toBe('(sin grabado)')

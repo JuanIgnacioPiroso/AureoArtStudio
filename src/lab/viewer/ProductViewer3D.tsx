@@ -4,10 +4,13 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ComponentType }
 import * as THREE from 'three'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { getProduct, getSurface, partMaterial } from '../model/catalog'
+import { elementBounds, unionBounds } from '../model/constraints'
+import { measureTextMm } from '../model/measure'
 import type { DesignState, ProductDef } from '../model/types'
 import { useRenderRevision } from '../render/preview'
 import { useLab, type ViewMode } from '../store'
 import { EngravingDecal } from './EngravingDecal'
+import { EngravingWrap } from './EngravingWrap'
 import { Board } from './meshes/Board'
 import { Knife } from './meshes/Knife'
 import { ThermosHalf } from './meshes/ThermosHalf'
@@ -32,6 +35,13 @@ const prefersReducedMotion = () =>
   typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 type Parts = Partial<Record<string, THREE.Mesh>>
+
+/** Centro horizontal (mm) de las capas seleccionadas, o `fallback` si no hay ninguna. */
+function wrapFocus(fallback: number): number {
+  const { design, selection } = useLab.getState()
+  const box = unionBounds(design.elements.filter((e) => selection.includes(e.id)).map((e) => elementBounds(e, measureTextMm)))
+  return box ? (box.minX + box.maxX) / 2 : fallback
+}
 
 /** Encuadre de producto: misma dirección de cámara, distancia ajustada al aspecto del canvas. */
 function productCamera(product: ProductDef, cam: THREE.PerspectiveCamera) {
@@ -64,13 +74,16 @@ function CameraRig({
   const goal = useRef<{ eye: THREE.Vector3; target: THREE.Vector3 } | null>(null)
   const surface = getSurface(product, design.surfaceId)
   const zoneMesh = parts[surface.part]
+  // En una tira, la vista de zona sigue a la selección; sin selección, mira el frente.
+  // Depende de qué está seleccionado y no de dónde está: mover una capa no mueve la cámara.
+  const selectionKey = useLab((s) => s.selection.join(','))
 
   useEffect(() => {
     if (!controls) return
     let next: { eye: THREE.Vector3; target: THREE.Vector3 }
     if (viewMode === 'zone' && zoneMesh) {
       zoneMesh.updateWorldMatrix(true, false)
-      next = zoneCamera(zoneMesh, surface)
+      next = zoneCamera(zoneMesh, surface, surface.wrap ? wrapFocus(surface.wrap.frontOffsetMm) : 0)
     } else {
       next = productCamera(product, camera as THREE.PerspectiveCamera)
     }
@@ -83,7 +96,7 @@ function CameraRig({
       goal.current = next
     }
     invalidate()
-  }, [product, surface, zoneMesh, viewMode, resetToken, controls, camera, invalidate, aspect])
+  }, [product, surface, zoneMesh, viewMode, resetToken, controls, camera, invalidate, aspect, selectionKey])
 
   // Sólo en desarrollo: acceso a cámara y controles para capturas y depuración.
   useEffect(() => {
@@ -186,8 +199,16 @@ function Studio() {
   )
 }
 
-function Scene({ design, maxTexturePx }: { design: DesignState; maxTexturePx: number }) {
+interface TextureCaps {
+  /** Tope de textura del decal (frente y demás zonas planas). */
+  decal: number
+  /** Tope de la tira cilíndrica, más largo: 250 mm necesitan más píxeles. */
+  wrap: number
+}
+
+function Scene({ design, textureCaps }: { design: DesignState; textureCaps: TextureCaps }) {
   const revision = useRenderRevision()
+  const maxTextureSize = useThree((s) => s.gl.capabilities.maxTextureSize)
   const viewMode = useLab((s) => s.viewMode)
   const resetToken = useLab((s) => s.viewResetToken)
   const product = useLab((s) => s.design.productId)
@@ -210,14 +231,25 @@ function Scene({ design, maxTexturePx }: { design: DesignState; maxTexturePx: nu
       <group key={productDef.id} position={[0, model.rest, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <model.Component materialFor={materialFor} registerPart={registerPart} />
       </group>
-      <EngravingDecal
-        key={`${productDef.id}:${surface.id}`}
-        design={design}
-        surface={surface}
-        target={parts[surface.part] ?? null}
-        maxTexturePx={maxTexturePx}
-        revision={revision}
-      />
+      {surface.wrap ? (
+        <EngravingWrap
+          key={`${productDef.id}:${surface.id}`}
+          design={design}
+          surface={surface}
+          target={parts[surface.part] ?? null}
+          maxTexturePx={Math.min(textureCaps.wrap, maxTextureSize)}
+          revision={revision}
+        />
+      ) : (
+        <EngravingDecal
+          key={`${productDef.id}:${surface.id}`}
+          design={design}
+          surface={surface}
+          target={parts[surface.part] ?? null}
+          maxTexturePx={textureCaps.decal}
+          revision={revision}
+        />
+      )}
       {/* Dos capas: penumbra amplia y oclusión ajustada donde el objeto toca la mesa. */}
       <ContactShadows key={`shadow-${productDef.id}`} frames={1} position={[0, 0, 0]} scale={7} blur={2.6} opacity={0.6} far={1.2} resolution={512} />
       <ContactShadows key={`ao-${productDef.id}`} frames={1} position={[0, 0.0005, 0]} scale={7} blur={0.9} opacity={0.55} far={0.25} resolution={1024} />
@@ -237,7 +269,7 @@ interface ViewerProps {
 export default function ProductViewer3D({ design, onContextLost, label }: ViewerProps) {
   const product = getProduct(design.productId)
   const [coarse] = useState(() => typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches)
-  const maxTexturePx = coarse ? 1024 : 2048
+  const textureCaps = useMemo<TextureCaps>(() => (coarse ? { decal: 1024, wrap: 2048 } : { decal: 2048, wrap: 4096 }), [coarse])
 
   return (
     <Canvas
@@ -260,7 +292,7 @@ export default function ProductViewer3D({ design, onContextLost, label }: Viewer
       aria-label={label}
       role="img"
     >
-      <Scene design={design} maxTexturePx={maxTexturePx} />
+      <Scene design={design} textureCaps={textureCaps} />
       <OrbitControls
         makeDefault
         enablePan={false}

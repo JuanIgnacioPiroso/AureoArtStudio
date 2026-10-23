@@ -1,11 +1,11 @@
 import { useEffect, useLayoutEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { assetStatus } from '../assets/assetStore'
 import { snapMove, zoneBox } from '../model/arrange'
-import { getProduct, getSurface } from '../model/catalog'
+import { getProduct, getSurface, partMaterial } from '../model/catalog'
 import { elementBounds, elementSize, unionBounds, type Box } from '../model/constraints'
 import { elementLabel } from '../model/elements'
 import { measureTextMm } from '../model/measure'
-import type { DesignElement } from '../model/types'
+import type { DesignElement, SurfaceDef } from '../model/types'
 import { paintZone, useRenderRevision } from '../render/preview'
 import { useLab, type ElementPatch } from '../store'
 import { PRIMARY_TEXT_ID } from '../ids'
@@ -102,6 +102,52 @@ function SelectionHandles({ el, mmPerPx, onStart }: HandlesProps) {
       ))}
     </g>
   )
+}
+
+/**
+ * Referencias de una tira cilíndrica: dónde caen el frente, el dorso y el costado opuesto a la
+ * manija. Son sólo del editor: no forman parte del diseño ni del arte para el taller.
+ */
+function WrapGuides({ surface, labelMm, dark }: { surface: SurfaceDef; labelMm: number; dark: boolean }) {
+  const wrap = surface.wrap
+  if (!wrap) return null
+  const W = surface.widthMm
+  const H = surface.heightMm
+  const lines = [
+    { x: wrap.frontOffsetMm, label: 'Frente' },
+    { x: -wrap.frontOffsetMm, label: 'Dorso' },
+    { x: 0, label: 'Costado' },
+  ]
+  const top = -H / 2 - labelMm * 0.6
+  return (
+    <g className={`design-canvas__wrap${dark ? ' is-dark' : ''}`} aria-hidden="true">
+      {lines.map((l) => (
+        <g key={l.label}>
+          <line x1={l.x} x2={l.x} y1={-H / 2} y2={H / 2} vectorEffect="non-scaling-stroke" />
+          <text x={l.x} y={top} fontSize={labelMm} textAnchor="middle">
+            {l.label}
+          </text>
+        </g>
+      ))}
+      {[-1, 1].map((side) => (
+        <text
+          key={side}
+          className="design-canvas__wrap-handle"
+          fontSize={labelMm}
+          textAnchor="middle"
+          transform={`translate(${side * (W / 2 + labelMm * 1.1)} 0) rotate(${side * 90})`}
+        >
+          Manija
+        </text>
+      ))}
+    </g>
+  )
+}
+
+/** Si el color de fondo (#RRGGBB) es oscuro: las guías pasan a claro para seguir leyéndose. */
+function isDarkColor(hex: string): boolean {
+  const n = parseInt(hex.slice(1, 7), 16)
+  return 0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255) < 110
 }
 
 /**
@@ -290,6 +336,7 @@ export function DesignCanvas() {
               className="design-canvas__zone"
               vectorEffect="non-scaling-stroke"
             />
+            <WrapGuides surface={surface} labelMm={px(11)} dark={isDarkColor(partMaterial(product, surface.part, design.materialId).color)} />
             {design.elements.map((el) => {
               if (el.hidden) return null
               const { w, h } = elementSize(el, measureTextMm)

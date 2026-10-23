@@ -705,6 +705,30 @@
   stroke-width: 1;
   pointer-events: none;
 }
+.design-canvas__wrap {
+  pointer-events: none;
+}
+.design-canvas__wrap line {
+  stroke: rgb(0 0 0 / 0.3);
+  stroke-width: 1;
+  stroke-dasharray: 2 5;
+}
+.design-canvas__wrap text {
+  fill: rgb(0 0 0 / 0.55);
+  font-family: var(--font-ui);
+}
+.design-canvas__wrap .design-canvas__wrap-handle {
+  fill: #6b2f17;
+}
+.design-canvas__wrap.is-dark line {
+  stroke: rgb(255 255 255 / 0.3);
+}
+.design-canvas__wrap.is-dark text {
+  fill: rgb(255 255 255 / 0.6);
+}
+.design-canvas__wrap.is-dark .design-canvas__wrap-handle {
+  fill: #e0926b;
+}
 .design-canvas__marquee {
   fill: rgb(201 174 124 / 0.12);
   stroke: var(--champagne);

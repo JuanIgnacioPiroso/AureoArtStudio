@@ -3,19 +3,22 @@ import { ENGRAVING_STYLES, FONTS, getProduct, getSurface, MATERIALS, partMateria
 import { designBounds } from '../model/constraints'
 import { elementHasContent, SHAPE_LABEL } from '../model/elements'
 import { designId, designUrl } from '../model/serialize'
-import type { DesignElement, DesignState, MeasureText } from '../model/types'
+import type { DesignElement, DesignState, MeasureText, SurfaceDef } from '../model/types'
 
 const fmt = (n: number) => n.toLocaleString('es-AR', { maximumFractionDigits: 1 })
 
-function placement(el: DesignElement): string {
-  const h = Math.abs(el.x) < 1 ? 'centrado' : `${fmt(Math.abs(el.x))} mm a la ${el.x < 0 ? 'izquierda' : 'derecha'}`
+/** Posición de la capa. En una tira, x se mide desde el frente del termo, no desde el centro de la zona. */
+function placement(el: DesignElement, surface?: SurfaceDef): string {
+  const x = el.x - (surface?.wrap?.frontOffsetMm ?? 0)
+  const ref = surface?.wrap ? ' del frente' : ''
+  const h = Math.abs(x) < 1 ? `centrado${surface?.wrap ? ' en el frente' : ''}` : `${fmt(Math.abs(x))} mm a la ${x < 0 ? 'izquierda' : 'derecha'}${ref}`
   const v = Math.abs(el.y) < 1 ? '' : `, ${fmt(Math.abs(el.y))} mm ${el.y > 0 ? 'arriba' : 'abajo'}`
   const r = Math.abs(el.rotation) >= 0.5 ? `, rotado ${fmt(el.rotation)}°` : ''
   return `${h}${v}${r}`
 }
 
 /** Descripción de una capa para el taller. */
-export function describeElement(el: DesignElement): string {
+export function describeElement(el: DesignElement, surface?: SurfaceDef): string {
   if (el.kind === 'text') {
     const text = el.text
       .split('\n')
@@ -24,14 +27,14 @@ export function describeElement(el: DesignElement): string {
       .map((t) => `«${t}»`)
       .join(' / ')
     const arc = el.arc ? `, en arco de ${Math.abs(el.arc)}° hacia ${el.arc > 0 ? 'arriba' : 'abajo'}` : ''
-    return `Texto ${text} en ${FONTS[el.fontId].name}, ${fmt(el.sizeMm)} mm de alto${arc}; ${placement(el)}`
+    return `Texto ${text} en ${FONTS[el.fontId].name}, ${fmt(el.sizeMm)} mm de alto${arc}; ${placement(el, surface)}`
   }
   if (el.kind === 'image') {
-    return `Logo de ${fmt(el.widthMm)} × ${fmt(el.heightMm)} mm${el.invert ? ' (invertido)' : ''}; ${placement(el)}`
+    return `Logo de ${fmt(el.widthMm)} × ${fmt(el.heightMm)} mm${el.invert ? ' (invertido)' : ''}; ${placement(el, surface)}`
   }
   const size = el.shape === 'line' ? `${fmt(el.widthMm)} mm de largo` : `${fmt(el.widthMm)} × ${fmt(el.heightMm)} mm`
   const stroke = el.shape !== 'line' && el.fill ? 'con relleno' : `trazo de ${fmt(el.strokeMm)} mm`
-  return `${SHAPE_LABEL[el.shape]} de ${size}, ${stroke}; ${placement(el)}`
+  return `${SHAPE_LABEL[el.shape]} de ${size}, ${stroke}; ${placement(el, surface)}`
 }
 
 export interface QuoteSummaryRow {
@@ -59,7 +62,7 @@ export function summaryRows(design: DesignState, measure: MeasureText): QuoteSum
     { label: 'Estilo de grabado', value: ENGRAVING_STYLES[design.styleId].name },
   ]
   if (!layers.length) rows.push({ label: 'Diseño', value: '(sin grabado)' })
-  layers.forEach((el, i) => rows.push({ label: layers.length > 1 ? `Capa ${i + 1}` : 'Diseño', value: describeElement(el) }))
+  layers.forEach((el, i) => rows.push({ label: layers.length > 1 ? `Capa ${i + 1}` : 'Diseño', value: describeElement(el, surface) }))
   if (bounds) {
     rows.push({ label: 'Medida total', value: `${fmt(bounds.maxX - bounds.minX)} × ${fmt(bounds.maxY - bounds.minY)} mm` })
   }

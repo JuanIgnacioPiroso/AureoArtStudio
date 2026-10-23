@@ -314,3 +314,14 @@ export function rescaleElements(elements: readonly DesignElement[], from: Surfac
     return { ...el, ...pos, widthMm: el.widthMm * k, heightMm: el.heightMm * k, strokeMm: Math.max(MIN_STROKE_MM, el.strokeMm * k), radiusMm: el.radiusMm * k }
   })
 }
+
+/**
+ * Pasa las capas de una zona a otra. Entre el frente y la tira que lo rodea (misma parte), corre x
+ * en ±frontOffsetMm sin reescalar, para que el diseño siga en el frente; en el resto, reescala.
+ */
+export function transferElements(elements: readonly DesignElement[], from: SurfaceDef, to: SurfaceDef): DesignElement[] {
+  const shiftX = (dx: number) => elements.map((el) => ({ ...el, x: el.x + dx }))
+  if (from.part === to.part && to.wrap && !from.wrap) return shiftX(to.wrap.frontOffsetMm)
+  if (from.part === to.part && from.wrap && !to.wrap) return shiftX(-from.wrap.frontOffsetMm)
+  return rescaleElements(elements, from, to)
+}

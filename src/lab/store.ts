@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { alignElements, distributeElements, reorderElement, type AlignEdge, type ReorderDir } from './model/arrange'
 import { getProduct, getSurface, PRODUCTS } from './model/catalog'
-import { clearLayoutCache, normalizeDesign, rescaleElements } from './model/constraints'
+import { clearLayoutCache, normalizeDesign, rescaleElements, transferElements } from './model/constraints'
 import { newElementId } from './model/elements'
 import { measureTextMm } from './model/measure'
 import { decodeDesign } from './model/serialize'
@@ -165,7 +165,7 @@ export const useLab = create<LabState>((set, get) => {
     setSurface: (surfaceId) =>
       manual((d) => {
         const to = getSurface(getProduct(d.productId), surfaceId)
-        return { surfaceId: to.id, elements: rescaleElements(d.elements, surfaceOf(d), to) }
+        return { surfaceId: to.id, elements: transferElements(d.elements, surfaceOf(d), to) }
       }),
     setStyle: (styleId) => manual(() => ({ styleId })),
     setNotes: (notes) => set({ design: { ...get().design, notes: notes.slice(0, 500) } }),

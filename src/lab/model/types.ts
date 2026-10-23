@@ -157,6 +157,18 @@ export interface SurfaceDef {
   sizeRange: readonly [number, number]
   /** Cámara de la "vista de zona", en el marco local de la zona (Z = hacia afuera). */
   cameraOffset: Vec3
+  /** Si está, la zona es una tira cilíndrica y se dibuja con EngravingWrap en lugar de un decal. */
+  wrap?: WrapDef
+}
+
+/** Zona que rodea un cuerpo cilíndrico sobre el eje Z local del producto. */
+export interface WrapDef {
+  /** Radio del cuerpo donde se apoya la manga, en mm. */
+  radiusMm: number
+  /** Ángulo (radianes, en el plano XY local, 0 = +X) del centro de la tira. */
+  centerAngle: number
+  /** Posición del frente del termo dentro de la tira, en mm desde su centro (+ = derecha). */
+  frontOffsetMm: number
 }
 
 export interface ProductPart {
