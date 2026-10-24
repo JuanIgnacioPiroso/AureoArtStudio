@@ -259,6 +259,22 @@
   outline: 2px solid var(--champagne);
   outline-offset: 2px;
 }
+.shape-swatches__option {
+  border-radius: 6px;
+}
+.shape-swatches__chip {
+  width: 22px;
+  height: 28px;
+  fill: var(--fg-muted);
+  fill-opacity: 0.35;
+  stroke: var(--fg);
+  stroke-width: 0.06;
+  stroke-linejoin: round;
+}
+.shape-swatches__option:has(input:checked) .shape-swatches__chip {
+  fill: var(--champagne);
+  fill-opacity: 0.45;
+}
 .material-swatches__name {
   margin-left: 0.25rem;
   font-size: 0.9rem;
@@ -1063,6 +1079,13 @@
 }
 .font-picker .choice--tiles .choice__options {
   grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+}
+/* La columna de la tarjeta no se estira al ancho de la muestra: así la muestra larga se corta con «…». */
+.font-picker .choice--tiles .choice__option {
+  min-width: 0;
+}
+.font-picker .choice--tiles .choice__body {
+  grid-template-columns: minmax(0, 1fr);
 }
 .font-picker .font-sample {
   display: block;

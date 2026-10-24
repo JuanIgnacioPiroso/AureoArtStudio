@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { getProduct, getSurface, stylesForSurface } from '../catalog'
-import { checkDesign, elementBounds, layoutText, normalizeDesign, rescaleElements, transferElements } from '../constraints'
+import { checkDesign, elementBounds, fitTextWidth, layoutText, normalizeDesign, rescaleElements, transferElements } from '../constraints'
 import { shapeElement, textElement } from '../elements'
 import type { DesignElement, DesignState, MeasureText, SurfaceDef } from '../types'
 
@@ -166,5 +166,39 @@ describe('stylesForSurface', () => {
 
   it('no ofrece el grabado a metal sobre acero', () => {
     expect(ids('steel')).not.toContain('reveal')
+  })
+
+  it('ofrece sólo el bajorrelieve sobre mármol', () => {
+    expect(ids('marble-white')).toEqual(['carve'])
+  })
+
+  it('ofrece sólo el grabado esmerilado sobre acrílico', () => {
+    expect(ids('acrylic-clear')).toEqual(['etch'])
+  })
+
+  it('ofrece los estilos del acero sobre dorado', () => {
+    expect(ids('gold')).toEqual(['mark-dark', 'frost'])
+  })
+})
+
+describe('fitTextWidth', () => {
+  const wide = textElement({ text: 'Un título muy largo para la hoja', sizeMm: 8 })
+
+  it('achica el texto hasta que entra en el ancho de la zona', () => {
+    const fitted = fitTextWidth(wide, blade, measure)
+    expect(fitted.sizeMm).toBeLessThan(wide.sizeMm)
+    const b = elementBounds(fitted, measure)
+    expect(b.maxX).toBeLessThanOrEqual(blade.widthMm / 2)
+    expect(b.minX).toBeGreaterThanOrEqual(-blade.widthMm / 2)
+  })
+
+  it('no baja del tamaño mínimo de la zona', () => {
+    const huge = textElement({ text: 'x'.repeat(200), sizeMm: 8 })
+    expect(fitTextWidth(huge, blade, measure).sizeMm).toBe(blade.sizeRange[0])
+  })
+
+  it('no toca un texto que ya entra', () => {
+    const short = textElement({ text: 'Ana', sizeMm: 8 })
+    expect(fitTextWidth(short, blade, measure)).toBe(short)
   })
 })

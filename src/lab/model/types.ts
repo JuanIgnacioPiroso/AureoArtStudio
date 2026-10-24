@@ -28,7 +28,7 @@ export const FONT_CATEGORIES = ['classic', 'display', 'modern', 'script', 'techn
 export type FontCategory = (typeof FONT_CATEGORIES)[number]
 
 /** Estilos de grabado. Cada superficie habilita solo los compatibles con su material. */
-export const STYLE_IDS = ['burn', 'mark-dark', 'frost', 'reveal'] as const
+export const STYLE_IDS = ['burn', 'mark-dark', 'frost', 'reveal', 'carve', 'etch'] as const
 export type StyleId = (typeof STYLE_IDS)[number]
 
 export const ALIGNS = ['left', 'center', 'right'] as const
@@ -106,6 +106,8 @@ export const DesignStateSchema = z.object({
   productId: z.string(),
   materialId: z.string(),
   surfaceId: z.string(),
+  /** Forma elegida, sólo en los productos que tienen formas (opcional: los enlaces viejos no la traen). */
+  shapeId: z.string().optional(),
   styleId: z.enum(STYLE_IDS),
   /** Capas en orden de apilado (la última queda arriba). */
   elements: z.array(DesignElementSchema).max(MAX_ELEMENTS),
@@ -116,7 +118,7 @@ export type DesignState = z.infer<typeof DesignStateSchema>
 
 export type Vec3 = readonly [number, number, number]
 
-export type MaterialKind = 'wood' | 'steel' | 'coated'
+export type MaterialKind = 'wood' | 'steel' | 'coated' | 'stone' | 'glass'
 
 export interface MaterialDef {
   id: string
@@ -127,7 +129,7 @@ export interface MaterialDef {
   roughness: number
   metalness: number
   /** Veta / textura procedural. */
-  texture: 'wood-grain' | 'brushed' | 'matte'
+  texture: 'wood-grain' | 'brushed' | 'matte' | 'marble' | 'clear'
 }
 
 export interface EngravingStyleDef {
@@ -178,17 +180,27 @@ export interface ProductPart {
   fixedMaterialId: string | null
 }
 
+/** Variante de silueta de un producto; cada una tiene sus propias zonas. */
+export interface ProductShapeDef {
+  id: string
+  name: string
+  /** Zonas de esta forma; reemplazan a ProductDef.surfaces. */
+  surfaces: readonly SurfaceDef[]
+}
+
 export interface ProductDef {
   id: string
   name: string
   description: string
   /** Identificador del modelo 3D que renderiza el visor. */
-  modelId: 'knife-v1' | 'board-v1' | 'thermos-handle-v1' | 'thermos-half-v1'
+  modelId: 'knife-v1' | 'board-v1' | 'thermos-handle-v1' | 'thermos-half-v1' | 'plaque-base-v1' | 'plaque-wall-v1' | 'dog-tag-v1' | 'trophy-v1'
   parts: readonly ProductPart[]
   /** Parte cuyo material elige el usuario. */
   selectablePart: string
   materialIds: readonly string[]
   surfaces: readonly SurfaceDef[]
+  /** Formas elegibles. Sin formas, el producto usa `surfaces`. */
+  shapes?: readonly ProductShapeDef[]
   /** Cámara de la vista de producto, en coordenadas de mundo (el producto se apoya sobre la mesa). */
   camera: { position: Vec3; target: Vec3 }
   /** Radio (unidades de escena) que la vista de producto debe encuadrar completo. */

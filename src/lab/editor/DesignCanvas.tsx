@@ -159,7 +159,7 @@ export function DesignCanvas() {
   const selection = useLab((s) => s.selection)
   const revision = useRenderRevision()
   const product = getProduct(design.productId)
-  const surface = getSurface(product, design.surfaceId)
+  const surface = getSurface(product, design.surfaceId, design.shapeId)
   const W = surface.widthMm
   const H = surface.heightMm
   const pad = Math.max(W, H) * 0.08

@@ -211,6 +211,61 @@ function brushedCanvas(seed: number): HTMLCanvasElement {
   return c
 }
 
+/**
+ * Mármol blanco: pocas vetas grises finas que cruzan en diagonal, deformadas por ruido, más otras
+ * más tenues en otra dirección y un fondo apenas nublado. Devuelve el color y la rugosidad (las
+ * vetas son algo más mates que el pulido).
+ */
+function marbleCanvases(base: string, seed: number): { color: HTMLCanvasElement; rough: HTMLCanvasElement } {
+  const w = 1024
+  const h = 768
+  const [r0, g0, b0] = hexToRgb(base)
+  const n1 = valueNoise(seed, 3, 3)
+  const n2 = valueNoise(seed + 1, 9, 7)
+  const n3 = valueNoise(seed + 2, 27, 21)
+  const m1 = valueNoise(seed + 4, 4, 4)
+  const m2 = valueNoise(seed + 5, 13, 11)
+  const cloud = valueNoise(seed + 3, 5, 4)
+  const make = () => {
+    const c = document.createElement('canvas')
+    c.width = w
+    c.height = h
+    return c
+  }
+  const color = make()
+  const rough = make()
+  const cctx = color.getContext('2d')!
+  const rctx = rough.getContext('2d')!
+  const cimg = cctx.createImageData(w, h)
+  const rimg = rctx.createImageData(w, h)
+  for (let y = 0; y < h; y++) {
+    const fy = y / h
+    for (let x = 0; x < w; x++) {
+      const fx = x / w
+      const turb = n1(fx * 3, fy * 3) * 0.65 + n2(fx * 9, fy * 7) * 0.3 + n3(fx * 27, fy * 21) * 0.05
+      const turb2 = m1(fx * 4, fy * 4) * 0.7 + m2(fx * 13, fy * 11) * 0.3
+      // Vetas principales: tres bandas diagonales, finas y de borde suave.
+      const main = 1 - Math.abs(Math.sin((fx * 1.1 + fy * 0.7 + (turb - 0.5) * 0.8) * Math.PI * 3))
+      // Vetas secundarias, más tenues y en otra dirección.
+      const minor = 1 - Math.abs(Math.sin((fx * 0.5 - fy * 1.2 + (turb2 - 0.5) * 0.6) * Math.PI * 5))
+      const vein = Math.pow(main, 36) * 0.34 + Math.pow(main, 8) * 0.1 + Math.pow(minor, 24) * 0.07
+      const shade = 1 - vein - (cloud(fx * 5, fy * 4) - 0.5) * 0.06
+      const i = (y * w + x) * 4
+      // Las vetas tiran apenas a gris cálido.
+      cimg.data[i] = r0 * shade
+      cimg.data[i + 1] = g0 * (shade - vein * 0.03)
+      cimg.data[i + 2] = b0 * (shade - vein * 0.06)
+      cimg.data[i + 3] = 255
+      const rv = (0.35 + vein * 0.6) * 255
+      rimg.data[i] = rimg.data[i + 1] = rimg.data[i + 2] = rv
+      rimg.data[i + 3] = 255
+    }
+  }
+  cctx.putImageData(cimg, 0, 0)
+  rctx.putImageData(rimg, 0, 0)
+  return { color, rough }
+}
+
 const cache = new Map<string, SurfaceMaps>()
 
 function canvasTexture(canvas: HTMLCanvasElement, repeat: [number, number], srgb: boolean) {
@@ -240,6 +295,16 @@ export function surfaceMaps(material: MaterialDef): SurfaceMaps {
       roughnessMap: canvasTexture(c.rough, repeat, false),
       bumpMap: canvasTexture(c.bump, repeat, false),
     }
+  } else if (material.texture === 'marble') {
+    // Una sola imagen cubre la placa de pared entera (40 × 30 cm), como la madera en la tabla.
+    const repeat: [number, number] = [0.25, 0.33]
+    const c = marbleCanvases(material.color, 41)
+    maps = { map: canvasTexture(c.color, repeat, true), roughnessMap: canvasTexture(c.rough, repeat, false), bumpMap: null }
+    // La placa va de -2 a 2 unidades: sin este corrimiento, la costura de la imagen cae en el centro.
+    for (const t of [maps.map!, maps.roughnessMap]) t.offset.set(0.5, 0.5)
+  } else if (material.texture === 'clear') {
+    // Acrílico pulido: sin veta ni grano.
+    maps = { map: null, roughnessMap: canvasTexture(matteCanvas(17), [4, 4], false), bumpMap: null }
   } else if (material.texture === 'matte') {
     maps = { map: null, roughnessMap: canvasTexture(matteCanvas(13), [4, 4], false), bumpMap: null }
   } else {

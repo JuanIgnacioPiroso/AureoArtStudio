@@ -24,7 +24,7 @@ export function AddButtons({ onError, onAdd }: { onError: (msg: string) => void;
   const a = useLab.getState()
   const logo = useLogoPicker(onError)
   const { open, close, toggle, onListKey, rootRef, buttonRef, listRef } = useMenu()
-  const surface = getSurface(getProduct(design.productId), design.surfaceId)
+  const surface = getSurface(getProduct(design.productId), design.surfaceId, design.shapeId)
   const full = design.elements.length >= MAX_ELEMENTS
 
   function addText() {

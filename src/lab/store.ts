@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { alignElements, distributeElements, reorderElement, type AlignEdge, type ReorderDir } from './model/arrange'
-import { getProduct, getSurface, PRODUCTS } from './model/catalog'
-import { clearLayoutCache, normalizeDesign, rescaleElements, transferElements } from './model/constraints'
+import { getProduct, getShape, getSurface, PRODUCTS } from './model/catalog'
+import { clearLayoutCache, fitsWidth, fitTextWidth, normalizeDesign, rescaleElements, transferElements } from './model/constraints'
 import { newElementId } from './model/elements'
 import { measureTextMm } from './model/measure'
 import { decodeDesign } from './model/serialize'
@@ -58,11 +58,15 @@ interface LabState {
   setProduct: (productId: string) => void
   setMaterial: (materialId: string) => void
   setSurface: (surfaceId: string) => void
+  /** Cambia la forma; conserva el diseño y lo adapta a la zona nueva, como setProduct. */
+  setShape: (shapeId: string) => void
   setStyle: (styleId: StyleId) => void
   setNotes: (notes: string) => void
 
   addElement: (el: DesignElement) => void
   updateElement: (id: string, patch: ElementPatch, coalesce?: string) => void
+  /** Cambia el texto de una capa; si antes entraba en el ancho y ahora no, la achica para que entre. */
+  setText: (id: string, text: string) => void
   /** Varias capas a la vez (arrastre de una selección múltiple). */
   updateElements: (patches: Record<string, ElementPatch>, coalesce?: string) => void
   removeElements: (ids: readonly string[]) => void
@@ -109,7 +113,7 @@ function initialDesign(): DesignState {
   return defaultDesign(PRODUCTS[0]!.id)
 }
 
-const surfaceOf = (d: DesignState) => getSurface(getProduct(d.productId), d.surfaceId)
+const surfaceOf = (d: DesignState) => getSurface(getProduct(d.productId), d.surfaceId, d.shapeId)
 
 /** Al abrir el Lab o cambiar de objeto, queda elegida la primera capa de texto (si hay). */
 const firstText = (d: DesignState): string[] => {
@@ -180,9 +184,17 @@ export const useLab = create<LabState>((set, get) => {
     setMaterial: (materialId) => manual(() => ({ materialId })),
     setSurface: (surfaceId) =>
       manual((d) => {
-        const to = getSurface(getProduct(d.productId), surfaceId)
+        const to = getSurface(getProduct(d.productId), surfaceId, d.shapeId)
         return { surfaceId: to.id, elements: transferElements(d.elements, surfaceOf(d), to) }
       }),
+    setShape: (shapeId) => {
+      const d = get().design
+      const product = getProduct(d.productId)
+      const shape = getShape(product, shapeId)
+      if (!shape || shape.id === d.shapeId) return
+      const to = getSurface(product, d.surfaceId, shape.id)
+      manual(() => ({ shapeId: shape.id, surfaceId: to.id, elements: rescaleElements(d.elements, surfaceOf(d), to) }))
+    },
     setStyle: (styleId) => manual(() => ({ styleId })),
     setNotes: (notes) => set({ design: { ...get().design, notes: notes.slice(0, 500) } }),
 
@@ -193,6 +205,14 @@ export const useLab = create<LabState>((set, get) => {
     },
     updateElement: (id, patch, coalesce) =>
       mapElements((el) => (el.id === id ? ({ ...el, ...patch } as DesignElement) : el), coalesce),
+    setText: (id, text) =>
+      mapElements((el) => {
+        if (el.id !== id || el.kind !== 'text') return el
+        const next = { ...el, text }
+        const surface = surfaceOf(get().design)
+        // Si ya se salía (tamaño elegido a mano), se respeta y sólo se avisa.
+        return fitsWidth(el, surface, measureTextMm) ? fitTextWidth(next, surface, measureTextMm) : next
+      }, `text:${id}`),
     updateElements: (patches, coalesce) =>
       mapElements((el) => (patches[el.id] ? ({ ...el, ...patches[el.id] } as DesignElement) : el), coalesce),
     removeElements: (ids) => {

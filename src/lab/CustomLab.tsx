@@ -79,9 +79,18 @@ export default function CustomLab() {
       alive = false
     }
   }, [fontKey])
+  // Una fuente también puede terminar de cargar por otro camino (el lienzo la pide al dibujar,
+  // o las vistas previas del selector) antes de que ensureFonts la vea faltante. Cualquier carga
+  // invalida las medidas tomadas con la fuente de respaldo.
+  useEffect(() => {
+    if (typeof document === 'undefined' || !('fonts' in document)) return
+    const onLoaded = () => useLab.getState().fontsLoaded()
+    document.fonts.addEventListener('loadingdone', onLoaded)
+    return () => document.fonts.removeEventListener('loadingdone', onLoaded)
+  }, [])
 
   const product = getProduct(design.productId)
-  const surface = getSurface(product, design.surfaceId)
+  const surface = getSurface(product, design.surfaceId, design.shapeId)
 
   const items = design.elements.filter(elementHasContent).map((e) =>
     e.kind === 'text' ? `«${elementLabel(e)}» en ${FONTS[e.fontId].name}, ${e.sizeMm} mm de alto` : elementLabel(e).toLowerCase(),

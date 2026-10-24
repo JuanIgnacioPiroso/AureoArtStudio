@@ -38,7 +38,7 @@ function TextProps({ el, surface, update }: { el: TextElement; surface: SurfaceD
           rows={multiline ? 3 : 2}
           maxLength={MAX_TEXT_LENGTH}
           value={el.text}
-          onChange={(e) => update({ text: e.target.value }, `text:${el.id}`)}
+          onChange={(e) => useLab.getState().setText(el.id, e.target.value)}
           placeholder="Ej.: Martín, M · A o Siempre juntos…"
           autoComplete="off"
         />
@@ -229,7 +229,7 @@ export function PropertiesPanel() {
   const a = useLab.getState()
   const [logoError, setLogoError] = useState('')
   const logo = useLogoPicker(setLogoError)
-  const surface = getSurface(getProduct(design.productId), design.surfaceId)
+  const surface = getSurface(getProduct(design.productId), design.surfaceId, design.shapeId)
   const warnings = useMemo(
     () => checkDesign(design, surface, measureTextMm),
     // revision: medir de nuevo cuando cargan las tipografías.

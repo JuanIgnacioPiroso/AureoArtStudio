@@ -8,7 +8,7 @@ import { PRESETS } from './presets'
 export function TemplatesPanel() {
   const design = useLab((s) => s.design)
   const a = useLab.getState()
-  const surface = getSurface(getProduct(design.productId), design.surfaceId)
+  const surface = getSurface(getProduct(design.productId), design.surfaceId, design.shapeId)
   const presets = PRESETS.filter((p) => p.available(surface))
 
   return (

@@ -39,6 +39,50 @@ const THUMBS: Record<ProductDef['modelId'], ReactNode> = {
       <path d="M55 10 H51.5 Q50.5 10 50.5 11 V22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
     </>
   ),
+  // Placa sobre base: base biselada con la chapa encima y líneas de texto.
+  'plaque-base-v1': (
+    <>
+      <rect x="44" y="5" width="32" height="30" rx="2" fill="currentColor" opacity=".55" />
+      <rect x="48" y="9" width="24" height="22" rx="1" fill="currentColor" />
+      <rect x="53" y="14" width="14" height="2" rx="1" fill="var(--panel)" />
+      <rect x="51" y="19" width="18" height="3" rx="1" fill="var(--panel)" />
+      <rect x="54" y="25" width="12" height="2" rx="1" fill="var(--panel)" />
+    </>
+  ),
+  // Placa de pared: rectángulo con un tornillo en cada esquina y líneas de texto.
+  'plaque-wall-v1': (
+    <>
+      <rect x="40" y="6" width="40" height="28" rx="1.5" fill="currentColor" />
+      {[
+        [43.5, 9.5],
+        [76.5, 9.5],
+        [43.5, 30.5],
+        [76.5, 30.5],
+      ].map(([cx, cy]) => (
+        <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="1.3" fill="var(--panel)" />
+      ))}
+      <rect x="48" y="15" width="24" height="3.5" rx="1" fill="var(--panel)" />
+      <rect x="51" y="22" width="18" height="2" rx="1" fill="var(--panel)" />
+    </>
+  ),
+  // Chapita: rectángulo de puntas redondeadas con el agujero a la izquierda y un tramo de cadena.
+  'dog-tag-v1': (
+    <>
+      <path d="M44 20 Q36 14 34 6" fill="none" stroke="currentColor" strokeWidth="1.4" strokeDasharray="1.4 1" opacity=".7" />
+      <rect x="40" y="10" width="40" height="22" rx="6" fill="currentColor" />
+      <circle cx="45.5" cy="21" r="2" fill="var(--panel)" />
+      <rect x="52" y="19" width="22" height="4" rx="1" fill="var(--panel)" />
+    </>
+  ),
+  // Trofeo: placa octogonal transparente (contorno) sobre una base negra.
+  'trophy-v1': (
+    <>
+      <path d="M54.5 3 H65.5 L70 7.5 V28 H50 V7.5 Z" fill="currentColor" opacity=".3" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+      <rect x="54" y="12" width="12" height="2.5" rx="1" fill="currentColor" />
+      <rect x="56" y="17.5" width="8" height="2" rx="1" fill="currentColor" />
+      <rect x="46" y="28" width="28" height="7" rx="1.5" fill="currentColor" />
+    </>
+  ),
 }
 
 function Thumb({ modelId }: { modelId: ProductDef['modelId'] }) {

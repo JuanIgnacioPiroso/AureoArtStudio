@@ -36,6 +36,9 @@ export function useEngravingMaterial(design: DesignState, surface: SurfaceDef, m
       const prev = [material.map, material.normalMap]
       material.map = color
       material.normalMap = normal
+      // El brillo usa la misma imagen que el color: sólo se ve donde hay grabado.
+      material.emissiveMap = look.glow ? color : null
+      material.emissive.setScalar(look.glow ?? 0)
       material.normalScale.set(1, 1)
       material.roughness = look.roughness
       material.metalness = look.metalness

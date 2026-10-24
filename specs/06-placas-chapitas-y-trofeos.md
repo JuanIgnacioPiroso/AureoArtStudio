@@ -73,6 +73,20 @@ Las fotos son sólo la referencia para modelar. No se publican en el sitio, porq
   - cuatro líneas de texto: «En reconocimiento a», el nombre destacado (reusa el primer texto del diseño, como las otras plantillas), «Por su dedicación y compromiso» y la fecha de hoy;
   - sólo aparece en zonas de 80 mm de alto o más;
   - no lleva adornos.
+- **Fondo del 3D según el material** (agregado durante la implementación):
+  - el estudio del visor tiene dos tonos, que dependen del tipo de material de la parte que se elige;
+  - **oscuro** (`#1D1F23`, el actual) para metal, madera, piedra y negro mate;
+  - **claro**, un gris cálido, para `glass` (hoy, el acrílico del trofeo);
+  - cambian juntos el fondo y el piso del estudio, que tienen el mismo color para que no se vea el corte;
+  - el resto de la página no cambia;
+  - el grabado esmerilado se ajusta para que se siga leyendo sobre el fondo claro.
+- **Textos largos** (agregado durante la implementación; vale para todos los productos):
+  - **Corrección de la medición:** el editor medía con la fuente de respaldo cuando la tipografía terminaba de cargar por otro camino (el lienzo la pide al dibujar) y no volvía a medir. Por eso un texto en Cinzel se dibujaba hasta un 38 % más ancho que su recuadro y se salía de la zona sin aviso. Ahora cualquier carga de fuente invalida las medidas.
+  - **Achicar al escribir:** mientras se escribe, si el texto pasa el ancho de la zona, la letra se achica para que entre.
+  - Nunca baja del tamaño mínimo de la zona (`sizeRange[0]`); si con el mínimo tampoco entra, queda el aviso de `checkDesign`.
+  - Si la capa ya se salía antes de escribir (el usuario eligió un tamaño grande a mano), se respeta su tamaño y sólo se avisa.
+  - Al borrar letras, la letra no vuelve a crecer sola.
+  - **Selector de tipografías:** la muestra de cada tarjeta se corta con «…» dentro de la tarjeta, en vez de pisar la de al lado (`lab.css`).
 - **Un diseño por defecto para cada producto**, con nombres inventados. Ninguno sale de las fotos.
 - **Las miniaturas SVG de los cuatro productos** en el menú de objeto.
 - **En la home**, la categoría «Placas y reconocimientos» se habilita y abre `/custom-lab/?producto=plaque-base`. Sigue con la foto placeholder actual.
@@ -209,6 +223,29 @@ Plantilla nueva (`src/lab/editor/presets.ts`):
 { id: 'recognition', name: 'Reconocimiento', available: (surface) => surface.heightMm >= 80, build: … }
 ```
 
+Textos largos:
+
+```ts
+// src/lab/model/constraints.ts
+/** Achica el texto (sin bajar de sizeRange[0]) para que su caja entre en el ancho de la zona. */
+export function fitTextWidth(el: TextElement, surface: SurfaceDef, measure: MeasureText): TextElement
+
+// src/lab/store.ts
+/** Cambia el texto de una capa; si antes entraba en el ancho y ahora no, la achica con fitTextWidth. */
+setText: (id: string, text: string) => void
+```
+
+- `CustomLab.tsx` escucha `document.fonts` `loadingdone` y llama a `fontsLoaded()`, que borra la caché de medidas y vuelve a dibujar.
+
+Tonos del estudio (`src/lab/viewer/ProductViewer3D.tsx`):
+
+```ts
+/** Fondo y piso del estudio. El claro deja ver la transparencia del vidrio y el acrílico. */
+const STAGE_BG: Record<'dark' | 'light', string> = { dark: '#1D1F23', light: /* gris cálido */ }
+/** Tono según el tipo de material de la parte que se elige: claro sólo para `glass`. */
+function stageTone(kind: MaterialKind): 'dark' | 'light'
+```
+
 Categoría (`src/content/site.ts`): `placas` pasa a `labProductId: 'plaque-base'` y `enabled: true`.
 
 ---
@@ -262,6 +299,15 @@ Categoría (`src/content/site.ts`): `placas` pasa a `labProductId: 'plaque-base'
 9. **Home y documentación.**
    - En `site.ts`, habilitar `placas` con `labProductId: 'plaque-base'`.
    - En el `README.md`, sumar las medidas y los materiales a «Datos pendientes del negocio», y explicar las formas en «cómo agregar un producto».
+10. **Fondo del 3D según el material** (agregado durante la implementación).
+    - En `ProductViewer3D.tsx`, reemplazar `BG` por `STAGE_BG` y `stageTone`. El fondo y el piso del estudio toman el tono del material de la parte que se elige.
+    - Ajustar el aspecto de `etch` para que el grabado se lea sobre el fondo claro.
+    - Prueba manual: el trofeo se ve sobre fondo claro y la placa de pared sobre fondo oscuro; al volver del trofeo a otro producto, el fondo vuelve a oscuro.
+11. **Textos largos** (agregado durante la implementación).
+    - En `CustomLab.tsx`, escuchar `loadingdone` de `document.fonts` y llamar a `fontsLoaded()`.
+    - Agregar `fitTextWidth` en `constraints.ts` y `setText` en el store. El campo «Texto» de `PropertiesPanel` usa `setText`.
+    - Tests: `fitTextWidth` achica hasta entrar, no baja del mínimo y no toca un texto que entra; `setText` achica si antes entraba y respeta el tamaño si ya se salía.
+    - Prueba manual: con Cinzel, la caja de selección coincide con las letras; escribir un título largo en la placa de pared lo achica hasta entrar.
 
 ---
 
@@ -287,6 +333,13 @@ Categoría (`src/content/site.ts`): `placas` pasa a `labProductId: 'plaque-base'
 - [ ] Un enlace `?d=` copiado antes de esta spec abre el mismo diseño.
 - [ ] En «Capas», la plantilla «Reconocimiento» aparece en la placa sobre base, la placa de pared y el trofeo, y no aparece en la chapita.
 - [ ] Aplicar «Reconocimiento» crea cuatro capas de texto, con el primer texto del diseño como línea principal, y todas entran en la zona.
+- [ ] Con el trofeo elegido, el fondo y el piso del 3D son de un gris cálido claro, y se ve la transparencia del acrílico. Con los demás productos, el fondo es oscuro, como antes.
+- [ ] Sobre el fondo claro, el grabado esmerilado del trofeo se lee.
+- [ ] Con cualquier tipografía, la caja de selección de un texto coincide con las letras dibujadas, también apenas termina de cargar la fuente.
+- [ ] Escribir «Biblioteca Popular Domingo Faustino Sarmiento» en el título de la placa de pared achica la letra y el texto queda dentro de la zona.
+- [ ] Si un texto no entra ni con el tamaño mínimo de la zona, queda en el mínimo y se ve el aviso «se sale de la zona».
+- [ ] Si el usuario agranda un texto a mano hasta que se sale, seguir escribiendo no cambia su tamaño.
+- [ ] En el selector de tipografías, con un texto largo, cada muestra queda dentro de su tarjeta y termina en «…».
 - [ ] Ningún diseño por defecto usa nombres que aparecen en las fotos de `assets/examples/`.
 - [ ] En la home se ve la categoría «Placas y reconocimientos», y abre `/custom-lab/?producto=plaque-base` con la placa sobre base elegida.
 - [ ] `/custom-lab/?producto=trophy` y `/custom-lab/?producto=dog-tag` abren el Lab con ese producto.
@@ -334,6 +387,16 @@ Categoría (`src/content/site.ts`): `placas` pasa a `labProductId: 'plaque-base'
 - **No:** que «Productos empresariales» abra la chapita.
 - **Sí:** mallas procedurales, como las de los productos actuales.
 - **No:** modelos GLB.
+- **Sí:** fondo del 3D claro para el vidrio y el acrílico, oscuro para el resto. Lo pidió el usuario durante la implementación: sobre fondo oscuro, el acrílico transparente se confunde con uno ahumado o negro. El tono depende del tipo de material, así que las copas de la SPEC 07 lo heredan.
+- **No:** un fondo claro para todos los productos. El oscuro hace resaltar el brillo del acero y del dorado.
+- **No:** dejar el fondo para la SPEC 07. El trofeo es de esta spec y es donde se nota.
+- **Sí:** volver a medir ante cualquier carga de fuente (`loadingdone`), no sólo las que pide `ensureFonts`. Corrige un error del editor que existía antes de esta spec: un texto se salía de la zona sin aviso.
+- **Sí:** achicar el texto mientras se escribe, sin bajar del mínimo de la zona. Lo pidió el usuario: un título largo se salía del recuadro. Cambia la decisión anterior de que el Lab sólo avisaba; para el resto de los casos, `normalizeDesign` sigue sin achicar.
+- **No:** pasar el texto a otra línea. Cambia el alto del bloque y puede pisar las otras capas.
+- **No:** un botón «Ajustar al ancho». Obliga a un paso más en el caso más común.
+- **Sí:** respetar el tamaño elegido a mano si la capa ya se salía. El usuario lo decidió.
+- **No:** que la letra vuelva a crecer al borrar. Cambiaría el tamaño sin que el usuario lo pida.
+- **Sí:** registrar el cambio en esta spec, aunque afecta a todo el editor. Lo eligió el usuario.
 
 ---
 
@@ -341,6 +404,7 @@ Categoría (`src/content/site.ts`): `placas` pasa a `labProductId: 'plaque-base'
 
 | Riesgo | Mitigación |
 | ------ | ---------- |
+| Sobre el fondo claro, el grabado esmerilado blanco se lee poco. | Se ajusta el aspecto de `etch` (opacidad y borde) en el paso 10 y se verifica con una captura. |
 | El render transparente (`MeshPhysicalMaterial` con transmisión) es lento en celulares o se ve mal con la luz del estudio. | Si a 390 × 844 baja de 30 cuadros por segundo, se usa un `MeshStandardMaterial` con opacidad 0,35 en pantallas angostas, y se anota en la spec. |
 | El decal del grabado sobre el acrílico se dibuja en mal orden con la placa transparente (se ve detrás o desaparece). | El decal ya usa `depthWrite: false` y `polygonOffset`. Se le da un `renderOrder` mayor que el de la placa y se verifica desde el frente y en ángulo. |
 | Muchos lugares usan `product.surfaces` o `getSurface` sin conocer la forma. | En el trofeo, `surfaces` es la zona del octógono, así nada se rompe. El paso 5 pasa los usos a `surfacesOf` antes de que exista un producto con formas, y `grep "\.surfaces"` en `src/lab/` sólo debe quedar dentro de `catalog.ts`. |

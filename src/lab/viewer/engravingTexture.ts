@@ -13,6 +13,8 @@ export interface EngravingLook {
   mottle: number
   /** Aureola alrededor del trazo: el calor tuesta la madera vecina. */
   halo?: { rgb: readonly [number, number, number]; alpha: number; radiusMm: number }
+  /** Brillo propio de la marca (0–1): el esmerilado dispersa la luz dentro del acrílico y se ve más claro que su entorno. */
+  glow?: number
 }
 
 export const ENGRAVING_LOOKS: Record<StyleId, EngravingLook> = {
@@ -29,6 +31,19 @@ export const ENGRAVING_LOOKS: Record<StyleId, EngravingLook> = {
   frost: { rgb: [214, 217, 221], alpha: 0.85, roughness: 0.85, metalness: 0.7, depth: 1.2, mottle: 0.1 },
   // Acero claro que asoma bajo la pintura retirada. Satinado: con metal espejo no se ve contra el estudio.
   reveal: { rgb: [214, 217, 221], alpha: 0.95, roughness: 0.55, metalness: 0.45, depth: 0.4, mottle: 0.08 },
+  // Letra tallada en la piedra: gris oscuro mate y hundimiento marcado.
+  carve: { rgb: [58, 58, 60], alpha: 0.95, roughness: 0.9, metalness: 0, depth: 3.5, mottle: 0.15 },
+  // Acrílico esmerilado: blanco satinado, con un borde gris tenue para que se lea sobre el fondo claro.
+  etch: {
+    rgb: [252, 253, 253],
+    alpha: 0.92,
+    roughness: 0.8,
+    metalness: 0,
+    depth: 0.5,
+    mottle: 0.08,
+    halo: { rgb: [96, 100, 104], alpha: 0.22, radiusMm: 0.3 },
+    glow: 0.45,
+  },
 }
 
 export interface EngravingMaps {

@@ -5,4 +5,6 @@ export interface ProductMeshProps {
   materialFor: (partId: string) => MaterialDef
   /** Registra la malla de una parte para proyectar el grabado sobre ella. */
   registerPart: (partId: string, mesh: THREE.Mesh | null) => void
+  /** Forma elegida, en los productos que tienen formas. */
+  shapeId?: string
 }

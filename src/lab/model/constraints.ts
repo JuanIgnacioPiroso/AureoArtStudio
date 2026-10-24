@@ -1,4 +1,4 @@
-import { getProduct, getSurface, PRODUCTS, stylesForSurface } from './catalog'
+import { getProduct, getShape, getSurface, PRODUCTS, stylesForSurface } from './catalog'
 import { elementHasContent, elementLabel } from './elements'
 import { MAX_ELEMENTS, MAX_TEXT_LENGTH, type DesignElement, type DesignState, type MeasureText, type SurfaceDef, type TextElement } from './types'
 
@@ -283,10 +283,14 @@ function normalizeElement(el: DesignElement, surface: SurfaceDef): DesignElement
  */
 export function normalizeDesign(input: DesignState): DesignState {
   const product = PRODUCTS.some((p) => p.id === input.productId) ? getProduct(input.productId) : PRODUCTS[0]!
-  const d: DesignState = { ...input, productId: product.id }
+  // La forma sólo existe en los productos que tienen formas; si falta o no existe, va la primera.
+  const { shapeId: _shapeId, ...rest } = input
+  const d: DesignState = { ...rest, productId: product.id }
+  const shape = getShape(product, input.shapeId)
+  if (shape) d.shapeId = shape.id
 
   if (!product.materialIds.includes(d.materialId)) d.materialId = product.defaultDesign.materialId
-  const surface = getSurface(product, d.surfaceId)
+  const surface = getSurface(product, d.surfaceId, d.shapeId)
   d.surfaceId = surface.id
 
   const styles = stylesForSurface(product, surface, d.materialId)
@@ -301,6 +305,27 @@ export function normalizeDesign(input: DesignState): DesignState {
       return normalizeElement({ ...el, id }, surface)
     })
   return d
+}
+
+/** ¿La caja de la capa entra en el ancho de la zona? */
+export function fitsWidth(el: DesignElement, surface: SurfaceDef, measure: MeasureText): boolean {
+  const b = elementBounds(el, measure)
+  return b.minX >= -surface.widthMm / 2 - 1e-6 && b.maxX <= surface.widthMm / 2 + 1e-6
+}
+
+/**
+ * Achica el texto para que su caja entre en el ancho de la zona, sin bajar de sizeRange[0].
+ * La caja crece en proporción al tamaño y alrededor del centro de la capa (x), así que alcanza
+ * con un factor. Si el texto ya entra, o si el centro queda fuera de la zona, no lo toca.
+ */
+export function fitTextWidth(el: TextElement, surface: SurfaceDef, measure: MeasureText): TextElement {
+  const room = surface.widthMm / 2 - Math.abs(el.x)
+  const box = elementBounds(el, measure)
+  const half = (box.maxX - box.minX) / 2
+  if (room <= 0 || half <= room) return el
+  // Hacia abajo al décimo de mm, para que el redondeo no lo deje apenas afuera.
+  const fitted = Math.floor(((el.sizeMm * room) / half) * 10) / 10
+  return { ...el, sizeMm: Math.max(surface.sizeRange[0], fitted) }
 }
 
 /** Reescala las capas al pasar a otra zona, conservando la composición. */

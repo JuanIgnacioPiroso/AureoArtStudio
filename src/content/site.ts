@@ -94,8 +94,8 @@ export const CATEGORIES: Category[] = [
     name: 'Placas y reconocimientos',
     description: 'Placas para homenajes, inauguraciones y premios.',
     image: IMAGES.laser,
-    labProductId: null,
-    enabled: false,
+    labProductId: 'plaque-base',
+    enabled: true,
   },
 ]
 

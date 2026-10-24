@@ -6,15 +6,19 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { getProduct, getSurface, partMaterial } from '../model/catalog'
 import { elementBounds, unionBounds } from '../model/constraints'
 import { measureTextMm } from '../model/measure'
-import type { DesignState, ProductDef } from '../model/types'
+import type { DesignState, MaterialKind, ProductDef } from '../model/types'
 import { useRenderRevision } from '../render/preview'
 import { useLab, type ViewMode } from '../store'
 import { EngravingDecal } from './EngravingDecal'
 import { EngravingWrap } from './EngravingWrap'
 import { Board } from './meshes/Board'
+import { DogTag } from './meshes/DogTag'
 import { Knife } from './meshes/Knife'
+import { PLAQUE_BASE_HALF, PlaqueBase } from './meshes/PlaqueBase'
+import { PLAQUE_WALL_HALF, PlaqueWall } from './meshes/PlaqueWall'
 import { ThermosHalf } from './meshes/ThermosHalf'
 import { ThermosHandle } from './meshes/ThermosHandle'
+import { Trophy } from './meshes/Trophy'
 import type { ProductMeshProps } from './meshes/types'
 import { zoneCamera } from './surfaceFrame'
 
@@ -24,9 +28,19 @@ const MODELS: Record<ProductDef['modelId'], { Component: ComponentType<ProductMe
   // Los termos se arman parados con la base en z = 0.
   'thermos-handle-v1': { Component: ThermosHandle, rest: 0 },
   'thermos-half-v1': { Component: ThermosHalf, rest: 0 },
+  // Las placas se apoyan boca arriba, como la tabla.
+  'plaque-base-v1': { Component: PlaqueBase, rest: PLAQUE_BASE_HALF },
+  'plaque-wall-v1': { Component: PlaqueWall, rest: PLAQUE_WALL_HALF },
+  // La chapita va parada sobre su canto, con el borde de abajo en z = 0.
+  'dog-tag-v1': { Component: DogTag, rest: 0 },
+  'trophy-v1': { Component: Trophy, rest: 0 },
 }
 
-const BG = '#1D1F23'
+type StageTone = 'dark' | 'light'
+/** Fondo y piso del estudio. El claro (gris cálido) deja ver la transparencia del vidrio y el acrílico. */
+const STAGE_BG: Record<StageTone, string> = { dark: '#1D1F23', light: '#D3CEC4' }
+/** Tono según el tipo de material de la parte que se elige: claro sólo para `glass`. */
+const stageTone = (kind: MaterialKind): StageTone => (kind === 'glass' ? 'light' : 'dark')
 const MIN_DISTANCE = 0.9
 const MAX_DISTANCE = 12
 const MAX_POLAR = Math.PI * 0.44
@@ -72,7 +86,7 @@ function CameraRig({
   const controls = useThree((s) => s.controls) as OrbitControlsImpl | null
   const invalidate = useThree((s) => s.invalidate)
   const goal = useRef<{ eye: THREE.Vector3; target: THREE.Vector3 } | null>(null)
-  const surface = getSurface(product, design.surfaceId)
+  const surface = getSurface(product, design.surfaceId, design.shapeId)
   const zoneMesh = parts[surface.part]
   // En una tira, la vista de zona sigue a la selección; sin selección, mira el frente.
   // Depende de qué está seleccionado y no de dónde está: mover una capa no mueve la cámara.
@@ -170,10 +184,10 @@ function CaptureBridge() {
  * Estudio de producto: cajas de luz rectangulares sobre fondo oscuro. Los metales reflejan
  * el entorno, así que el contraste entre las cajas y el fondo es lo que define el acero.
  */
-function Studio() {
+function Studio({ tone }: { tone: StageTone }) {
   return (
     <>
-      <color attach="background" args={[BG]} />
+      <color attach="background" args={[STAGE_BG[tone]]} />
       <ambientLight intensity={0.12} />
       <directionalLight position={[-3, 6, 3]} intensity={1.5} />
       <directionalLight position={[4, 3, -4]} intensity={0.45} color="#E8D9BE" />
@@ -189,11 +203,16 @@ function Studio() {
         {/* Relleno bajo y frontal: las caras verticales del metal no se ven negras. */}
         <Lightformer form="rect" intensity={0.7} position={[0, 0.6, 6]} scale={[10, 1.2, 1]} />
         <Lightformer form="rect" intensity={1.1} position={[-3, 3.5, -3]} rotation-y={2.4} scale={[4, 2, 1]} color="#F2EDE4" />
+        {/* Paneles grandes y suaves: las caras planas de metal (placas, chapita) reflejan un gris claro y no el fondo. */}
+        <Lightformer form="rect" intensity={0.45} position={[0, 6, -3]} rotation-x={Math.PI / 2} scale={[12, 7, 1]} color="#EDEDEA" />
+        <Lightformer form="rect" intensity={0.4} position={[0, 2.4, 6]} scale={[10, 3.5, 1]} color="#EDEDEA" />
+        {/* Vista desde arriba, una cara vertical refleja lo que tiene adelante y abajo: una mesa clara. */}
+        <Lightformer form="rect" intensity={0.4} position={[0, -1.8, 6]} rotation-x={-0.3} scale={[12, 3.6, 1]} color="#EDEDEA" />
       </Environment>
       <mesh rotation-x={-Math.PI / 2} position={[0, -0.001, 0]}>
         <planeGeometry args={[40, 40]} />
         {/* Sin iluminar: coincide exactamente con el fondo y sólo recibe las sombras de contacto. */}
-        <meshBasicMaterial color={BG} toneMapped={false} />
+        <meshBasicMaterial color={STAGE_BG[tone]} toneMapped={false} />
       </mesh>
     </>
   )
@@ -213,7 +232,7 @@ function Scene({ design, textureCaps }: { design: DesignState; textureCaps: Text
   const resetToken = useLab((s) => s.viewResetToken)
   const product = useLab((s) => s.design.productId)
   const productDef = useMemo(() => getProduct(product), [product])
-  const surface = getSurface(productDef, design.surfaceId)
+  const surface = getSurface(productDef, design.surfaceId, design.shapeId)
   const model = MODELS[productDef.modelId]
 
   const [parts, setParts] = useState<Parts>({})
@@ -227,13 +246,14 @@ function Scene({ design, textureCaps }: { design: DesignState; textureCaps: Text
 
   return (
     <>
-      <Studio />
-      <group key={productDef.id} position={[0, model.rest, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <model.Component materialFor={materialFor} registerPart={registerPart} />
+      <Studio tone={stageTone(partMaterial(productDef, productDef.selectablePart, design.materialId).kind)} />
+      {/* La forma va en la clave: al cambiarla se vuelve a montar la malla y se reproyecta el grabado. */}
+      <group key={`${productDef.id}:${design.shapeId ?? ''}`} position={[0, model.rest, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <model.Component materialFor={materialFor} registerPart={registerPart} shapeId={design.shapeId} />
       </group>
       {surface.wrap ? (
         <EngravingWrap
-          key={`${productDef.id}:${surface.id}`}
+          key={`${productDef.id}:${design.shapeId ?? ''}:${surface.id}`}
           design={design}
           surface={surface}
           target={parts[surface.part] ?? null}
@@ -242,7 +262,7 @@ function Scene({ design, textureCaps }: { design: DesignState; textureCaps: Text
         />
       ) : (
         <EngravingDecal
-          key={`${productDef.id}:${surface.id}`}
+          key={`${productDef.id}:${design.shapeId ?? ''}:${surface.id}`}
           design={design}
           surface={surface}
           target={parts[surface.part] ?? null}

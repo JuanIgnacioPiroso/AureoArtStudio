@@ -47,7 +47,7 @@ export const hasLogos = (design: DesignState) => design.elements.some((e) => e.k
 /** Filas del resumen comercial, derivadas del estado del diseño. */
 export function summaryRows(design: DesignState, measure: MeasureText): QuoteSummaryRow[] {
   const product = getProduct(design.productId)
-  const surface = getSurface(product, design.surfaceId)
+  const surface = getSurface(product, design.surfaceId, design.shapeId)
   const chosen = MATERIALS[design.materialId]
   const surfaceMaterial = partMaterial(product, surface.part, design.materialId)
   const layers = design.elements.filter(elementHasContent)

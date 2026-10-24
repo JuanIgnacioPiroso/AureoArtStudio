@@ -43,6 +43,17 @@ describe('serialize', () => {
     expect(decodeDesign(encodeDesign(d))).toEqual(d)
   })
 
+  it('conserva la forma elegida', () => {
+    const d: DesignState = { ...base, shapeId: 'arch' }
+    expect(decodeDesign(encodeDesign(d))).toEqual(d)
+  })
+
+  it('decodifica un enlace sin forma, como los de antes de las formas', () => {
+    const decoded = decodeDesign(b64(base))
+    expect(decoded).toEqual(base)
+    expect(decoded).not.toHaveProperty('shapeId')
+  })
+
   it('rechaza datos inválidos', () => {
     expect(decodeDesign('no-es-base64!!')).toBeNull()
     expect(decodeDesign(b64({ v: 2 }))).toBeNull()

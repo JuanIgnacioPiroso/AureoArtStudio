@@ -54,7 +54,7 @@ export function QuoteRequest() {
   }
 
   function downloadArtwork() {
-    const surface = getSurface(getProduct(design.productId), design.surfaceId)
+    const surface = getSurface(getProduct(design.productId), design.surfaceId, design.shapeId)
     const png = renderArtwork(design, surface)
     if (!png) return announce('No pudimos generar el arte en este dispositivo.')
     downloadFile(`${id}-arte-${surface.widthMm}x${surface.heightMm}mm.png`, png)

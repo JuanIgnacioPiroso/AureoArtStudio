@@ -1,4 +1,4 @@
-import { getProduct, getSurface, stylesForSurface } from '../model/catalog'
+import { getProduct, getSurface, stylesForSurface, surfacesOf } from '../model/catalog'
 import { ChoiceGroup } from '../panels/controls'
 import { FixedPartNotes } from '../panels/MaterialSelector'
 import { useLab } from '../store'
@@ -10,17 +10,18 @@ export function EngravingPanel() {
   const design = useLab((s) => s.design)
   const a = useLab.getState()
   const product = getProduct(design.productId)
-  const surface = getSurface(product, design.surfaceId)
+  const surface = getSurface(product, design.surfaceId, design.shapeId)
   const styles = stylesForSurface(product, surface, design.materialId)
+  const surfaces = surfacesOf(product, design.shapeId)
 
   return (
     <div className="stack-m">
-      {product.surfaces.length > 1 && (
+      {surfaces.length > 1 && (
         <ChoiceGroup
           legend="Zona de grabado"
           variant="segmented"
           value={surface.id}
-          options={product.surfaces.map((s) => ({ value: s.id, label: s.name }))}
+          options={surfaces.map((s) => ({ value: s.id, label: s.name }))}
           onChange={a.setSurface}
         />
       )}

@@ -1,5 +1,8 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { getProduct, getSurface, PRODUCTS } from '../model/catalog'
+import { normalizeDesign } from '../model/constraints'
 import { textElement } from '../model/elements'
+import type { ProductDef } from '../model/types'
 import { defaultDesign, useLab } from '../store'
 
 const s = () => useLab.getState()
@@ -130,5 +133,83 @@ describe('pestañas de edición', () => {
     s().setEditTab('engraving')
     s().setMaterial('wood-dark')
     expect(s().editTab).toBe('engraving')
+  })
+})
+
+describe('formas', () => {
+  // Producto de prueba con dos formas: la tabla con una zona grande y otra a la mitad.
+  const face = getSurface(getProduct('board'), 'face')
+  const fixture: ProductDef = {
+    ...getProduct('board'),
+    id: 'shaped-board',
+    shapes: [
+      { id: 'big', name: 'Grande', surfaces: [face] },
+      { id: 'small', name: 'Chica', surfaces: [{ ...face, widthMm: face.widthMm / 2, heightMm: face.heightMm / 2 }] },
+    ],
+  }
+  const products = PRODUCTS as ProductDef[]
+  beforeAll(() => products.push(fixture))
+  afterAll(() => products.splice(products.indexOf(fixture), 1))
+
+  it('al elegir un producto con formas, queda la primera', () => {
+    s().setProduct('shaped-board')
+    expect(s().design.shapeId).toBe('big')
+  })
+
+  it('setShape conserva las capas y las adapta a la zona nueva', () => {
+    s().setProduct('shaped-board')
+    const before = s().design.elements
+    s().setShape('small')
+    expect(s().design.shapeId).toBe('small')
+    expect(s().design.elements.map((e) => e.id)).toEqual(before.map((e) => e.id))
+    const [a, b] = [before[0]!, s().design.elements[0]!]
+    if (a.kind !== 'text' || b.kind !== 'text') throw new Error('se esperaba un texto')
+    expect(b.sizeMm).toBeCloseTo(a.sizeMm / 2)
+  })
+
+  it('setShape no cambia la pestaña', () => {
+    s().setProduct('shaped-board')
+    s().setEditTab('quote')
+    s().setShape('small')
+    expect(s().editTab).toBe('quote')
+  })
+
+  it('un enlace sin forma o con una forma que no existe abre en la primera', () => {
+    expect(normalizeDesign(defaultDesign('shaped-board')).shapeId).toBe('big')
+    expect(normalizeDesign({ ...defaultDesign('shaped-board'), shapeId: 'nope' }).shapeId).toBe('big')
+  })
+
+  it('una forma que no existe no cambia el diseño', () => {
+    s().setProduct('shaped-board')
+    const before = s().design
+    s().setShape('nope')
+    expect(s().design).toBe(before)
+  })
+
+  it('al pasar a un producto sin formas, el diseño queda sin forma', () => {
+    s().setProduct('shaped-board')
+    s().setProduct('knife')
+    expect(s().design).not.toHaveProperty('shapeId')
+  })
+})
+
+describe('textos largos', () => {
+  const long = 'Un título muy largo que no entra en la hoja del cuchillo'
+
+  it('al escribir, achica un texto que antes entraba', () => {
+    const el = s().design.elements[0]!
+    const before = el.kind === 'text' ? el.sizeMm : 0
+    s().setText(el.id, long)
+    const after = s().design.elements[0]!
+    expect(after.kind === 'text' && after.text).toBe(long)
+    expect(after.kind === 'text' && after.sizeMm).toBeLessThan(before)
+  })
+
+  it('respeta el tamaño de un texto que ya se salía', () => {
+    const el = s().design.elements[0]!
+    s().updateElement(el.id, { text: long, sizeMm: 12 })
+    s().setText(el.id, `${long}!`)
+    const after = s().design.elements[0]!
+    expect(after.kind === 'text' && after.sizeMm).toBe(12)
   })
 })
