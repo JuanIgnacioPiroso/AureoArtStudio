@@ -44,7 +44,7 @@ La solución:
     - la zona de grabado, si el objeto tiene más de una;
     - el área útil;
     - el estilo de grabado;
-    - las notas de piezas fijas que hoy muestra `MaterialSelector` (por ejemplo, «La base es de acero»).
+    - las notas de piezas fijas que hoy muestra `MaterialSelector`, en una sola línea separada por «·» (por ejemplo, «Base: acero inoxidable · Manija: plástico negro»).
   - **«Pedir»:** el resumen y el pedido de presupuesto (`QuoteRequest`).
   - Se ve una sola pestaña a la vez.
   - Si su contenido no entra, scrollea dentro de la pestaña; la fila de pestañas queda fija.
@@ -240,6 +240,8 @@ En escritorio, `ObjectBar` ocupa la fila superior de la primera columna de la gr
 - **Sí:** en móvil, la barra de objeto y material arriba de «Editar» / «Ver en 3D». Se puede cambiar el material mirando el 3D.
 - **No:** la barra sólo dentro de «Editar».
 - **Sí:** las notas de piezas fijas («La base es de acero») van en «Grabado». En la barra no entran, y en esa pestaña están cerca del estilo, con el que se relacionan.
+- **Sí:** las notas de piezas fijas van en una sola línea separada por «·». Decidido durante la implementación: en tres párrafos, «Grabado» del termo con manija medía 439 px en un panel de 398 px y no entraba sin scroll.
+- **No:** ajustar el criterio para que «Grabado» pueda scrollear en los termos, ni compactar las opciones de estilo.
 - **Sí:** `editTab` vive en el store y no se guarda. Es estado de la interfaz, como `viewMode` y `tab`.
 - **No:** recordar la pestaña en `localStorage` o en el enlace.
 - **Sí:** mantener la accesibilidad actual y que lo nuevo sea navegable por teclado. Lo pedido es que las cosas se encuentren fácil, no una auditoría.

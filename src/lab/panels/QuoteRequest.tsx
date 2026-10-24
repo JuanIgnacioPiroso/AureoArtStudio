@@ -16,13 +16,8 @@ function focusPrimaryText() {
   const text = s.design.elements.find((e) => e.kind === 'text')
   if (text) s.select([text.id])
   else s.addElement(textElement({ text: '' }))
-  // El campo aparece cuando el panel de propiedades se vuelve a dibujar.
-  window.setTimeout(() => {
-    const input = document.getElementById(PRIMARY_TEXT_ID)
-    const step = input?.closest('details')
-    if (step) step.open = true
-    input?.focus()
-  }, 0)
+  // Elegir la capa abre la pestaña «Capa»: el campo se puede enfocar cuando se vuelve a dibujar.
+  window.setTimeout(() => document.getElementById(PRIMARY_TEXT_ID)?.focus(), 0)
 }
 
 /** Resumen del diseño + acciones para pedir presupuesto por los canales reales del negocio. */

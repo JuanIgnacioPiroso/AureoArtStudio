@@ -9,6 +9,7 @@ import { ChoiceGroup, Slider } from '../panels/controls'
 import { useRenderRevision } from '../render/preview'
 import { useLab, type ElementPatch } from '../store'
 import { PRIMARY_TEXT_ID } from '../ids'
+import { AddButtons } from './AddButtons'
 import { FontPicker } from './FontPicker'
 import { NumberField } from './NumberField'
 import { useLogoPicker } from './logoPicker'
@@ -242,11 +243,23 @@ export function PropertiesPanel() {
   if (!el) {
     return (
       <div className="stack-s">
-        <p className="note">
-          {selected.length > 1
-            ? `${selected.length} capas seleccionadas. Usá la barra del lienzo para alinearlas, distribuirlas o eliminarlas.`
-            : 'Tocá una capa en el lienzo o en la lista para editarla. Shift + clic selecciona varias.'}
-        </p>
+        {selected.length > 1 ? (
+          <p className="note">
+            {selected.length} capas seleccionadas. Usá el menú «Organizar» de la barra del lienzo para alinearlas o distribuirlas, o
+            eliminalas.
+          </p>
+        ) : (
+          <>
+            <p>Elegí una capa en el lienzo o agregá una.</p>
+            <div className="add-buttons" role="group" aria-label="Agregar una capa">
+              <AddButtons onError={setLogoError} onAdd={() => setLogoError('')} />
+            </div>
+            <p className="note" role="status">
+              {logoError}
+            </p>
+            <p className="note">Shift + clic en el lienzo selecciona varias capas.</p>
+          </>
+        )}
         <ul className="warnings" aria-label="Avisos del diseño">
           {warnings.map((w, i) => (
             <li key={i} className="note note--warn">

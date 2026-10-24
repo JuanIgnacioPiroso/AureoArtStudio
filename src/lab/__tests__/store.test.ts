@@ -3,9 +3,11 @@ import { textElement } from '../model/elements'
 import { defaultDesign, useLab } from '../store'
 
 const s = () => useLab.getState()
+/** Estado con el que se creó el store, antes de que cada test lo reinicie. */
+const initial = useLab.getState()
 
 beforeEach(() => {
-  useLab.setState({ design: defaultDesign('knife'), past: [], future: [], selection: [], undo: null })
+  useLab.setState({ design: defaultDesign('knife'), past: [], future: [], selection: [], undo: null, editTab: 'layer' })
 })
 
 describe('historial del editor', () => {
@@ -84,5 +86,49 @@ describe('capas', () => {
     s().undoStep()
     expect(s().design.elements).toHaveLength(2)
     expect(s().undo).toBeNull()
+  })
+})
+
+describe('pestañas de edición', () => {
+  it('el store arranca en «Capa» con el primer texto seleccionado', () => {
+    const text = initial.design.elements.find((e) => e.kind === 'text')!
+    expect(initial.editTab).toBe('layer')
+    expect(initial.selection).toEqual([text.id])
+  })
+
+  it('elegir una capa abre «Capa»', () => {
+    s().setEditTab('quote')
+    s().select([s().design.elements[0]!.id])
+    expect(s().editTab).toBe('layer')
+  })
+
+  it('deseleccionar no cambia la pestaña', () => {
+    s().setEditTab('quote')
+    s().select([])
+    expect(s().editTab).toBe('quote')
+  })
+
+  it('agregar una capa abre «Capa»', () => {
+    s().setEditTab('engraving')
+    s().addElement(textElement({ text: 'Hola' }))
+    expect(s().editTab).toBe('layer')
+  })
+
+  it('duplicar abre «Capa»', () => {
+    s().setEditTab('layers')
+    s().duplicateElements([s().design.elements[0]!.id])
+    expect(s().editTab).toBe('layer')
+  })
+
+  it('cambiar de objeto selecciona el primer texto del objeto nuevo', () => {
+    s().setProduct('thermos-half')
+    const text = s().design.elements.find((e) => e.kind === 'text')!
+    expect(s().selection).toEqual([text.id])
+  })
+
+  it('cambiar el material no cambia la pestaña', () => {
+    s().setEditTab('engraving')
+    s().setMaterial('wood-dark')
+    expect(s().editTab).toBe('engraving')
   })
 })

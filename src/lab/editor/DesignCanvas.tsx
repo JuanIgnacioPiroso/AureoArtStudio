@@ -296,10 +296,8 @@ export function DesignCanvas() {
 
   function focusText(el: DesignElement) {
     if (el.kind !== 'text') return
-    const input = document.getElementById(PRIMARY_TEXT_ID)
-    const step = input?.closest('details')
-    if (step) step.open = true
-    input?.focus()
+    // Si la pestaña «Capa» se acaba de abrir, el campo se puede enfocar cuando se vuelve a dibujar.
+    window.setTimeout(() => document.getElementById(PRIMARY_TEXT_ID)?.focus(), 0)
   }
 
   const px = (n: number) => n * mmPerPx

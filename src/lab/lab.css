@@ -7,8 +7,12 @@
   --panel: var(--graphite);
   --stage: #1d1f23;
   --lab-h: 100svh;
+  /* Alto fijo de la barra de objeto en escritorio: la columna de edición mide --lab-h menos esto. */
+  --object-bar-h: 3.6rem;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  /* Fila 1: barra de objeto (sólo en la columna de edición); fila 2: el resto. El 3D ocupa las dos. */
+  grid-template-rows: auto minmax(0, 1fr);
   height: var(--lab-h);
   border-top: 1px solid var(--rule);
   background: var(--panel);
@@ -18,7 +22,13 @@
   display: none;
 }
 
+.lab > .object-bar {
+  grid-column: 1;
+  grid-row: 1;
+}
 .lab__edit {
+  grid-column: 1;
+  grid-row: 2;
   min-width: 0;
   min-height: 0;
   display: flex;
@@ -29,11 +39,16 @@
   flex: none;
   display: grid;
   border-bottom: 1px solid var(--rule);
-  /* El lienzo (con su margen) ocupa como máximo el 45 % del alto de la columna. */
-  --canvas-max-h: calc(var(--lab-h) * 0.45 - 2rem);
+  /*
+   * El lienzo ocupa como máximo el 35 % del alto de la columna de edición: --canvas-max-h más los
+   * 2rem del scroller y los 2rem de margen de .design-canvas.
+   */
+  --canvas-max-h: calc((var(--lab-h) - var(--object-bar-h)) * 0.35 - 4rem);
 }
 
 .lab__stage {
+  grid-column: 2;
+  grid-row: 1 / span 2;
   position: relative;
   min-width: 0;
   min-height: 0;
@@ -158,68 +173,156 @@
   border-radius: var(--radius-s);
 }
 
-/* Panel de pasos: scroll propio dentro de la columna de edición. */
-.lab__panel {
+/* Barra de objeto y material */
+.object-bar {
+  min-height: var(--object-bar-h);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  padding: 0.5rem var(--s1);
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.product-menu__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 40px;
+  padding: 0 0.75rem 0 0.4rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-s);
+  background: transparent;
+  color: var(--fg);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.product-menu__button:hover,
+.product-menu__button[aria-expanded='true'] {
+  border-color: rgb(239 234 224 / 0.32);
+}
+.product-menu .thumb {
+  width: 54px;
+  margin: 0;
+  color: var(--champagne);
+}
+.product-menu__caret {
+  color: var(--fg-muted);
+  font-size: 0.8rem;
+}
+.menu__list.product-menu__list {
+  min-width: 17rem;
+  z-index: 10;
+}
+.product-menu__item {
+  white-space: nowrap;
+  display: grid;
+  grid-template-columns: 54px 1fr 1rem;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+}
+.product-menu__item .thumb {
+  color: var(--ash-light);
+}
+.product-menu__item[aria-checked='true'] .thumb,
+.product-menu__check {
+  color: var(--champagne);
+}
+.material-swatches {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.material-swatches__option {
+  position: relative;
+  display: grid;
+  padding: 3px;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.material-swatches__option input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.material-swatches__option:has(input:checked) {
+  border-color: var(--champagne);
+}
+.material-swatches__option:has(input:focus-visible) {
+  outline: 2px solid var(--champagne);
+  outline-offset: 2px;
+}
+.material-swatches__name {
+  margin-left: 0.25rem;
+  font-size: 0.9rem;
+  color: var(--fg-muted);
+}
+
+/* Pestañas de edición: la fila queda fija y cada panel tiene su propio scroll. */
+.edit-tabs {
   flex: 1;
   min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.edit-tabs__list {
+  flex: none;
+  display: flex;
+  border-bottom: 1px solid var(--rule);
+}
+.edit-tabs__tab {
+  flex: 1;
+  min-height: 44px;
+  padding: 0 0.75rem;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  background: transparent;
+  color: var(--fg-muted);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+.edit-tabs__tab:hover {
+  color: var(--fg);
+}
+.edit-tabs__tab[aria-selected='true'] {
+  color: var(--fg);
+  border-bottom-color: var(--champagne);
+}
+.edit-tabs__tab:focus-visible {
+  outline: 2px solid var(--champagne);
+  outline-offset: -2px;
+}
+.edit-tabs__panel {
+  flex: 1;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
+  padding: var(--s1) var(--s2) var(--s2);
 }
-.step {
-  border-bottom: 1px solid var(--rule);
-}
-.step__summary {
-  list-style: none;
-  display: flex;
-  align-items: center;
-  gap: var(--s1);
-  padding: var(--s1) var(--s2);
-  cursor: pointer;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: var(--panel);
-}
-/* Los resúmenes de paso son sticky: el foco no debe quedar escondido debajo. */
-.step__body :is(input, textarea, button, a, output) {
-  scroll-margin-top: 4.5rem;
-}
-.step__summary::-webkit-details-marker {
+.edit-tabs__panel[hidden] {
   display: none;
 }
-.step__summary::after {
-  content: '';
-  margin-left: auto;
-  width: 9px;
-  height: 9px;
-  border-right: 1.5px solid var(--ash-light);
-  border-bottom: 1.5px solid var(--ash-light);
-  transform: rotate(45deg) translateY(-3px);
-  transition: transform 0.25s var(--ease);
+.edit-tabs__panel:focus-visible {
+  outline: 2px solid var(--champagne);
+  outline-offset: -2px;
 }
-.step[open] > .step__summary::after {
-  transform: rotate(-135deg) translateY(-2px);
-}
-.step__n {
-  display: grid;
-  place-items: center;
-  width: 1.9rem;
-  height: 1.9rem;
-  border: 1px solid var(--champagne);
-  border-radius: 50%;
-  font-family: var(--font-display);
-  color: var(--champagne);
-  font-size: 0.95rem;
-  flex: none;
-}
-.step__title {
-  font-family: var(--font-display);
-  font-size: var(--step-1);
-}
-.step__body {
-  padding: 0 var(--s2) var(--s2);
+
+/* Botones para agregar una capa en la pestaña «Capa» sin selección. */
+.add-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
 }
 
 /* Campos */
@@ -362,15 +465,6 @@
 .choice--tiles .choice__options {
   grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
 }
-.product-tile .choice__body {
-  gap: 0.35rem;
-}
-.product-tile {
-  grid-column: span 1;
-}
-.choice--tiles:has(.product-tile) .choice__options {
-  grid-template-columns: 1fr 1fr;
-}
 .thumb {
   width: 100%;
   height: auto;
@@ -385,14 +479,6 @@
   line-height: 1.1;
 }
 
-.choice--swatches .choice__options {
-  grid-template-columns: 1fr 1fr;
-}
-.swatch .choice__body {
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  gap: 0.7rem;
-}
 .swatch__chip {
   width: 28px;
   height: 28px;
@@ -491,10 +577,52 @@
  */
 @media (max-width: 960px) {
   .lab {
+    grid-template-rows: none;
     /* Alto de la fila de pestañas: botón de 38 px, su borde y el margen. */
     --lab-tabs-h: calc(38px + 2px + 1rem);
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     height: auto;
+  }
+  .lab > .object-bar,
+  .lab__edit,
+  .lab__stage {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  /* Una sola línea, visible en las dos pestañas: si no entra, se acortan los nombres. */
+  .object-bar {
+    flex-wrap: nowrap;
+    gap: 0.75rem;
+    height: var(--object-bar-h);
+    padding-inline: var(--gutter);
+    border-right: 0;
+  }
+  .product-menu {
+    min-width: 0;
+    flex: 0 1 auto;
+  }
+  .product-menu__button {
+    max-width: 100%;
+    padding-left: 0.25rem;
+  }
+  .product-menu__button .thumb {
+    width: 34px;
+    flex: none;
+  }
+  .product-menu__name,
+  .material-swatches__name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .material-swatches {
+    /* Un fieldset tiene min-inline-size: min-content por defecto y no se dejaría achicar. */
+    min-inline-size: 0;
+    flex: 0 1 auto;
+  }
+  .material-swatches__option {
+    flex: none;
   }
   .lab__tabs.segmented {
     display: inline-flex;
@@ -512,20 +640,14 @@
     --canvas-max-h: 34svh;
     border-top: 1px solid var(--rule);
   }
-  .lab__panel {
+  .edit-tabs__panel {
     overflow: visible;
+    padding-inline: var(--gutter);
   }
   .lab__stage {
-    /* El alto del Lab menos las pestañas y el borde superior del Lab. */
-    height: max(300px, var(--lab-h) - var(--lab-tabs-h) - 1px);
+    /* El alto del Lab menos la barra de objeto, las pestañas y el borde superior del Lab. */
+    height: max(300px, var(--lab-h) - var(--object-bar-h) - var(--lab-tabs-h) - 1px);
     border-top: 1px solid var(--rule);
-  }
-  .step__summary {
-    position: static;
-  }
-  .step__summary,
-  .step__body {
-    padding-inline: var(--gutter);
   }
   .lab__toolbar {
     padding-inline: var(--gutter);
@@ -579,6 +701,7 @@
   color: var(--fg);
 }
 .icon-button {
+  position: relative;
   display: inline-grid;
   place-items: center;
   width: 36px;
@@ -601,6 +724,31 @@
 .icon-button:disabled {
   opacity: 0.35;
   cursor: not-allowed;
+}
+.icon-button__tip {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-s);
+  background: var(--carbon);
+  color: var(--fg);
+  font-size: 0.78rem;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s var(--ease);
+}
+.icon-button:hover .icon-button__tip,
+.icon-button:focus-visible .icon-button__tip {
+  opacity: 1;
+  transition-delay: 0.3s;
+}
+.icon-button:focus-visible .icon-button__tip {
+  transition-delay: 0s;
 }
 .icon {
   display: block;
@@ -633,9 +781,35 @@
   font-size: 0.9rem;
   cursor: pointer;
 }
-.menu__item:hover,
+.menu__item:hover:not(:disabled),
 .menu__item:focus-visible {
   background: rgb(239 234 224 / 0.08);
+}
+.menu__item:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.menu__label {
+  margin: 0;
+  padding: 0.45rem 0.75rem 0.2rem;
+  font-size: 0.75rem;
+  color: var(--fg-muted);
+}
+.menu__list.organize-menu {
+  min-width: 15rem;
+  z-index: 10;
+}
+.organize-menu__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+}
+.organize-menu__key {
+  font-family: inherit;
+  font-size: 0.78rem;
+  color: var(--fg-muted);
 }
 
 .design-canvas {

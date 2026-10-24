@@ -10,6 +10,8 @@ import { MAX_ELEMENTS, type DesignElement, type DesignState, type ImageElement, 
 
 export type ViewMode = 'product' | 'zone'
 export type LabTab = 'edit' | '3d'
+/** Pestaña de la columna de edición: capa seleccionada, lista de capas, grabado y presupuesto. */
+export type EditTab = 'layer' | 'layers' | 'engraving' | 'quote'
 
 /** Origen de un cambio grande que se puede deshacer (presets). */
 export type UndoOrigin = 'preset'
@@ -44,6 +46,8 @@ interface LabState {
   viewMode: ViewMode
   /** Mitad visible del Lab en pantallas angostas: edición o 3D. */
   tab: LabTab
+  /** Pestaña visible de la columna de edición. Pasa sola a «Capa» cuando se elige una capa. */
+  editTab: EditTab
   /** Se incrementa para pedirle al visor que restablezca la cámara. */
   viewResetToken: number
   /** Función de captura registrada por el visor 3D (PNG en data URL). */
@@ -86,6 +90,7 @@ interface LabState {
   fontsLoaded: () => void
   setViewMode: (mode: ViewMode) => void
   setTab: (tab: LabTab) => void
+  setEditTab: (tab: EditTab) => void
   resetView: () => void
   setCapture: (fn: (() => string | null) | null) => void
   setOrbit: (fn: OrbitFn | null) => void
@@ -105,6 +110,15 @@ function initialDesign(): DesignState {
 }
 
 const surfaceOf = (d: DesignState) => getSurface(getProduct(d.productId), d.surfaceId)
+
+/** Al abrir el Lab o cambiar de objeto, queda elegida la primera capa de texto (si hay). */
+const firstText = (d: DesignState): string[] => {
+  const text = d.elements.find((e) => e.kind === 'text')
+  return text ? [text.id] : []
+}
+
+/** Elegir una capa abre la pestaña «Capa»; deseleccionar no cambia la pestaña. */
+const selectionChange = (selection: string[]) => (selection.length ? { selection, editTab: 'layer' as const } : { selection })
 
 export const useLab = create<LabState>((set, get) => {
   let gesture = false
@@ -138,15 +152,17 @@ export const useLab = create<LabState>((set, get) => {
     set({ design, undo: null, selection: s.selection.filter((id) => design.elements.some((e) => e.id === id)) })
   }
 
+  const design = initialDesign()
   return {
-    design: initialDesign(),
-    selection: [],
+    design,
+    selection: firstText(normalizeDesign(design)),
     past: [],
     future: [],
     undo: null,
     fontsVersion: 0,
     viewMode: 'product',
     tab: 'edit',
+    editTab: 'layer',
     viewResetToken: 0,
     capture: null,
     orbit: null,
@@ -159,7 +175,7 @@ export const useLab = create<LabState>((set, get) => {
       // Si el usuario ya diseñó algo, se conserva y se adapta a la zona del nuevo objeto.
       if (!pristine) next.elements = rescaleElements(d.elements, surfaceOf(d), surfaceOf(next))
       commit({ ...next, notes: d.notes })
-      set({ viewMode: 'product', selection: [] })
+      set({ viewMode: 'product', selection: firstText(get().design) })
     },
     setMaterial: (materialId) => manual(() => ({ materialId })),
     setSurface: (surfaceId) =>
@@ -173,7 +189,7 @@ export const useLab = create<LabState>((set, get) => {
     addElement: (el) => {
       if (get().design.elements.length >= MAX_ELEMENTS) return
       manual((d) => ({ elements: [...d.elements, el] }))
-      set({ selection: [el.id] })
+      set(selectionChange([el.id]))
     },
     updateElement: (id, patch, coalesce) =>
       mapElements((el) => (el.id === id ? ({ ...el, ...patch } as DesignElement) : el), coalesce),
@@ -191,7 +207,7 @@ export const useLab = create<LabState>((set, get) => {
         .map((e) => ({ ...e, id: newElementId(), x: e.x + 2, y: e.y - 2, locked: false }))
       if (!copies.length) return
       manual(() => ({ elements: [...d.elements, ...copies] }))
-      set({ selection: copies.map((c) => c.id) })
+      set(selectionChange(copies.map((c) => c.id)))
     },
     reorder: (id, dir) => manual((d) => ({ elements: reorderElement(d.elements, id, dir) })),
     align: (ids, edge) => manual((d) => ({ elements: alignElements(d.elements, ids, edge, surfaceOf(d), measureTextMm) })),
@@ -234,10 +250,10 @@ export const useLab = create<LabState>((set, get) => {
       lastCoalesce = null
     },
 
-    select: (ids) => set({ selection: ids }),
+    select: (ids) => set(selectionChange(ids)),
     toggleSelect: (id) => {
       const sel = get().selection
-      set({ selection: sel.includes(id) ? sel.filter((x) => x !== id) : [...sel, id] })
+      set(selectionChange(sel.includes(id) ? sel.filter((x) => x !== id) : [...sel, id]))
     },
 
     renormalize: () => set({ design: normalizeDesign(get().design) }),
@@ -247,6 +263,7 @@ export const useLab = create<LabState>((set, get) => {
     },
     setViewMode: (viewMode) => set({ viewMode }),
     setTab: (tab) => set({ tab }),
+    setEditTab: (editTab) => set({ editTab }),
     resetView: () => set((s) => ({ viewMode: 'product', viewResetToken: s.viewResetToken + 1 })),
     setCapture: (capture) => set({ capture }),
     setOrbit: (orbit) => set({ orbit }),

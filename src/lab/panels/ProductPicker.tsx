@@ -1,5 +1,6 @@
-import { useId, type ReactNode } from 'react'
-import { PRODUCTS } from '../model/catalog'
+import type { ReactNode } from 'react'
+import { useMenu } from '../editor/menu'
+import { getProduct, PRODUCTS } from '../model/catalog'
 import type { ProductDef } from '../model/types'
 import { useLab } from '../store'
 
@@ -48,31 +49,52 @@ function Thumb({ modelId }: { modelId: ProductDef['modelId'] }) {
   )
 }
 
+/** Botón con el objeto actual y un menú con todos los objetos. */
 export function ProductPicker() {
   const productId = useLab((s) => s.design.productId)
   const setProduct = useLab((s) => s.setProduct)
-  const name = useId()
+  const { open, close, toggle, onListKey, rootRef, buttonRef, listRef } = useMenu()
+  const current = getProduct(productId)
   return (
-    <fieldset className="choice choice--tiles">
-      <legend className="visually-hidden">Objeto a personalizar</legend>
-      <div className="choice__options">
-        {PRODUCTS.map((p) => (
-          <label key={p.id} className="choice__option product-tile">
-            <input
-              type="radio"
-              name={name}
-              value={p.id}
-              checked={productId === p.id}
-              onChange={() => setProduct(p.id)}
-            />
-            <span className="choice__body">
+    <div className="menu product-menu" ref={rootRef}>
+      <button
+        ref={buttonRef}
+        type="button"
+        className="product-menu__button"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={toggle}
+      >
+        <Thumb modelId={current.modelId} />
+        <span className="visually-hidden">Objeto: </span>
+        <span className="product-menu__name">{current.name}</span>
+        <span className="product-menu__caret" aria-hidden="true">
+          ▾
+        </span>
+      </button>
+      {open && (
+        <div ref={listRef} role="menu" className="menu__list product-menu__list" aria-label="Objeto a personalizar" onKeyDown={onListKey}>
+          {PRODUCTS.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              role="menuitemradio"
+              aria-checked={p.id === productId}
+              className="menu__item product-menu__item"
+              onClick={() => {
+                setProduct(p.id)
+                close()
+              }}
+            >
               <Thumb modelId={p.modelId} />
-              <span className="choice__label">{p.name}</span>
-              <span className="choice__hint">{p.description}</span>
-            </span>
-          </label>
-        ))}
-      </div>
-    </fieldset>
+              <span>{p.name}</span>
+              <span className="product-menu__check" aria-hidden="true">
+                {p.id === productId ? '✓' : ''}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }

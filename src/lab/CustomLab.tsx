@@ -1,15 +1,13 @@
-import { lazy, Suspense, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
+import { lazy, Suspense, useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
 import { DesignCanvas } from './editor/DesignCanvas'
-import { DesignPanel } from './editor/DesignPanel'
 import { EditorToolbar } from './editor/EditorToolbar'
 import { onEditorKey } from './editor/shortcuts'
 import { FONTS, getProduct, getSurface, MATERIALS } from './model/catalog'
 import { elementHasContent, elementLabel } from './model/elements'
 import { designFonts, ensureFonts } from './model/measure'
 import { designUrl } from './model/serialize'
-import { MaterialSelector } from './panels/MaterialSelector'
-import { ProductPicker } from './panels/ProductPicker'
-import { QuoteRequest } from './panels/QuoteRequest'
+import { EditTabs } from './panels/EditTabs'
+import { ObjectBar } from './panels/ObjectBar'
 import { downloadFile } from './services/quote'
 import { useLab } from './store'
 import { Fallback2D } from './viewer/Fallback2D'
@@ -37,20 +35,6 @@ const ORBIT_KEYS: Record<string, [number, number, number]> = {
   '=': [0, 0, 0.9],
   '-': [0, 0, 1.1],
   _: [0, 0, 1.1],
-}
-
-function Step({ n, title, open, children }: { n: number; title: string; open?: boolean; children: ReactNode }) {
-  return (
-    <details className="step" open={open}>
-      <summary className="step__summary">
-        <span className="step__n" aria-hidden="true">
-          {n}
-        </span>
-        <span className="step__title">{title}</span>
-      </summary>
-      <div className="step__body">{children}</div>
-    </details>
-  )
 }
 
 export default function CustomLab() {
@@ -141,6 +125,8 @@ export default function CustomLab() {
   return (
     <div className="lab" data-tab={tab} onKeyDown={onEditorKey}>
       {/* Pestañas Editar / Ver en 3D: sólo en pantallas angostas (en escritorio se ven las dos mitades). */}
+      <ObjectBar />
+
       <div className="lab__tabs segmented" role="group" aria-label="Vista">
         <button type="button" aria-pressed={tab === 'edit'} onClick={() => setTab('edit')}>
           Editar
@@ -155,20 +141,7 @@ export default function CustomLab() {
           <EditorToolbar />
           <DesignCanvas />
         </div>
-        <div className="lab__panel">
-          <Step n={1} title="Elegí el objeto" open>
-            <ProductPicker />
-          </Step>
-          <Step n={2} title="Elegí el material" open>
-            <MaterialSelector />
-          </Step>
-          <Step n={3} title="Diseñá el grabado" open>
-            <DesignPanel />
-          </Step>
-          <Step n={4} title="Revisá y pedí tu presupuesto">
-            <QuoteRequest />
-          </Step>
-        </div>
+        <EditTabs />
       </section>
 
       <section className="lab__stage" ref={stageRef} aria-label="Vista 3D">
