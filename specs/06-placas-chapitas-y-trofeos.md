@@ -1,6 +1,6 @@
 # SPEC 06 — Placas, chapitas y trofeos en el Custom Lab
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 05
 > **Fecha:** 2026-10-24
 > **Objetivo:** Sumar al Custom Lab cuatro productos sacados de los trabajos reales del taller: la placa sobre base de madera, la placa de pared, la chapita identificatoria y el trofeo de acrílico con forma elegible.
