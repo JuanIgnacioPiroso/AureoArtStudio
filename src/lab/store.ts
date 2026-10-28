@@ -1,10 +1,11 @@
 import { create } from 'zustand'
 import { alignElements, distributeElements, reorderElement, type AlignEdge, type ReorderDir } from './model/arrange'
 import { getProduct, getShape, getSurface, PRODUCTS } from './model/catalog'
-import { clearLayoutCache, fitsWidth, fitTextWidth, normalizeDesign, rescaleElements, transferElements } from './model/constraints'
+import { clearLayoutCache, fitsWidth, fitTextWidth, normalizeDesign, rescaleElements, straightenForBand, transferElements } from './model/constraints'
 import { newElementId } from './model/elements'
 import { measureTextMm } from './model/measure'
 import { decodeDesign } from './model/serialize'
+import { ringTextElements } from './editor/presets'
 import { PRODUCT_PARAM } from './intent'
 import { MAX_ELEMENTS, type DesignElement, type DesignState, type ImageElement, type ShapeElement, type StyleId, type TextElement } from './model/types'
 
@@ -26,8 +27,17 @@ export type ElementPatch = Partial<Omit<TextElement, 'kind' | 'id'>> &
 
 export function defaultDesign(productId: string): DesignState {
   const p = getProduct(productId)
-  return { v: 2, productId: p.id, notes: '', source: 'manual', ...structuredClone(p.defaultDesign) }
+  const d: DesignState = { v: 2, productId: p.id, notes: '', source: 'manual', ...structuredClone(p.defaultDesign) }
+  // En una zona con anillo, los textos curvos se arman con la medida de ahora (ver fontsLoaded).
+  const ring = getSurface(p, d.surfaceId).ring
+  if (p.ringTexts && ring) {
+    d.elements = ringTextElements(p.ringTexts.top, p.ringTexts.bottom, ring, measureTextMm, [`${p.id}-top`, `${p.id}-bottom`])
+  }
+  return d
 }
+
+/** Capas del diseño por defecto de un producto, tal como quedan en el store. */
+const defaultElementsKey = (productId: string) => JSON.stringify(normalizeDesign(defaultDesign(productId)).elements)
 
 const HISTORY_LIMIT = 100
 /** Cambios seguidos con la misma clave (tipear, mover un slider) dentro de este lapso cuentan como un solo paso. */
@@ -156,10 +166,25 @@ export const useLab = create<LabState>((set, get) => {
     set({ design, undo: null, selection: s.selection.filter((id) => design.elements.some((e) => e.id === id)) })
   }
 
-  const design = initialDesign()
+  // Normalizado, como todo lo que pasa por commit: así se puede comparar con el diseño por defecto.
+  const design = normalizeDesign(initialDesign())
+  /**
+   * Capas del diseño por defecto mientras el usuario no las toca. Si una fuente termina de cargar
+   * y el diseño sigue así, se vuelve a armar con la medida real (los textos curvos de un anillo
+   * dependen del ancho de las letras).
+   */
+  let pristine: string | null = null
+  const markPristine = () => {
+    const d = get().design
+    const key = JSON.stringify(d.elements)
+    pristine = key === defaultElementsKey(d.productId) ? key : null
+  }
+  queueMicrotask(markPristine)
+  /** Capas del anillo antes de pasar a la banda, y cómo quedaron en la banda (ver setSurface). */
+  let ringMemo: { key: string; elements: DesignElement[] } | null = null
   return {
     design,
-    selection: firstText(normalizeDesign(design)),
+    selection: firstText(design),
     past: [],
     future: [],
     undo: null,
@@ -174,19 +199,32 @@ export const useLab = create<LabState>((set, get) => {
     setProduct: (productId) => {
       const d = get().design
       if (productId === d.productId) return
-      const pristine = JSON.stringify(d.elements) === JSON.stringify(normalizeDesign(defaultDesign(d.productId)).elements)
+      const untouched = JSON.stringify(d.elements) === defaultElementsKey(d.productId)
       const next = defaultDesign(productId)
       // Si el usuario ya diseñó algo, se conserva y se adapta a la zona del nuevo objeto.
-      if (!pristine) next.elements = rescaleElements(d.elements, surfaceOf(d), surfaceOf(next))
+      if (!untouched) next.elements = rescaleElements(d.elements, surfaceOf(d), surfaceOf(next))
       commit({ ...next, notes: d.notes })
       set({ viewMode: 'product', selection: firstText(get().design) })
+      markPristine()
     },
     setMaterial: (materialId) => manual(() => ({ materialId })),
-    setSurface: (surfaceId) =>
-      manual((d) => {
-        const to = getSurface(getProduct(d.productId), surfaceId, d.shapeId)
-        return { surfaceId: to.id, elements: transferElements(d.elements, surfaceOf(d), to) }
-      }),
+    setSurface: (surfaceId) => {
+      const d = get().design
+      const from = surfaceOf(d)
+      const to = getSurface(getProduct(d.productId), surfaceId, d.shapeId)
+      let elements: DesignElement[]
+      if (from.ring && !to.ring) {
+        // De la boca a la banda: los textos curvos se enderezan; se guardan las capas para volver.
+        elements = normalizeDesign({ ...d, surfaceId: to.id, elements: straightenForBand(d.elements, from, to, measureTextMm) }).elements
+        ringMemo = { key: JSON.stringify(elements), elements: d.elements }
+      } else if (to.ring && ringMemo && JSON.stringify(d.elements) === ringMemo.key) {
+        // Volver a la boca sin haber cambiado nada: vuelve el diseño curvo que había.
+        elements = ringMemo.elements
+      } else {
+        elements = transferElements(d.elements, from, to)
+      }
+      manual(() => ({ surfaceId: to.id, elements }))
+    },
     setShape: (shapeId) => {
       const d = get().design
       const product = getProduct(d.productId)
@@ -279,6 +317,13 @@ export const useLab = create<LabState>((set, get) => {
     renormalize: () => set({ design: normalizeDesign(get().design) }),
     fontsLoaded: () => {
       clearLayoutCache(measureTextMm)
+      const d = get().design
+      if (pristine !== null && JSON.stringify(d.elements) === pristine) {
+        // Sin sumar un paso al historial: para el usuario es el mismo diseño, ahora bien medido.
+        const elements = normalizeDesign({ ...d, elements: defaultDesign(d.productId).elements }).elements
+        pristine = JSON.stringify(elements)
+        set({ design: { ...d, elements } })
+      }
       set((s) => ({ fontsVersion: s.fontsVersion + 1 }))
     },
     setViewMode: (viewMode) => set({ viewMode }),

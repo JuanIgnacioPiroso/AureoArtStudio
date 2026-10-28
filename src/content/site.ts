@@ -35,6 +35,7 @@ export const IMAGES = {
   laser: ph('laser-wood-crest', 1600, 918, 'Cabezal láser grabando un escudo sobre una tabla de madera'),
   grain: ph('olive-wood-grain', 1600, 1067, 'Veta de madera de olivo vista de cerca'),
   thermos: ph('thermos-mate', 1600, 2133, 'Mate de madera con yerba y bombilla delante de un termo de acero'),
+  glass: ph('engraved-glass', 1600, 2134, 'Vaso de vidrio con una inicial y una corona grabadas, sobre terciopelo rojo'),
 } satisfies Record<string, ImageAsset>
 
 export interface Category {
@@ -68,9 +69,17 @@ export const CATEGORIES: Category[] = [
   {
     id: 'termos',
     name: 'Termos y mates',
-    description: 'Termos de acero o negro mate con un nombre o una frase en el frente.',
+    description: 'Termos y mates de acero, madera o cuero, con un nombre o una frase en el cuerpo o en la virola.',
     image: IMAGES.thermos,
     labProductId: 'thermos-handle',
+    enabled: true,
+  },
+  {
+    id: 'copas',
+    name: 'Copas y vasos',
+    description: 'Copas, vasos y jarros de vidrio con nombres o una fecha grabados en esmerilado.',
+    image: IMAGES.glass,
+    labProductId: 'glassware',
     enabled: true,
   },
   {

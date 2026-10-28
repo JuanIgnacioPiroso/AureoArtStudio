@@ -88,5 +88,21 @@
     "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
     "source": "https://commons.wikimedia.org/wiki/File:Mate_with_straw_and_thermos.jpg",
     "status": "provisional: reemplazar por fotografía propia"
+  },
+  {
+    "id": "engraved-glass",
+    "files": [
+      "/img/placeholder/engraved-glass-1600.webp",
+      "/img/placeholder/engraved-glass-800.webp"
+    ],
+    "width": 2622,
+    "height": 3497,
+    "title": "Wine glasses engraved with the initials of the von Wintzingerode family, Thuringia 16-17th cen. 01.jpg",
+    "author": "Nemracc",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Wine_glasses_engraved_with_the_initials_of_the_von_Wintzingerode_family,_Thuringia_16-17th_cen._01.jpg",
+    "changes": "recortada y retocada (se quitó un cartel del fondo)",
+    "status": "provisional: reemplazar por fotografía propia"
   }
 ]

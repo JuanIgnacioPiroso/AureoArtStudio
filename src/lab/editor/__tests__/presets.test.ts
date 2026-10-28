@@ -36,3 +36,29 @@ describe('plantilla «Reconocimiento»', () => {
     expect(els[1]!.kind === 'text' && els[1]!.text).toBe('Laura Méndez')
   })
 })
+
+describe('plantilla «Sello» sobre un anillo', () => {
+  const seal = PRESETS.find((p) => p.id === 'seal')!
+  const ring = { outerMm: 78, innerMm: 52 }
+  const surface = { ...getSurface(getProduct('board'), 'face'), widthMm: 78, heightMm: 78, ring }
+
+  it('pone un círculo en cada borde y los textos curvos, sin nada en el centro', () => {
+    const els = seal.build(defaultDesign('board'), surface, measure)
+    const shapes = els.filter((e) => e.kind === 'shape')
+    const texts = els.filter((e) => e.kind === 'text')
+    expect(shapes).toHaveLength(2)
+    expect(texts).toHaveLength(2)
+    // Los círculos quedan sobre el anillo.
+    for (const s of shapes) {
+      expect(s.kind === 'shape' && s.widthMm).toBeGreaterThan(ring.innerMm)
+      expect(s.kind === 'shape' && s.widthMm).toBeLessThan(ring.outerMm)
+    }
+    // Los textos son curvos, centrados en x y entran en el ancho del anillo.
+    for (const t of texts) {
+      if (t.kind !== 'text') throw new Error('se esperaba un texto')
+      expect(t.arc).not.toBe(0)
+      expect(Math.abs(t.x)).toBeLessThan(1e-6)
+      expect(t.sizeMm).toBeLessThan((ring.outerMm - ring.innerMm) / 2)
+    }
+  })
+})

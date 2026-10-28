@@ -118,7 +118,7 @@ export type DesignState = z.infer<typeof DesignStateSchema>
 
 export type Vec3 = readonly [number, number, number]
 
-export type MaterialKind = 'wood' | 'steel' | 'coated' | 'stone' | 'glass'
+export type MaterialKind = 'wood' | 'steel' | 'coated' | 'stone' | 'glass' | 'leather'
 
 export interface MaterialDef {
   id: string
@@ -129,7 +129,7 @@ export interface MaterialDef {
   roughness: number
   metalness: number
   /** Veta / textura procedural. */
-  texture: 'wood-grain' | 'brushed' | 'matte' | 'marble' | 'clear'
+  texture: 'wood-grain' | 'brushed' | 'matte' | 'marble' | 'clear' | 'gourd' | 'leather'
 }
 
 export interface EngravingStyleDef {
@@ -161,6 +161,13 @@ export interface SurfaceDef {
   cameraOffset: Vec3
   /** Si está, la zona es una tira cilíndrica y se dibuja con EngravingWrap en lugar de un decal. */
   wrap?: WrapDef
+  /** Zona plana con forma de anillo (la boca de una virola): diámetros de afuera y de la boca, en mm. */
+  ring?: RingDef
+}
+
+export interface RingDef {
+  outerMm: number
+  innerMm: number
 }
 
 /** Zona que rodea un cuerpo cilíndrico sobre el eje Z local del producto. */
@@ -171,6 +178,8 @@ export interface WrapDef {
   centerAngle: number
   /** Posición del frente del termo dentro de la tira, en mm desde su centro (+ = derecha). */
   frontOffsetMm: number
+  /** Qué hay en los bordes de la tira: la manija (termos, por defecto) o la parte de atrás (mates). */
+  edge?: 'handle' | 'back'
 }
 
 export interface ProductPart {
@@ -193,12 +202,14 @@ export interface ProductDef {
   name: string
   description: string
   /** Identificador del modelo 3D que renderiza el visor. */
-  modelId: 'knife-v1' | 'board-v1' | 'thermos-handle-v1' | 'thermos-half-v1' | 'plaque-base-v1' | 'plaque-wall-v1' | 'dog-tag-v1' | 'trophy-v1'
+  modelId: 'knife-v1' | 'board-v1' | 'thermos-handle-v1' | 'thermos-half-v1' | 'plaque-base-v1' | 'plaque-wall-v1' | 'dog-tag-v1' | 'trophy-v1' | 'mate-wood-v1' | 'mate-camionero-v1' | 'mate-imperial-v1' | 'mate-steel-v1' | 'glassware-v1'
   parts: readonly ProductPart[]
   /** Parte cuyo material elige el usuario. */
   selectablePart: string
   materialIds: readonly string[]
   surfaces: readonly SurfaceDef[]
+  /** Textos del diseño por defecto en una zona con anillo: se arman curvos al crear el diseño (ver store). */
+  ringTexts?: { top: string; bottom: string }
   /** Formas elegibles. Sin formas, el producto usa `surfaces`. */
   shapes?: readonly ProductShapeDef[]
   /** Cámara de la vista de producto, en coordenadas de mundo (el producto se apoya sobre la mesa). */

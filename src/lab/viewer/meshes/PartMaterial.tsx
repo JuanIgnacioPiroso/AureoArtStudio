@@ -1,3 +1,4 @@
+import * as THREE from 'three'
 import type { MaterialDef } from '../../model/types'
 import { surfaceMaps } from '../surfaceTextures'
 
@@ -25,6 +26,37 @@ export function PartMaterial({ material }: { material: MaterialDef }) {
       />
     )
   }
+  if (material.texture === 'leather') {
+    // Cuero: grano fino en el relieve, mate, con un brillo suave de cuero curtido.
+    return (
+      <meshPhysicalMaterial
+        key={material.id}
+        color={material.color}
+        roughnessMap={maps.roughnessMap}
+        roughness={material.roughness}
+        bumpMap={maps.bumpMap}
+        bumpScale={0.6}
+        metalness={0}
+        sheen={0.35}
+        sheenRoughness={0.6}
+        sheenColor="#77726e"
+      />
+    )
+  }
+  if (material.texture === 'gourd') {
+    // Calabaza curada: mate, con un brillo apenas encerado.
+    return (
+      <meshPhysicalMaterial
+        key={material.id}
+        map={maps.map}
+        roughnessMap={maps.roughnessMap}
+        roughness={material.roughness * 1.3}
+        metalness={0}
+        clearcoat={0.12}
+        clearcoatRoughness={0.5}
+      />
+    )
+  }
   if (material.texture === 'marble') {
     // Mármol pulido: veta en el color y un brillo fino encima.
     return (
@@ -36,6 +68,25 @@ export function PartMaterial({ material }: { material: MaterialDef }) {
         metalness={0}
         clearcoat={0.5}
         clearcoatRoughness={0.12}
+      />
+    )
+  }
+  if (material.id === 'glass-clear') {
+    // Vidrio de pared fina (copas y vasos): las dos caras visibles, así la pared de atrás se ve a
+    // través de la de adelante; un tono apenas gris verdoso, como el vidrio común, que lo separa
+    // del fondo claro; y poco reflejo, para que el grabado blanco se lea.
+    return (
+      <meshPhysicalMaterial
+        key={material.id}
+        color="#eef3f0"
+        side={THREE.DoubleSide}
+        roughness={material.roughness}
+        metalness={0}
+        transmission={1}
+        thickness={0.02}
+        ior={1.5}
+        specularIntensity={1}
+        envMapIntensity={0.9}
       />
     )
   }

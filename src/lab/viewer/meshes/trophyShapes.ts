@@ -4,7 +4,7 @@ import { roundedRect } from './shapes'
 export type TrophyShapeId = 'octagon' | 'rectangle' | 'arch' | 'flame'
 
 /** Placa del trofeo: 150 × 200 mm. Las siluetas van con x centrada y la base de la placa en y = 0. */
-export const TROPHY_PLATE = { width: 1.5, height: 2 }
+const TROPHY_PLATE = { width: 1.5, height: 2 }
 
 const W = TROPHY_PLATE.width / 2
 const H = TROPHY_PLATE.height

@@ -13,7 +13,12 @@ import { EngravingDecal } from './EngravingDecal'
 import { EngravingWrap } from './EngravingWrap'
 import { Board } from './meshes/Board'
 import { DogTag } from './meshes/DogTag'
+import { Glassware } from './meshes/Glassware'
 import { Knife } from './meshes/Knife'
+import { MateCamionero } from './meshes/MateCamionero'
+import { MateImperial } from './meshes/MateImperial'
+import { MateSteel } from './meshes/MateSteel'
+import { MateWood } from './meshes/MateWood'
 import { PLAQUE_BASE_HALF, PlaqueBase } from './meshes/PlaqueBase'
 import { PLAQUE_WALL_HALF, PlaqueWall } from './meshes/PlaqueWall'
 import { ThermosHalf } from './meshes/ThermosHalf'
@@ -34,6 +39,12 @@ const MODELS: Record<ProductDef['modelId'], { Component: ComponentType<ProductMe
   // La chapita va parada sobre su canto, con el borde de abajo en z = 0.
   'dog-tag-v1': { Component: DogTag, rest: 0 },
   'trophy-v1': { Component: Trophy, rest: 0 },
+  // Los mates se arman parados con la base en z = 0, como los termos.
+  'mate-wood-v1': { Component: MateWood, rest: 0 },
+  'mate-imperial-v1': { Component: MateImperial, rest: 0 },
+  'mate-camionero-v1': { Component: MateCamionero, rest: 0 },
+  'mate-steel-v1': { Component: MateSteel, rest: 0 },
+  'glassware-v1': { Component: Glassware, rest: 0 },
 }
 
 type StageTone = 'dark' | 'light'

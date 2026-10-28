@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { getProduct, getSurface, stylesForSurface } from '../catalog'
-import { checkDesign, elementBounds, fitTextWidth, layoutText, normalizeDesign, rescaleElements, transferElements } from '../constraints'
+import { checkDesign, elementBounds, fitTextWidth, layoutText, normalizeDesign, rescaleElements, straightenForBand, transferElements } from '../constraints'
 import { shapeElement, textElement } from '../elements'
 import type { DesignElement, DesignState, MeasureText, SurfaceDef } from '../types'
 
@@ -176,6 +176,14 @@ describe('stylesForSurface', () => {
     expect(ids('acrylic-clear')).toEqual(['etch'])
   })
 
+  it('ofrece sólo el quemado sobre calabaza', () => {
+    expect(ids('gourd')).toEqual(['burn'])
+  })
+
+  it('ofrece sólo el grabado esmerilado sobre vidrio', () => {
+    expect(ids('glass-clear')).toEqual(['etch'])
+  })
+
   it('ofrece los estilos del acero sobre dorado', () => {
     expect(ids('gold')).toEqual(['mark-dark', 'frost'])
   })
@@ -200,5 +208,31 @@ describe('fitTextWidth', () => {
   it('no toca un texto que ya entra', () => {
     const short = textElement({ text: 'Ana', sizeMm: 8 })
     expect(fitTextWidth(short, blade, measure)).toBe(short)
+  })
+})
+
+describe('straightenForBand', () => {
+  const camionero = getProduct('mate-camionero')
+  const mouth = getSurface(camionero, 'mouth')
+  const band = getSurface(camionero, 'wrap')
+  const curved = [
+    textElement({ text: 'Mateando juntos', fontId: 'cinzel', sizeMm: 5, arc: 140, y: 22 }),
+    textElement({ text: '2026', fontId: 'cinzel', sizeMm: 5, arc: -30, y: -31 }),
+  ]
+
+  it('endereza los textos, los pone en fila y los deja dentro de la banda', () => {
+    const out = straightenForBand(curved, mouth, band, measure)
+    expect(out).toHaveLength(2)
+    for (const el of out) {
+      if (el.kind !== 'text') throw new Error('se esperaba un texto')
+      expect(el.arc).toBe(0)
+      expect(el.y).toBe(0)
+      const b = elementBounds(el, measure)
+      expect(b.minX).toBeGreaterThanOrEqual(-band.widthMm / 2)
+      expect(b.maxX).toBeLessThanOrEqual(band.widthMm / 2)
+      expect(b.maxY - b.minY).toBeLessThanOrEqual(band.heightMm)
+    }
+    // En fila: el segundo va a la derecha del primero, sin pisarse.
+    expect(elementBounds(out[1]!, measure).minX).toBeGreaterThan(elementBounds(out[0]!, measure).maxX)
   })
 })

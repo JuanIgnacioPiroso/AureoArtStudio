@@ -2,6 +2,7 @@ import { useId, useMemo, useState } from 'react'
 import { assetStatus } from '../assets/assetStore'
 import { getProduct, getSurface } from '../model/catalog'
 import { checkDesign, minDetailMm } from '../model/constraints'
+import { RING_WARNING, ringOverflowIds } from '../render/ringCheck'
 import { elementLabel, SHAPE_LABEL } from '../model/elements'
 import { measureTextMm } from '../model/measure'
 import { ALIGNS, MAX_TEXT_LENGTH, SHAPES, type Align, type DesignElement, type ImageElement, type ShapeElement, type ShapeKind, type SurfaceDef, type TextElement } from '../model/types'
@@ -236,6 +237,12 @@ export function PropertiesPanel() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [design, surface, revision],
   )
+  // Zonas con anillo (la boca de una virola): capas que caen en la boca o fuera del anillo.
+  const ringIds = useMemo(
+    () => ringOverflowIds(design, surface),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [design, surface, revision],
+  )
 
   const selected = design.elements.filter((e) => selection.includes(e.id))
   const el = selected.length === 1 ? selected[0]! : null
@@ -266,13 +273,15 @@ export function PropertiesPanel() {
               {w.message}
             </li>
           ))}
+          {ringIds.length > 0 && <li className="note note--warn">{RING_WARNING}</li>}
         </ul>
       </div>
     )
   }
 
   const update: Update = (patch, coalesce) => a.updateElement(el.id, patch, coalesce)
-  const own = warnings.filter((w) => w.elementId === el.id && w.code !== 'too-small')
+  const own = warnings.filter((w) => w.elementId === el.id && w.code !== 'too-small').map((w) => w.message)
+  if (ringIds.includes(el.id)) own.push(RING_WARNING)
 
   return (
     <div className="stack-m properties" aria-label={`Propiedades de ${elementLabel(el)}`} role="group">
@@ -305,9 +314,9 @@ export function PropertiesPanel() {
       <CommonProps el={el} surface={surface} update={update} />
       {own.length > 0 && (
         <ul className="warnings" aria-label="Avisos de esta capa">
-          {own.map((w, i) => (
+          {own.map((message, i) => (
             <li key={i} className="note note--warn">
-              {w.message}
+              {message}
             </li>
           ))}
         </ul>

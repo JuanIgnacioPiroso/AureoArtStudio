@@ -1,12 +1,18 @@
 import { useId } from 'react'
+import type * as THREE from 'three'
 import { getProduct, getShape } from '../model/catalog'
 import { useLab } from '../store'
-import { TROPHY_PLATE, trophyShape } from '../viewer/meshes/trophyShapes'
+import { SILHOUETTES } from '../viewer/meshes/silhouettes'
 
-/** Silueta de la forma como path SVG (y hacia abajo), en las unidades de la escena. */
-function silhouettePath(shapeId: string): string {
-  const pts = trophyShape(shapeId).getPoints(24)
-  return `${pts.map((p, i) => `${i ? 'L' : 'M'}${p.x.toFixed(3)} ${(TROPHY_PLATE.height - p.y).toFixed(3)}`).join(' ')} Z`
+const PAD = 0.08
+
+/** Path SVG (y hacia abajo) y viewBox de una silueta, encuadrada con un margen. */
+function silhouetteSvg(points: THREE.Vector2[]) {
+  const xs = points.map((p) => p.x)
+  const ys = points.map((p) => p.y)
+  const [minX, maxX, minY, maxY] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)]
+  const d = `${points.map((p, i) => `${i ? 'L' : 'M'}${(p.x - minX).toFixed(3)} ${(maxY - p.y).toFixed(3)}`).join(' ')} Z`
+  return { d, viewBox: `${-PAD} ${-PAD} ${maxX - minX + PAD * 2} ${maxY - minY + PAD * 2}` }
 }
 
 /** Muestras con la silueta de cada forma, con el nombre de la elegida al lado. Sólo en productos con formas. */
@@ -16,28 +22,30 @@ export function ShapeSelector() {
   const product = getProduct(design.productId)
   const current = getShape(product, design.shapeId)
   const name = useId()
-  if (!product.shapes || !current) return null
+  const silhouette = SILHOUETTES[product.modelId]
+  if (!product.shapes || !current || !silhouette) return null
 
-  const pad = 0.08
-  const viewBox = `${-TROPHY_PLATE.width / 2 - pad} ${-pad} ${TROPHY_PLATE.width + pad * 2} ${TROPHY_PLATE.height + pad * 2}`
   return (
     <fieldset className="material-swatches shape-swatches">
       <legend className="visually-hidden">Forma</legend>
-      {product.shapes.map((shape) => (
-        <label key={shape.id} className="material-swatches__option shape-swatches__option" title={shape.name}>
-          <input
-            type="radio"
-            name={name}
-            value={shape.id}
-            checked={current.id === shape.id}
-            aria-label={shape.name}
-            onChange={() => setShape(shape.id)}
-          />
-          <svg className="shape-swatches__chip" viewBox={viewBox} aria-hidden="true">
-            <path d={silhouettePath(shape.id)} />
-          </svg>
-        </label>
-      ))}
+      {product.shapes.map((shape) => {
+        const svg = silhouetteSvg(silhouette(shape.id))
+        return (
+          <label key={shape.id} className="material-swatches__option shape-swatches__option" title={shape.name}>
+            <input
+              type="radio"
+              name={name}
+              value={shape.id}
+              checked={current.id === shape.id}
+              aria-label={shape.name}
+              onChange={() => setShape(shape.id)}
+            />
+            <svg className="shape-swatches__chip" viewBox={svg.viewBox} aria-hidden="true">
+              <path d={svg.d} />
+            </svg>
+          </label>
+        )
+      })}
       <span className="material-swatches__name" aria-hidden="true">
         {current.name}
       </span>

@@ -266,6 +266,104 @@ function marbleCanvases(base: string, seed: number): { color: HTMLCanvasElement;
   return { color, rough }
 }
 
+/**
+ * Calabaza curada: ocre con manchas más oscuras y difusas, puntitos y un leve veteado vertical,
+ * sin veta de madera. Pensada para las mallas de torno: X de la imagen = altura, Y = la vuelta.
+ * El ruido es periódico, así la imagen cierra la vuelta sin costura.
+ */
+function gourdCanvases(base: string, seed: number): { color: HTMLCanvasElement; rough: HTMLCanvasElement } {
+  const w = 512
+  const h = 1024
+  const [r0, g0, b0] = hexToRgb(base)
+  const blotch = valueNoise(seed, 3, 6)
+  const blotch2 = valueNoise(seed + 1, 9, 17)
+  const streak = valueNoise(seed + 2, 4, 64)
+  const rand = rng(seed + 3)
+  const make = () => {
+    const c = document.createElement('canvas')
+    c.width = w
+    c.height = h
+    return c
+  }
+  const color = make()
+  const rough = make()
+  const cctx = color.getContext('2d')!
+  const rctx = rough.getContext('2d')!
+  const cimg = cctx.createImageData(w, h)
+  const rimg = rctx.createImageData(w, h)
+  for (let y = 0; y < h; y++) {
+    const fy = y / h
+    for (let x = 0; x < w; x++) {
+      const fx = x / w
+      const b = blotch(fx * 3, fy * 6) * 0.5 + blotch2(fx * 9, fy * 17) * 0.35 + streak(fx * 4, fy * 64) * 0.15
+      // Manchas: los valores altos del ruido oscurecen, con un borde ancho y suave.
+      const dark = smooth(Math.max(0, Math.min(1, (b - 0.42) / 0.38))) * 0.28
+      const shade = 1 - dark + (streak(fx * 4, fy * 64) - 0.5) * 0.06
+      const i = (y * w + x) * 4
+      // Lo oscuro de la calabaza tira a marrón rojizo.
+      cimg.data[i] = r0 * shade
+      cimg.data[i + 1] = g0 * (shade - dark * 0.15)
+      cimg.data[i + 2] = b0 * (shade - dark * 0.3)
+      cimg.data[i + 3] = 255
+      const rv = (0.62 + dark * 0.3) * 255
+      rimg.data[i] = rimg.data[i + 1] = rimg.data[i + 2] = rv
+      rimg.data[i + 3] = 255
+    }
+  }
+  cctx.putImageData(cimg, 0, 0)
+  rctx.putImageData(rimg, 0, 0)
+  // Puntitos: los poros de la cáscara.
+  cctx.fillStyle = '#3a2410'
+  for (let n = 0; n < 2600; n++) {
+    cctx.globalAlpha = 0.08 + rand() * 0.18
+    cctx.beginPath()
+    cctx.arc(rand() * w, rand() * h, 0.5 + rand() * 1.4, 0, Math.PI * 2)
+    cctx.fill()
+  }
+  cctx.globalAlpha = 1
+  return { color, rough }
+}
+
+/**
+ * Cuero granulado: celdas chicas e irregulares (el «grano» del cuero) separadas por surcos finos.
+ * Devuelve el relieve (surcos hundidos) y la rugosidad (los surcos, más mates). Es periódica.
+ */
+function leatherCanvases(seed: number): { rough: HTMLCanvasElement; bump: HTMLCanvasElement } {
+  const size = 512
+  const cells = valueNoise(seed, 40, 40)
+  const cells2 = valueNoise(seed + 1, 97, 97)
+  const make = () => {
+    const c = document.createElement('canvas')
+    c.width = c.height = size
+    return c
+  }
+  const rough = make()
+  const bump = make()
+  const rctx = rough.getContext('2d')!
+  const bctx = bump.getContext('2d')!
+  const rimg = rctx.createImageData(size, size)
+  const bimg = bctx.createImageData(size, size)
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const fx = x / size
+      const fy = y / size
+      // Surcos donde el ruido cruza 0,5: |n − 0,5| chico.
+      const n = cells(fx * 40, fy * 40) * 0.75 + cells2(fx * 97, fy * 97) * 0.25
+      const groove = 1 - smooth(Math.min(1, Math.abs(n - 0.5) / 0.08))
+      const i = (y * size + x) * 4
+      const bv = (0.62 - groove * 0.3 + (n - 0.5) * 0.12) * 255
+      bimg.data[i] = bimg.data[i + 1] = bimg.data[i + 2] = bv
+      bimg.data[i + 3] = 255
+      const rv = (0.72 + groove * 0.25) * 255
+      rimg.data[i] = rimg.data[i + 1] = rimg.data[i + 2] = rv
+      rimg.data[i + 3] = 255
+    }
+  }
+  rctx.putImageData(rimg, 0, 0)
+  bctx.putImageData(bimg, 0, 0)
+  return { rough, bump }
+}
+
 const cache = new Map<string, SurfaceMaps>()
 
 function canvasTexture(canvas: HTMLCanvasElement, repeat: [number, number], srgb: boolean) {
@@ -302,6 +400,17 @@ export function surfaceMaps(material: MaterialDef): SurfaceMaps {
     maps = { map: canvasTexture(c.color, repeat, true), roughnessMap: canvasTexture(c.rough, repeat, false), bumpMap: null }
     // La placa va de -2 a 2 unidades: sin este corrimiento, la costura de la imagen cae en el centro.
     for (const t of [maps.map!, maps.roughnessMap]) t.offset.set(0.5, 0.5)
+  } else if (material.texture === 'leather') {
+    // Una imagen cubre 30 mm de cuero: celdas de ~0,75 mm, en el mismo orden que el grano real.
+    const repeat: [number, number] = [1 / 0.3, 1 / 0.3]
+    const c = leatherCanvases(31)
+    maps = { map: null, roughnessMap: canvasTexture(c.rough, repeat, false), bumpMap: canvasTexture(c.bump, repeat, false) }
+  } else if (material.texture === 'gourd') {
+    // `lathe` pone U = altura (unidades) y V = la vuelta medida en el radio de los termos
+    // (2π × 0,45 ≈ 2,83): así una imagen cubre ~95 mm de alto y exactamente una vuelta.
+    const repeat: [number, number] = [1 / 0.95, 1 / (2 * Math.PI * 0.45)]
+    const c = gourdCanvases(material.color, 23)
+    maps = { map: canvasTexture(c.color, repeat, true), roughnessMap: canvasTexture(c.rough, repeat, false), bumpMap: null }
   } else if (material.texture === 'clear') {
     // Acrílico pulido: sin veta ni grano.
     maps = { map: null, roughnessMap: canvasTexture(matteCanvas(17), [4, 4], false), bumpMap: null }

@@ -68,7 +68,7 @@ export function Footer() {
                 ) : (
                   m.license
                 )}
-                . Imagen ilustrativa.
+                .{'changes' in m && ` Imagen ${m.changes}.`} Imagen ilustrativa.
               </li>
             ))}
           </ul>

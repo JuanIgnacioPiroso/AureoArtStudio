@@ -83,6 +83,45 @@ const THUMBS: Record<ProductDef['modelId'], ReactNode> = {
       <rect x="46" y="28" width="28" height="7" rx="1.5" fill="currentColor" />
     </>
   ),
+  // Copas y vasos: copa de vino en contorno, con tallo y pie.
+  'glassware-v1': (
+    <>
+      <path d="M52 3 H68 Q69 13 66 18 Q63 22 60 22 Q57 22 54 18 Q51 13 52 3 Z" fill="currentColor" opacity=".3" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+      <rect x="59.2" y="22" width="1.6" height="10" fill="currentColor" />
+      <rect x="54" y="32" width="12" height="2.5" rx="1.2" fill="currentColor" />
+      <rect x="55" y="10" width="10" height="2" rx="1" fill="currentColor" />
+    </>
+  ),
+  // Mate de madera: fondo redondeado y boca apenas abierta.
+  'mate-wood-v1': (
+    <>
+      <path d="M50.5 8 H69.5 Q68 12 68 16 V27 Q68 35 60 35 Q52 35 52 27 V16 Q52 12 50.5 8 Z" fill="currentColor" />
+      <rect x="54" y="19" width="12" height="3" rx="1" fill="var(--panel)" />
+    </>
+  ),
+  // Mate imperial: panza redonda sobre tres patas y virola alta.
+  'mate-imperial-v1': (
+    <>
+      <path d="M53 15 Q47 19 47 25 Q47 31 53 33 H67 Q73 31 73 25 Q73 19 67 15 Z" fill="currentColor" />
+      <path d="M56 32 L52 37 H55 L59 33 Z M64 32 L68 37 H65 L61 33 Z M58.5 33 L58 37 H62 L61.5 33 Z" fill="currentColor" />
+      <rect x="52" y="5" width="16" height="10" rx="1.2" fill="currentColor" opacity=".55" />
+    </>
+  ),
+  // Mate camionero: cuerpo de cuero que se ensancha abajo, base fruncida y virola ancha.
+  'mate-camionero-v1': (
+    <>
+      <path d="M53 12 Q51 20 48 26 Q46 31 48 34 L51 36 L54 34 L57 36 L60 34 L63 36 L66 34 L69 36 L72 34 Q74 31 72 26 Q69 20 67 12 Z" fill="currentColor" />
+      <rect x="50" y="6" width="20" height="6" rx="1.2" fill="currentColor" opacity=".55" />
+    </>
+  ),
+  // Mate de acero: vaso bajo de paredes casi rectas, con la boca redondeada.
+  'mate-steel-v1': (
+    <>
+      <path d="M50 9 H70 V31 Q70 35 66 35 H54 Q50 35 50 31 Z" fill="currentColor" />
+      <rect x="49" y="7.5" width="22" height="3" rx="1.5" fill="currentColor" opacity=".6" />
+      <rect x="52" y="19" width="16" height="3" rx="1" fill="var(--panel)" />
+    </>
+  ),
 }
 
 function Thumb({ modelId }: { modelId: ProductDef['modelId'] }) {

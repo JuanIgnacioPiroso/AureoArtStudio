@@ -931,6 +931,24 @@
 .design-canvas__wrap.is-dark .design-canvas__wrap-handle {
   fill: #e0926b;
 }
+.design-canvas__ring {
+  pointer-events: none;
+}
+.design-canvas__ring circle {
+  fill: none;
+  stroke: rgb(0 0 0 / 0.35);
+  stroke-width: 1;
+  stroke-dasharray: 2 5;
+}
+.design-canvas__ring .design-canvas__ring-off {
+  fill: rgb(0 0 0 / 0.16);
+}
+.design-canvas__ring.is-dark circle {
+  stroke: rgb(255 255 255 / 0.35);
+}
+.design-canvas__ring.is-dark .design-canvas__ring-off {
+  fill: rgb(0 0 0 / 0.35);
+}
 .design-canvas__marquee {
   fill: rgb(201 174 124 / 0.12);
   stroke: var(--champagne);

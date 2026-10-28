@@ -213,3 +213,51 @@ describe('textos largos', () => {
     expect(after.kind === 'text' && after.sizeMm).toBe(12)
   })
 })
+
+describe('diseño por defecto sobre un anillo', () => {
+  it('arma los textos curvos sobre el anillo', () => {
+    s().setProduct('mate-camionero')
+    const texts = s().design.elements.filter((e) => e.kind === 'text')
+    expect(texts.map((t) => t.kind === 'text' && t.text)).toEqual(['Mateando juntos', '2026'])
+    expect(texts.every((t) => t.kind === 'text' && t.arc !== 0)).toBe(true)
+  })
+
+  it('con el diseño intacto, fontsLoaded lo rearma sin sumar un paso al historial', () => {
+    s().setProduct('mate-camionero')
+    const past = s().past.length
+    s().fontsLoaded()
+    expect(s().past).toHaveLength(past)
+    expect(s().design.elements).toEqual(normalizeDesign(defaultDesign('mate-camionero')).elements)
+  })
+
+  it('con una capa cambiada, fontsLoaded no la toca', () => {
+    s().setProduct('mate-camionero')
+    const id = s().design.elements[0]!.id
+    s().updateElement(id, { text: 'Otro texto' })
+    const before = s().design
+    s().fontsLoaded()
+    expect(s().design.elements).toEqual(before.elements)
+  })
+})
+
+describe('de la boca a la virola', () => {
+  it('endereza los textos y, al volver sin cambios, restaura los curvos', () => {
+    s().setProduct('mate-camionero')
+    const curved = s().design.elements
+    s().setSurface('wrap')
+    expect(s().design.elements.every((e) => e.kind !== 'text' || e.arc === 0)).toBe(true)
+    s().setSurface('mouth')
+    expect(s().design.elements).toEqual(curved)
+  })
+
+  it('si se cambió algo en la banda, al volver se reescala', () => {
+    s().setProduct('mate-camionero')
+    s().setSurface('wrap')
+    const id = s().design.elements[0]!.id
+    s().updateElement(id, { text: 'Otro' })
+    s().setSurface('mouth')
+    const el = s().design.elements.find((e) => e.id === id)!
+    expect(el.kind === 'text' && el.text).toBe('Otro')
+    expect(el.kind === 'text' && el.arc).toBe(0)
+  })
+})

@@ -106,23 +106,32 @@ function SelectionHandles({ el, mmPerPx, onStart }: HandlesProps) {
 
 /**
  * Referencias de una tira cilíndrica: dónde caen el frente, el dorso y el costado opuesto a la
- * manija. Son sólo del editor: no forman parte del diseño ni del arte para el taller.
+ * manija (termos), o el frente y los costados con la parte de atrás en los bordes (mates). Son
+ * sólo del editor: no forman parte del diseño ni del arte para el taller.
  */
 function WrapGuides({ surface, labelMm, dark }: { surface: SurfaceDef; labelMm: number; dark: boolean }) {
   const wrap = surface.wrap
   if (!wrap) return null
   const W = surface.widthMm
   const H = surface.heightMm
-  const lines = [
-    { x: wrap.frontOffsetMm, label: 'Frente' },
-    { x: -wrap.frontOffsetMm, label: 'Dorso' },
-    { x: 0, label: 'Costado' },
-  ]
+  const back = wrap.edge === 'back'
+  // Sin manija (mates), la tira se centra en el frente: los costados quedan a un cuarto de vuelta.
+  const quarter = (Math.PI * wrap.radiusMm) / 2
+  const lines = back
+    ? [
+        { key: 'front', x: 0, label: 'Frente' },
+        ...[-1, 1].map((side) => ({ key: `side${side}`, x: side * quarter, label: 'Costado' })).filter((l) => Math.abs(l.x) < W / 2),
+      ]
+    : [
+        { key: 'front', x: wrap.frontOffsetMm, label: 'Frente' },
+        { key: 'back', x: -wrap.frontOffsetMm, label: 'Dorso' },
+        { key: 'side', x: 0, label: 'Costado' },
+      ]
   const top = -H / 2 - labelMm * 0.6
   return (
     <g className={`design-canvas__wrap${dark ? ' is-dark' : ''}`} aria-hidden="true">
       {lines.map((l) => (
-        <g key={l.label}>
+        <g key={l.key}>
           <line x1={l.x} x2={l.x} y1={-H / 2} y2={H / 2} vectorEffect="non-scaling-stroke" />
           <text x={l.x} y={top} fontSize={labelMm} textAnchor="middle">
             {l.label}
@@ -137,9 +146,32 @@ function WrapGuides({ surface, labelMm, dark }: { surface: SurfaceDef; labelMm: 
           textAnchor="middle"
           transform={`translate(${side * (W / 2 + labelMm * 1.1)} 0) rotate(${side * 90})`}
         >
-          Manija
+          {back ? 'Atrás' : 'Manija'}
         </text>
       ))}
+    </g>
+  )
+}
+
+/**
+ * Referencias de una zona con anillo (la boca de una virola): el borde de afuera y la boca, y lo
+ * que no es metal (la boca y las esquinas) sombreado. Son sólo del editor.
+ */
+function RingGuides({ surface, dark }: { surface: SurfaceDef; dark: boolean }) {
+  const ring = surface.ring
+  if (!ring) return null
+  const W = surface.widthMm
+  const H = surface.heightMm
+  const ro = ring.outerMm / 2
+  const ri = ring.innerMm / 2
+  const circle = (r: number) => `M ${r} 0 A ${r} ${r} 0 1 0 ${-r} 0 A ${r} ${r} 0 1 0 ${r} 0 Z`
+  return (
+    <g className={`design-canvas__ring${dark ? ' is-dark' : ''}`} aria-hidden="true">
+      {/* Fuera del anillo: el rectángulo de la zona menos el círculo de afuera, y la boca. */}
+      <path d={`M ${-W / 2} ${-H / 2} H ${W / 2} V ${H / 2} H ${-W / 2} Z ${circle(ro)}`} fillRule="evenodd" className="design-canvas__ring-off" />
+      <path d={circle(ri)} className="design-canvas__ring-off" />
+      <circle r={ro} vectorEffect="non-scaling-stroke" />
+      <circle r={ri} vectorEffect="non-scaling-stroke" />
     </g>
   )
 }
@@ -335,6 +367,7 @@ export function DesignCanvas() {
               vectorEffect="non-scaling-stroke"
             />
             <WrapGuides surface={surface} labelMm={px(11)} dark={isDarkColor(partMaterial(product, surface.part, design.materialId).color)} />
+            <RingGuides surface={surface} dark={isDarkColor(partMaterial(product, surface.part, design.materialId).color)} />
             {design.elements.map((el) => {
               if (el.hidden) return null
               const { w, h } = elementSize(el, measureTextMm)
