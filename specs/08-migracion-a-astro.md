@@ -1,6 +1,6 @@
 # SPEC 08 — Migración del sitio a Astro
 
-> **Estado:** Borrador
+> **Estado:** Aprobado
 > **Depende de:** SPEC 04, SPEC 07
 > **Fecha:** 2026-10-27
 > **Objetivo:** Pasar el sitio de Vite multi-página a Astro estático, con la home en componentes `.astro` sin React y el Custom Lab como única isla de React (`client:only`) dentro de una página Astro.
