@@ -1,0 +1,66 @@
+---
+import { Image } from 'astro:assets'
+import { TRUSTED_LOGOS } from '../content/logos'
+
+/**
+ * Franja de logos de quienes confían en AUREO. Sin logos en src/assets/logos/ no se renderiza.
+ * Carrusel en CSS puro: la pista tiene dos mitades iguales y se desplaza un 50 %, así el bucle no salta.
+ * Con pocos logos, cada mitad repite el set hasta MIN_TRACK_ITEMS para que nunca quede un hueco.
+ * Sólo los logos originales de la primera mitad son legibles; las copias llevan aria-hidden y alt="".
+ */
+
+const MIN_TRACK_ITEMS = 8
+
+const repeats = Math.ceil(MIN_TRACK_ITEMS / Math.max(TRUSTED_LOGOS.length, 1))
+const half = Array.from({ length: repeats }, (_, r) => TRUSTED_LOGOS.map((logo) => ({ logo, repeat: r > 0 }))).flat()
+const duration = `${half.length * 3}s`
+---
+
+{
+  TRUSTED_LOGOS.length > 0 && (
+    <section id="confian" class="section tone trusted" data-tone="light" aria-labelledby="confian-title">
+      <div class="wrap">
+        <h2 id="confian-title" class="trusted__title">
+          Confían en nosotros
+        </h2>
+      </div>
+      <div class="trusted__marquee">
+        <div class="trusted__track" style={`--trusted-duration: ${duration}`}>
+          {[false, true].map((copyHalf) => (
+            <ul class="trusted__logos" aria-hidden={copyHalf ? 'true' : undefined}>
+              {half.map(({ logo, repeat }) => {
+                const copy = copyHalf || repeat
+                const alt = copy ? '' : logo.name
+                return (
+                  <li class="trusted__item" aria-hidden={copy ? 'true' : undefined}>
+                    {logo.isSvg ? (
+                      <img
+                        class="trusted__logo"
+                        src={logo.src.src}
+                        width={logo.src.width}
+                        height={logo.src.height}
+                        alt={alt}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <Image
+                        class="trusted__logo"
+                        src={logo.src}
+                        height={56}
+                        densities={[1, 2]}
+                        alt={alt}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    )}
+                  </li>
+                )
+              })}
+            </ul>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}

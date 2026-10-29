@@ -1,6 +1,6 @@
 # SPEC 09 — Sección «Confían en nosotros» con carrusel de logos
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 08
 > **Fecha:** 2026-10-28
 > **Objetivo:** Sumar a la home, justo después del Hero, una sección clara «Confían en nosotros» con un carrusel continuo de logos que se arma solo a partir de los archivos de `src/assets/logos/`.
@@ -46,9 +46,10 @@ El negocio todavía no tiene los logos. Por eso la sección se alimenta sola de 
   - la primera mitad es un `<ul>` con un `<li>` por logo y `alt` = nombre; la segunda mitad (y las repeticiones) llevan `aria-hidden="true"` y `alt=""`, así un lector de pantalla lee cada logo una sola vez;
   - pasar el mouse sobre la franja pausa la animación (`animation-play-state: paused`).
 - **Aspecto de los logos:**
-  - altura fija de 40 px en escritorio y 32 px en móvil, ancho automático con `max-width: 160px` y `object-fit: contain`;
-  - los raster se generan con `<Image>` de `astro:assets` con `height={40}` y `densities={[1, 2]}`, `loading="lazy"` y `decoding="async"`;
-  - monocromos en reposo (`filter: grayscale(1)` y opacidad reducida) y con su color original al pasar el mouse sobre cada logo.
+  - altura fija de 56 px en escritorio y 44 px en móvil, ancho automático con `max-width: 200px` y `object-fit: contain`;
+  - los raster se generan con `<Image>` de `astro:assets` con `height={56}` y `densities={[1, 2]}`, `loading="lazy"` y `decoding="async"`;
+  - monocromos en reposo (`filter: grayscale(1)` y opacidad reducida) y con su color original al pasar el mouse sobre cada logo;
+  - `mix-blend-mode: multiply`, para que el fondo blanco opaco de un logo tome el color de la franja. La pista lleva `background: var(--bg)` porque su animación aísla la mezcla.
 - **Movimiento reducido:** con `prefers-reduced-motion: reduce` no hay animación, las copias `aria-hidden` no se muestran y el set original queda quieto en una grilla centrada que salta de línea.
 - **Comentario del Hero:** `Hero.astro` dice que la línea dorada es «el único movimiento automático de la página». Se corrige para nombrar también el carrusel.
 - **README:** una entrada en «Datos pendientes del negocio» que explica cómo sumar un logo (carpeta, formatos, regla del nombre y prefijo de orden).
@@ -143,7 +144,8 @@ Convenciones:
 - [ ] Los logos se desplazan solos hacia la izquierda en un bucle sin saltos visibles ni huecos, también con 1 solo logo en la carpeta.
 - [ ] Con el mouse sobre la franja, el desplazamiento se detiene y retoma al salir.
 - [ ] En reposo los logos se ven en escala de grises; al pasar el mouse sobre uno, ese logo se ve con su color original.
-- [ ] Los logos miden 40 px de alto a 1440 px de ancho y 32 px a 375 px, sin deformarse.
+- [ ] Los logos miden 56 px de alto a 1440 px de ancho y 44 px a 375 px, sin deformarse.
+- [ ] Un logo con fondo blanco opaco (PNG o JPG) no muestra un rectángulo blanco sobre la franja.
 - [ ] A 375 px de ancho la página no tiene scroll horizontal.
 - [ ] Un lector de pantalla encuentra una lista con un ítem por logo, cada uno con su nombre, sin repeticiones (las copias tienen `aria-hidden="true"`).
 - [ ] Con `prefers-reduced-motion: reduce` activo, los logos están quietos, aparece cada logo una sola vez y la fila salta de línea si no entra.
@@ -170,6 +172,9 @@ Convenciones:
 - **Sí:** tono claro. Corta el Hero oscuro, prepara «Productos» y la mayoría de los logos se ven bien sobre fondo claro.
 - **Sí:** título «Confían en nosotros» sin bajada. Sirve para empresas, personas y organismos por igual.
 - **Sí:** logos monocromos con color al hover. Unifica logos de colores muy distintos.
+- **Sí:** 56 / 44 px de alto y hasta 200 px de ancho. Con los logos reales, los 40 / 32 px originales dejaban chicos a los logos cuadrados. Lo pidió el usuario durante la implementación.
+- **Sí:** `mix-blend-mode: multiply` para los logos con fondo blanco. Funciona porque la franja es clara y evita retocar cada imagen.
+- **No:** quitar el fondo en el build con sharp. Es más código para un problema que una línea de CSS resuelve.
 - **Sí:** carrusel en CSS puro, sin `<script>`. Mantiene la home sin JS extra, en línea con la SPEC 08.
 - **Sí:** pausa al pasar el mouse y quietos con `prefers-reduced-motion`.
 - **No:** botón visible de pausa ni bordes difuminados. Se descartaron para mantener la sección mínima.
@@ -187,7 +192,8 @@ Convenciones:
 | Un logo blanco o muy claro desaparece sobre el fondo claro. | El README pide logos en versión oscura o a color sobre transparente. Se ve en la prueba del paso 3. |
 | Un SVG sin `width`/`height` ni `viewBox` se dibuja con tamaño 0 o deformado. | Altura fija por CSS y `object-fit: contain`. El README pide SVG con `viewBox`. |
 | Nombres de archivo con tildes o espacios se rompen en algún sistema de archivos o en el deploy. | El glob y Vite los manejan como UTF-8. Un criterio de aceptación prueba `Café_Martínez.webp` en el build. |
-| Un logo muy ancho (p. ej. 10:1) domina la franja. | `max-width: 160px` con `object-fit: contain`. |
+| Un logo con márgenes blancos o transparentes dentro del archivo se ve más chico que el resto. | El multiply oculta el blanco pero no el espacio. Hay que recortar el archivo al borde del logo. |
+| Un logo muy ancho (p. ej. 10:1) domina la franja. | `max-width: 200px` con `object-fit: contain`. |
 | Pocos logos repetidos muchas veces se ven como relleno. | Es el costo de no ocultar la sección con 1–3 logos. El usuario controla cuándo sumar más. |
 
 ---

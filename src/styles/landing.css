@@ -291,6 +291,95 @@
   border-radius: var(--radius-s);
 }
 
+/* ───────── Confían en nosotros ───────── */
+.trusted.section {
+  padding-block: var(--s3);
+  border-bottom: 1px solid var(--rule);
+}
+.trusted__title {
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--fg-muted);
+}
+/* La pista tiene dos mitades iguales: al llegar a -50 % vuelve al inicio sin salto visible. */
+.trusted__marquee {
+  margin-top: var(--s2);
+  overflow: hidden;
+}
+.trusted__marquee:hover .trusted__track {
+  animation-play-state: paused;
+}
+.trusted__track {
+  display: flex;
+  width: max-content;
+  /* Fondo propio: la pista animada aísla la mezcla, y el multiply de los logos necesita el color de la franja. */
+  background: var(--bg);
+  animation: trusted-scroll var(--trusted-duration, 30s) linear infinite;
+}
+.trusted__logos {
+  --trusted-gap: var(--s4);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: var(--trusted-gap);
+  /* El espacio final iguala el hueco entre la última y la primera de la mitad siguiente. */
+  padding-right: var(--trusted-gap);
+}
+@keyframes trusted-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.trusted__item {
+  flex: none;
+}
+.trusted__logo {
+  display: block;
+  width: auto;
+  height: 56px;
+  max-width: 200px;
+  object-fit: contain;
+  /* El blanco de los logos con fondo opaco toma el color de la franja. */
+  mix-blend-mode: multiply;
+  filter: grayscale(1);
+  opacity: 0.6;
+  transition:
+    filter 0.3s var(--ease),
+    opacity 0.3s var(--ease);
+}
+.trusted__logo:hover {
+  filter: none;
+  opacity: 1;
+}
+@media (max-width: 560px) {
+  .trusted__logos {
+    --trusted-gap: var(--s3);
+  }
+  .trusted__logo {
+    height: 44px;
+  }
+}
+/* Sin movimiento: cada logo una sola vez, quieto, en una grilla centrada que salta de línea. */
+@media (prefers-reduced-motion: reduce) {
+  .trusted__track {
+    width: auto;
+    animation: none !important;
+  }
+  .trusted__logos {
+    flex: 1;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: var(--s2);
+    padding-inline: var(--gutter);
+  }
+  .trusted__track [aria-hidden='true'] {
+    display: none;
+  }
+}
+
 /* ───────── Categorías ───────── */
 .categories {
   list-style: none;

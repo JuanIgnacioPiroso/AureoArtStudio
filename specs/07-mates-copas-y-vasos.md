@@ -9,7 +9,7 @@
 
 ## Por qué esta spec
 
-Es la segunda parte del pedido que se dividió en la SPEC 06: «copas de vidrio, mates, elementos de cuero». La SPEC 06 sumó placas, chapitas y el trofeo. Esta suma los mates y el vidrio. El cuero pasa a la **SPEC 09**.
+Es la segunda parte del pedido que se dividió en la SPEC 06: «copas de vidrio, mates, elementos de cuero». La SPEC 06 sumó placas, chapitas y el trofeo. Esta suma los mates y el vidrio. El cuero pasa a la **SPEC 10**.
 
 Se apoya en lo que ya existe:
 
@@ -86,7 +86,7 @@ La spec es grande. El usuario eligió no dividirla.
 
 **Queda fuera (para otras specs):**
 
-- **Grabar el cuero** (del imperial, del camionero y otros elementos de cuero): va en la SPEC 09.
+- **Grabar el cuero** (del imperial, del camionero y otros elementos de cuero): va en la SPEC 10.
 - **El mate de calabaza natural:** se reemplazó por el imperial y el camionero.
 - **Mate de vidrio y otros mates.**
 - **El cincelado de la virola del imperial** (la guarda de la foto): la virola es lisa.
@@ -160,7 +160,7 @@ Materiales nuevos (`MATERIALS`):
 | `leather-brown` | «Cuero marrón»        | `leather` | `leather` | cuerpo del imperial y del camionero         |
 | `glass-clear`   | «Vidrio transparente» | `glass`   | `clear`   | copas y vasos (única opción)                |
 
-No hay estilos de grabado nuevos: la virola usa los del acero, el vidrio usa `etch` y el cuero no tiene estilos todavía (la SPEC 09 los suma).
+No hay estilos de grabado nuevos: la virola usa los del acero, el vidrio usa `etch` y el cuero no tiene estilos todavía (la SPEC 10 los suma).
 
 Productos nuevos (`PRODUCTS`):
 
@@ -335,13 +335,13 @@ Categoría nueva (`src/content/site.ts`):
 
 - **Sí:** mates y vidrio en una sola spec. Lo eligió el usuario.
 - **No:** dividir en mates (07) y vidrio (08).
-- **Sí:** el cuero pasa a la SPEC 09.
+- **Sí:** el cuero pasa a la SPEC 10.
 - **Sí:** tres mates: madera, calabaza y acero. Lo eligió el usuario. Cambiado durante la implementación (ver abajo).
 - **No:** mate de vidrio.
 - **Sí:** reemplazar el mate de calabaza por un mate imperial y un mate camionero. Lo pidió el usuario durante la implementación, con fotos de referencia.
 - **No:** dejar el de calabaza además de los dos nuevos.
 - **Sí:** en el imperial y el camionero se graba la virola: «Boca» (el anillo de arriba) y «Virola» (la banda del costado). Es lo que muestran las fotos.
-- **No:** grabar el cuero en esta spec. Necesita un estilo propio y es el tema de la SPEC 09.
+- **No:** grabar el cuero en esta spec. Necesita un estilo propio y es el tema de la SPEC 10.
 - **Sí:** «Boca» es una zona plana y cuadrada con guías de anillo, y el texto se curva con el control que ya existe. Reusa el decal plano y la curva del texto.
 - **No:** un editor polar (el anillo desenrollado como tira). Suma un tipo de zona nuevo en el editor, el dibujo y el 3D.
 - **Sí:** un aviso cuando parte del diseño cae en la boca o fuera del anillo, calculado con el dibujo real. Con las cajas de las capas, un texto curvo sobre el anillo daría un falso aviso.
@@ -352,7 +352,7 @@ Categoría nueva (`src/content/site.ts`):
 - **No:** textos rectos sobre el anillo, ni curvos en una tipografía monoespaciada.
 - **Sí:** se elige el color del cuero (negro o marrón); la virola es siempre de alpaca y el interior, de calabaza.
 - **No:** sólo cuero negro, ni elegir el metal de la virola.
-- **Sí:** el cuero tiene su tipo (`leather`) y una textura de grano fino. Lo distingue del negro mate de los termos, y la SPEC 09 le suma estilos de grabado.
+- **Sí:** el cuero tiene su tipo (`leather`) y una textura de grano fino. Lo distingue del negro mate de los termos, y la SPEC 10 le suma estilos de grabado.
 - **Sí:** la calabaza se reusa como interior fijo de los dos mates nuevos. Se ve por la boca, como en las fotos.
 - **No:** el cincelado de la virola del imperial.
 - **Sí:** el imperial sigue la segunda foto de referencia («Mate imperial 2.webp»): cuerpo de huevo, virola ancha con labio y patas que se juntan debajo de la panza. Lo pidió el usuario durante la implementación; cambia las medidas provisorias de la virola. Es una guarda de fábrica que no se personaliza.
@@ -404,7 +404,7 @@ Categoría nueva (`src/content/site.ts`):
 
 ## Lo que **no** entra en esta spec
 
-- Grabar el cuero (SPEC 09).
+- Grabar el cuero (SPEC 10).
 - El mate de calabaza natural.
 - Mate de vidrio y otros mates.
 - El cincelado de la virola del imperial.

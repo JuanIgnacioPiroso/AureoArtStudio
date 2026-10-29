@@ -79,7 +79,7 @@ Hoy el sitio es Vite multi-página (SPEC 04): `index.html` → `src/main.tsx` �
 - **Redirecciones del lado del servidor** (`vercel.json` con `has: query`) para los enlaces viejos.
 - **Cambios de diseño, de textos o de contenido.** Esta spec busca paridad.
 - **La API de fuentes de Astro** o el self-hosting de Google Fonts.
-- **Grabar el cuero:** pasa a la SPEC 09.
+- **Grabar el cuero:** pasa a la SPEC 10.
 
 ---
 
@@ -238,6 +238,6 @@ Los textos del lightbox (título, material, detalle, imagen grande) viajan en at
 - SSR, adaptador o endpoints.
 - Redirecciones del lado del servidor.
 - Cambios de diseño o de contenido.
-- Grabar el cuero (SPEC 09).
+- Grabar el cuero (SPEC 10).
 
 Cada uno, si llega, va en su propia spec.
