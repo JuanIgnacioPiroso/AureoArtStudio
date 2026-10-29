@@ -2,28 +2,31 @@
 
 Landing de grabado personalizado con **AUREO Custom Lab**, un simulador 3D de grabados.
 
-El sitio tiene dos páginas (Vite multi-página):
+El sitio es estático y está hecho con Astro. Tiene dos páginas, en `src/pages/`, y las dos usan el mismo layout (`src/layouts/BaseLayout.astro`: `<head>`, header, footer y aviso de desarrollo):
 
-- **Home** (`/`): `index.html` → `src/main.tsx` → `src/App.tsx`. No incluye código del Lab.
-- **Custom Lab** (`/custom-lab/`): `custom-lab/index.html` → `src/lab-page/main.tsx` → `src/lab-page/LabPage.tsx`. Los enlaces para compartir son `/custom-lab/?d=…` y las categorías abren `/custom-lab/?producto=<id>`. Los enlaces viejos de la home (`/?d=…`, `/?producto=…`) redirigen solos a esta página.
+- **Home** (`/`): `src/pages/index.astro`. Las secciones (`src/sections/`) y los componentes (`src/components/`) son `.astro` y no usan React. Lo interactivo va en un `<script>` en TS plano dentro de cada componente: el header (tono según la sección, menú móvil) y la galería (filtros, visor y `?cat=` / `?obra=` en la URL). La home no descarga React ni código del Lab.
+- **Custom Lab** (`/custom-lab/`): `src/pages/custom-lab/index.astro`. El header, el encabezado y el footer salen en el HTML, y el simulador (`src/lab/CustomLab.tsx`) es la única isla de React del sitio. Se monta sólo en el navegador (`client:only="react"`), porque three.js no se puede renderizar en el servidor. Los enlaces para compartir son `/custom-lab/?d=…` y las categorías abren `/custom-lab/?producto=<id>`.
+- **Enlaces viejos** de la home (`/?d=…`, `/?producto=…`): un script inline en el `<head>` de `src/pages/index.astro` los manda a `/custom-lab/` antes de pintar. Repite la regla de `legacyLabRedirect` (`src/lab/intent.ts`): si cambia una, hay que cambiar la otra.
 
-Stack: Vite + React 19 + TypeScript estricto, three.js / React Three Fiber / drei, zustand, zod.
+Stack: Astro (estático) + React 19 en el Custom Lab + TypeScript estricto, three.js / React Three Fiber / drei, zustand, zod. Hace falta Node ≥ 22.23.4.
 
 ## Comandos
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173
-npm run build      # tsc + build de producción
-npm run lint
-npm run test
+npm run dev        # astro dev, en http://localhost:4321
+npm run build      # astro check + build estático en dist/
+npm run preview    # sirve dist/
+npm run lint       # eslint, también sobre los .astro
+npm run test       # vitest
+npm run typecheck  # astro check
 ```
 
 ## Datos pendientes del negocio
 
 - **`src/config/business.ts`**: WhatsApp, email, Instagram, Facebook, ciudad, dirección, razón social y URL del sitio están en `null`. Mientras falten, se ocultan los botones que los usan (en desarrollo, un aviso los lista).
 - **Categorías** (`src/content/site.ts`): validar cuáles trabaja el negocio (`enabled`).
-- **Tipografías** (`FONTS` en `src/lab/model/catalog.ts` + URL de Google Fonts en `custom-lab/index.html`; la home sólo carga Bodoni Moda y Hanken Grotesk): 19 fuentes en 5 categorías. Para sumar una, agregá su id en `FONT_IDS` (`types.ts`), su entrada en `FONTS` y la familia en la URL.
+- **Tipografías** (`FONTS` en `src/lab/model/catalog.ts` + URL de Google Fonts en la prop `fontsHref` de `src/pages/custom-lab/index.astro`; la home sólo carga Bodoni Moda y Hanken Grotesk): 19 fuentes en 5 categorías. Para sumar una, agregá su id en `FONT_IDS` (`types.ts`), su entrada en `FONTS` y la familia en la URL.
 - **Estilos de grabado** (`src/lab/model/catalog.ts`): quemado en madera, marcado oscuro o esmerilado en acero, dorado y la alpaca de las virolas, grabado a metal (el láser retira la pintura y deja ver el acero) sobre negro mate, bajorrelieve (letra hundida y oscura) en mármol y grabado esmerilado en acrílico y vidrio. Confirmar que el taller los ofrece.
 - **Materiales de placas y trofeos** (`MATERIALS` en `src/lab/model/catalog.ts`): «Dorado» (se graba como el acero), «Mármol blanco», «Acrílico transparente» y «Acrílico negro» (base fija del trofeo). Confirmar que el taller trabaja cada uno y en qué productos.
 - **Termos** (`thermos-handle` y `thermos-half` en `src/lab/model/catalog.ts`): las medidas son estándar y hay que confirmarlas con el stock del taller. Termo con manija: Ø 90 mm × 330 mm de alto. Termo media manija: Ø 90 mm × 300 mm. Zona de grabado frontal de 60 × 120 mm en los dos. Confirmar también que los dos modelos se ofrecen en acero y en negro mate. Las formas viven en `ThermosHandle.tsx` y `ThermosHalf.tsx` (perfiles en unidades de escena, 1 unidad = 100 mm), las piezas comunes en `meshes/thermos.ts` y la zona en `thermosFront`.
@@ -39,7 +42,7 @@ npm run test
   - En esos dos: «Frente» de 40 × 30 mm y «Vuelta completa» de 30 mm de alto (210 mm en el de madera, 230 mm en el de acero), centrada en el frente y con la franja sin grabar atrás (`mateFront` y `mateWrap`).
   - Mate camionero (`mate-camionero`): calabaza forrada en cuero, Ø 90 × 105 mm, con la base fruncida. Virola de alpaca de Ø 78 por fuera, boca de Ø 52 y 12 mm de alto.
   - Mate imperial (`mate-imperial`): calabaza forrada en cuero con forma de huevo, Ø 85 mm y 115 mm de alto en total, sobre tres patas de cuero. Virola de alpaca lisa: banda de Ø 83 × 16 mm y labio de Ø 88 por fuera con boca de Ø 64.
-  - En esos dos se graba la virola: «Boca», el anillo plano de arriba (`rimMouth`), y «Virola», la banda del costado como vuelta completa (`rimBand`: 220 × 8 mm en el camionero, 230 × 12 mm en el imperial). El cuero se elige en negro o marrón y no se graba (queda para la SPEC 08).
+  - En esos dos se graba la virola: «Boca», el anillo plano de arriba (`rimMouth`), y «Virola», la banda del costado como vuelta completa (`rimBand`: 220 × 8 mm en el camionero, 230 × 12 mm en el imperial). El cuero se elige en negro o marrón y no se graba (queda para la SPEC 09).
   - Confirmar que el taller graba la virola de alpaca, arriba y alrededor, y que su rotativo graba la vuelta completa de los mates de madera y de acero. Confirmar los colores de cuero que ofrece.
 - **Copas y vasos** (`glassware` en `src/lab/model/catalog.ts`, perfiles en `meshes/glasswareProfiles.ts`): en «Vidrio transparente», con cuatro formas. Copa de vino de 210 mm de alto (cáliz Ø 85), copa de champagne de 230 mm (cáliz Ø 70), vaso de whisky de Ø 80 × 95 mm y jarro de cerveza de Ø 85 × 150 mm. Zona «Frente» de 50 × 40 mm en las copas y de 60 × 50 mm en el vaso y el jarro (`glasswareShapes`). Si cambia un perfil, hay que ajustar su zona: `glassware.test.ts` comprueba que la zona quede sobre la parte casi cilíndrica.
 - **FAQ**: las preguntas con `a: null` (diseño propio, materiales, pagos y entregas, plazos) no se muestran hasta completarlas.

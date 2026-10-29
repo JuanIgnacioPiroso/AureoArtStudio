@@ -1,0 +1,30 @@
+---
+import { DIFFERENTIALS, IMAGES } from '../content/site'
+import Picture from '../components/Picture.astro'
+
+/** Diferenciales y detalle de oficio (reemplaza a testimonios mientras no haya reales). */
+---
+
+<section class="section tone craft" data-tone="dark" aria-labelledby="craft-title">
+  <div class="wrap craft__grid">
+    <Picture image={IMAGES.grain} sizes="(min-width: 900px) 40vw, 100vw" class="craft__image" />
+    <div class="craft__copy">
+      <h2 id="craft-title" class="section-title">Cada material pide su grabado</h2>
+      <p class="lede">
+        En la madera, el láser tuesta la superficie y el texto toma un tono cálido que convive con la veta. En el acero,
+        la marca es fina y de alto contraste. Por eso el simulador sólo ofrece los estilos que tienen sentido para cada
+        zona.
+      </p>
+      <dl class="differentials">
+        {
+          DIFFERENTIALS.map((d) => (
+            <div class="differentials__item">
+              <dt class="display">{d.title}</dt>
+              <dd>{d.text}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </div>
+</section>

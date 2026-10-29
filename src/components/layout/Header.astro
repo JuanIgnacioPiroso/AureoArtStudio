@@ -1,0 +1,168 @@
+---
+import { NAV } from "../../content/site";
+import { LAB_PATH } from "../../lab/intent";
+import Logo from "../brand/Logo.astro";
+
+/**
+ * Header fijo. Toma el tono (claro/oscuro) de la sección que tiene debajo,
+ * para mantener el contraste en toda la página.
+ * En la página del Custom Lab (`page="lab"`) no muestra el CTA y marca «Simulador 3D» como página actual.
+ */
+interface Props {
+  page: "home" | "lab";
+}
+
+const isLab = Astro.props.page === "lab";
+const current = (href: string) =>
+  isLab && href === LAB_PATH ? "page" : undefined;
+---
+
+<header class="site-header" data-site-header>
+  <div class="site-header__inner wrap">
+    <a
+      href="/#inicio"
+      class="site-header__brand"
+      aria-label="AUREO Art Studio, ir al inicio"><Logo /></a
+    >
+    <nav class="site-nav" aria-label="Principal">
+      <ul>
+        {
+          NAV.slice(1).map((n) => (
+            <li>
+              <a href={n.href} aria-current={current(n.href)}>
+                {n.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    {
+      !isLab && (
+        <a href={LAB_PATH} class="button button--primary site-header__cta">
+          Personalizá tu producto
+        </a>
+      )
+    }
+    <button
+      type="button"
+      class="menu-toggle"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      data-menu-toggle
+    >
+      <span class="menu-toggle__bars" aria-hidden="true"></span>
+      <span class="visually-hidden" data-menu-label>Abrir menú</span>
+    </button>
+  </div>
+  <div id="mobile-menu" class="mobile-menu" hidden>
+    <nav aria-label="Principal (móvil)">
+      <ul>
+        {
+          NAV.map((n) => (
+            <li>
+              <a href={n.href} aria-current={current(n.href)}>
+                {n.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    {
+      !isLab && (
+        <a href={LAB_PATH} class="button button--primary">
+          Personalizá tu producto
+        </a>
+      )
+    }
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>("[data-site-header]")!;
+  const toggle = header.querySelector<HTMLButtonElement>("[data-menu-toggle]")!;
+  const toggleLabel = header.querySelector<HTMLElement>("[data-menu-label]")!;
+  const panel = header.querySelector<HTMLElement>("#mobile-menu")!;
+
+  let tone: "dark" | "light" = "dark";
+  let open = false;
+
+  // Abierto, el menú siempre es oscuro; cerrado, toma el tono de la sección de abajo.
+  function paintTone() {
+    const value = open ? "dark" : tone === "light" ? "light" : null;
+    if (value) header.dataset.tone = value;
+    else delete header.dataset.tone;
+  }
+
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting)
+          tone =
+            (e.target as HTMLElement).dataset.tone === "light"
+              ? "light"
+              : "dark";
+      }
+      paintTone();
+    },
+    { rootMargin: "0px 0px -96% 0px" },
+  );
+  // Al correr, el header todavía no tiene data-tone: se observan sólo las secciones y el footer.
+  document
+    .querySelectorAll<HTMLElement>("[data-tone]")
+    .forEach((s) => io.observe(s));
+
+  const onScroll = () =>
+    header.classList.toggle("is-scrolled", window.scrollY > 24);
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+
+  // Menú móvil: Esc cierra, el foco queda dentro del panel y vuelve al botón al cerrar.
+  const focusables = () =>
+    Array.from(panel.querySelectorAll<HTMLElement>("a, button"));
+
+  function onKey(e: KeyboardEvent) {
+    if (e.key === "Escape") {
+      setOpen(false);
+      toggle.focus();
+    }
+    if (e.key === "Tab") {
+      const els = [toggle, ...focusables()];
+      const first = els[0]!;
+      const last = els[els.length - 1]!;
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }
+
+  function setOpen(next: boolean) {
+    if (next === open) return;
+    open = next;
+    header.classList.toggle("is-open", open);
+    toggle.setAttribute("aria-expanded", String(open));
+    toggleLabel.textContent = open ? "Cerrar menú" : "Abrir menú";
+    panel.hidden = !open;
+    paintTone();
+    if (open) {
+      focusables()[0]?.focus();
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overscrollBehavior = "none";
+      document.addEventListener("keydown", onKey);
+    } else {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+      document.documentElement.style.overscrollBehavior = "";
+    }
+  }
+
+  toggle.addEventListener("click", () => setOpen(!open));
+  panel
+    .querySelectorAll("a")
+    .forEach((a) => a.addEventListener("click", () => setOpen(false)));
+</script>

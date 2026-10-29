@@ -1,0 +1,32 @@
+---
+import { LAB_PATH } from '../lab/intent'
+import { business } from '../config/business'
+import ContactLinks from '../components/ContactLinks.astro'
+
+const wa = business.whatsapp
+  ? `https://wa.me/${business.whatsapp}?text=${encodeURIComponent(`Hola, ${business.name}. Quiero hacer una consulta.`)}`
+  : null
+---
+
+<section id="contacto" class="section tone closing" data-tone="dark" aria-labelledby="contacto-title">
+  <div class="wrap closing__grid">
+    <h2 id="contacto-title" class="closing__title display">Tu próxima idea empieza acá.</h2>
+    <div class="closing__side">
+      <div class="closing__actions">
+        <a class="button button--primary" href={LAB_PATH}>Diseñar mi grabado</a>
+        {
+          wa && (
+            <a class="button" href={wa} target="_blank" rel="noopener noreferrer">
+              Consultar por WhatsApp<span class="visually-hidden"> (se abre en otra pestaña)</span>
+            </a>
+          )
+        }
+      </div>
+      <ContactLinks>
+        <p slot="fallback" class="note">
+          Diseñá tu pieza en el Custom Lab y, al final, copiá o descargá el resumen para pedir tu presupuesto.
+        </p>
+      </ContactLinks>
+    </div>
+  </div>
+</section>

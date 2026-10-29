@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import Categories from '../sections/Categories.astro'
+import ContactCta from '../sections/ContactCta.astro'
+import Differentials from '../sections/Differentials.astro'
+import Faq from '../sections/Faq.astro'
+import Gallery from '../sections/Gallery.astro'
+import Hero from '../sections/Hero.astro'
+import Process from '../sections/Process.astro'
+---
+
+<BaseLayout
+  page="home"
+  title="AUREO Art Studio · Grabado láser personalizado con simulador 3D"
+  description="Grabados personalizados en cuchillos, tablas de madera y regalos. Diseñá tu grabado, miralo en 3D antes de pedirlo y solicitá tu presupuesto."
+  ogTitle="AUREO Art Studio · Objetos únicos, diseños que dejan huella"
+  ogDescription="Personalizamos tus objetos con precisión y diseño. Creá tu grabado y visualizá cómo podría quedar antes de pedir tu presupuesto."
+  fontsHref="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..700&family=Hanken+Grotesk:wght@400;500;600&display=swap"
+>
+  <!--
+    Enlaces viejos del Lab (?d= o ?producto= en la home): se mandan a su página antes de pintar nada.
+    Es la misma regla que `legacyLabRedirect` en src/lab/intent.ts (un script inline no puede importarla).
+  -->
+  <script is:inline slot="head">
+    {
+      const params = new URLSearchParams(location.search)
+      if (params.has('d') || params.has('producto')) location.replace('/custom-lab/?' + params.toString())
+    }
+  </script>
+  <Hero />
+  <Categories />
+  <Gallery />
+  <Process />
+  <Differentials />
+  <Faq />
+  <ContactCta />
+</BaseLayout>

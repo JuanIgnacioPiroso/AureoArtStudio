@@ -1,0 +1,95 @@
+---
+import manifest from "../../content/image-credits.json";
+import { business } from "../../config/business";
+import { CATEGORIES, NAV } from "../../content/site";
+import { labProductHref } from "../../lab/intent";
+import Logo from "../brand/Logo.astro";
+import ContactLinks from "../ContactLinks.astro";
+
+// Se calcula en el build: se actualiza en cada deploy.
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer tone" data-tone="dark">
+  <div class="wrap site-footer__grid">
+    <div class="site-footer__brand">
+      <Logo />
+      <p class="note">
+        Estudio de grabado y personalización. Diseñamos cada pieza para una
+        persona y una ocasión.
+      </p>
+    </div>
+    <nav aria-label="Secciones">
+      <h2 class="site-footer__h">Secciones</h2>
+      <ul>
+        {
+          NAV.slice(1).map((n) => (
+            <li>
+              <a href={n.href}>{n.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <nav aria-label="Categorías">
+      <h2 class="site-footer__h">Categorías</h2>
+      <ul>
+        {
+          CATEGORIES.filter((c) => c.enabled).map((c) => (
+            <li>
+              {c.labProductId ? (
+                <a href={labProductHref(c.labProductId)}>{c.name}</a>
+              ) : (
+                <a href="/#productos">{c.name}</a>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <div>
+      <h2 class="site-footer__h">Contacto</h2>
+      <ContactLinks>
+        <p slot="fallback" class="note">
+          Escribinos desde el resumen de tu diseño en el Custom Lab.
+        </p>
+      </ContactLinks>
+    </div>
+  </div>
+  <div class="wrap site-footer__legal">
+    <p class="note">© {year} {business.legalName ?? business.name}</p>
+    <details class="credits">
+      <summary class="note">Créditos de imágenes</summary>
+      <ul class="note">
+        {
+          manifest.map((m) => (
+            <li>
+              «{m.title}», de {m.author || "autor desconocido"} (
+              <a href={m.source} target="_blank" rel="noopener noreferrer">
+                Wikimedia Commons
+                <span class="visually-hidden"> (se abre en otra pestaña)</span>
+              </a>
+              ), licencia{" "}
+              {m.licenseUrl ? (
+                <a
+                  href={m.licenseUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {m.license}
+                  <span class="visually-hidden">
+                    {" "}
+                    (se abre en otra pestaña)
+                  </span>
+                </a>
+              ) : (
+                m.license
+              )}
+              .{"changes" in m && ` Imagen ${m.changes}.`} Imagen ilustrativa.
+            </li>
+          ))
+        }
+      </ul>
+    </details>
+  </div>
+</footer>

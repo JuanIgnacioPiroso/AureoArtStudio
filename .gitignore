@@ -6,3 +6,4 @@ dist
 skills
 *.log
 .DS_Store
+.astro

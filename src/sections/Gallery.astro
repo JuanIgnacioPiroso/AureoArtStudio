@@ -1,0 +1,157 @@
+---
+import { WORK_CATEGORIES, WORKS } from '../content/works'
+
+const anyIllustrative = WORKS.some((w) => w.image.illustrative)
+const filters = WORK_CATEGORIES.filter((c) => c.id === 'todos' || WORKS.some((w) => w.category === c.id))
+const count = (n: number) => (n === 1 ? '1 trabajo' : `${n} trabajos`)
+---
+
+<section id="galeria" class="section tone" data-tone="dark" aria-labelledby="galeria-title" data-gallery>
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="galeria-title" class="section-title">Trabajos y referencias</h2>
+      {
+        anyIllustrative && (
+          <p class="lede">
+            Estamos sumando fotos de trabajos propios. Mientras tanto, estas imágenes son ilustrativas: muestran el tipo
+            de pieza y de grabado, no encargos realizados por el estudio.
+          </p>
+        )
+      }
+    </div>
+
+    <div class="filters" role="group" aria-label="Filtrar por categoría">
+      {
+        filters.map((c) => (
+          <button type="button" class="chip" aria-pressed={c.id === 'todos' ? 'true' : 'false'} data-filter={c.id}>
+            {c.label}
+          </button>
+        ))
+      }
+    </div>
+
+    <p class="visually-hidden" role="status" data-gallery-count>{count(WORKS.length)}</p>
+    <ul class="works">
+      {
+        WORKS.map((w) => (
+          <li class="work" data-category={w.category} data-work-id={w.id}>
+            <button
+              type="button"
+              class="work__button"
+              aria-label={`Ver ${w.title} en grande`}
+              data-title={w.title}
+              data-material={w.material}
+              data-detail={w.detail}
+              data-src={w.image.src}
+              data-width={w.image.width}
+              data-height={w.image.height}
+              data-alt={w.image.alt}
+              data-illustrative={w.image.illustrative ? 'true' : undefined}
+            >
+              <img
+                src={w.image.srcSmall}
+                width={w.image.width}
+                height={w.image.height}
+                alt={w.image.alt}
+                loading="lazy"
+                decoding="async"
+              />
+            </button>
+            <div class="work__meta">
+              <h3 class="work__title">{w.title}</h3>
+              <p class="note">
+                {w.material}. {w.detail}
+                {w.image.illustrative && ' Imagen ilustrativa.'}
+              </p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <dialog class="lightbox" aria-labelledby="lightbox-title" data-lightbox>
+    <figure hidden>
+      <img decoding="async" alt="" />
+      <figcaption><strong id="lightbox-title"></strong></figcaption>
+    </figure>
+    <form method="dialog">
+      <button class="button lightbox__close" type="submit">Cerrar</button>
+    </form>
+  </dialog>
+</section>
+
+<script>
+  /**
+   * Filtro por categoría y visor de obras. Refleja filtro (`?cat=`) y obra abierta (`?obra=`) en la URL,
+   * sin sumar entradas al historial ni tocar el hash, y los aplica al cargar.
+   */
+  const CAT_PARAM = 'cat'
+  const WORK_PARAM = 'obra'
+
+  const root = document.querySelector<HTMLElement>('[data-gallery]')!
+  const chips = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-filter]'))
+  const items = Array.from(root.querySelectorAll<HTMLLIElement>('[data-work-id]'))
+  const status = root.querySelector<HTMLElement>('[data-gallery-count]')!
+  const dialog = root.querySelector<HTMLDialogElement>('[data-lightbox]')!
+  const figure = dialog.querySelector('figure')!
+  const bigImg = figure.querySelector('img')!
+  const caption = figure.querySelector('figcaption')!
+  const captionTitle = caption.querySelector('strong')!
+
+  function writeParam(name: string, value: string | null) {
+    const url = new URL(window.location.href)
+    if (value) url.searchParams.set(name, value)
+    else url.searchParams.delete(name)
+    history.replaceState(history.state, '', url)
+  }
+
+  function applyFilter(id: string) {
+    let shown = 0
+    for (const li of items) {
+      const visible = id === 'todos' || li.dataset.category === id
+      li.hidden = !visible
+      if (visible) shown++
+    }
+    for (const chip of chips) chip.setAttribute('aria-pressed', String(chip.dataset.filter === id))
+    status.textContent = shown === 1 ? '1 trabajo' : `${shown} trabajos`
+  }
+
+  function setFilter(id: string) {
+    applyFilter(id)
+    writeParam(CAT_PARAM, id === 'todos' ? null : id)
+  }
+
+  function openWork(li: HTMLLIElement) {
+    const d = li.querySelector<HTMLButtonElement>('.work__button')!.dataset
+    bigImg.src = d.src!
+    bigImg.width = Number(d.width)
+    bigImg.height = Number(d.height)
+    bigImg.alt = d.alt!
+    captionTitle.textContent = d.title!
+    caption.replaceChildren(captionTitle, ` ${d.material}. ${d.detail}${d.illustrative ? ' Imagen ilustrativa.' : ''}`)
+    figure.hidden = false
+    writeParam(WORK_PARAM, li.dataset.workId!)
+    if (!dialog.open) dialog.showModal()
+  }
+
+  for (const chip of chips) chip.addEventListener('click', () => setFilter(chip.dataset.filter!))
+  for (const li of items) li.querySelector('.work__button')!.addEventListener('click', () => openWork(li))
+
+  dialog.addEventListener('close', () => {
+    figure.hidden = true
+    bigImg.removeAttribute('src')
+    writeParam(WORK_PARAM, null)
+  })
+  // Clic en el fondo (fuera del contenido) cierra, como en cualquier visor de imágenes.
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) dialog.close()
+  })
+
+  // Estado inicial desde la URL.
+  const params = new URLSearchParams(window.location.search)
+  const cat = params.get(CAT_PARAM)
+  if (cat && chips.some((c) => c.dataset.filter === cat)) applyFilter(cat)
+  const initial = items.find((li) => li.dataset.workId === params.get(WORK_PARAM))
+  if (initial) openWork(initial)
+</script>

@@ -131,10 +131,6 @@ export interface Faq {
 /** Las respuestas en null están pendientes de completar con el negocio y no se muestran. */
 export const FAQ: Faq[] = [
   {
-    q: '¿Qué productos puedo diseñar en el simulador?',
-    a: 'Por ahora, un cuchillo con mango de madera (grabado en la hoja o en el mango) y una tabla de madera. Vamos a ir sumando más objetos. Si querés personalizar otra cosa, escribinos.',
-  },
-  {
     q: '¿La vista 3D muestra exactamente cómo va a quedar?',
     a: 'Es una representación orientativa: respeta las medidas de la zona, el tamaño y la ubicación del texto, pero el tono final del grabado depende de cada pieza y de su material. Antes de grabar revisamos el diseño con vos.',
   },

@@ -1,0 +1,52 @@
+---
+import '../styles/tokens.css'
+import '../styles/base.css'
+import '../styles/landing.css'
+import DevConfigNotice from '../components/DevConfigNotice.astro'
+import Footer from '../components/layout/Footer.astro'
+import Header from '../components/layout/Header.astro'
+
+interface Props {
+  page: 'home' | 'lab'
+  title: string
+  description: string
+  ogTitle: string
+  ogDescription: string
+  /** URL de Google Fonts de la página: la home carga sólo sus dos familias, el Lab suma las del editor. */
+  fontsHref: string
+}
+
+const { page, title, description, ogTitle, ogDescription, fontsHref } = Astro.props
+---
+
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <slot name="head" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#16171A" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:site_name" content="AUREO Art Studio" />
+    <meta property="og:title" content={ogTitle} />
+    <meta property="og:description" content={ogDescription} />
+    <meta property="og:image" content="/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href={fontsHref} />
+  </head>
+  <body>
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+    <Header page={page} />
+    <main id="contenido" class={page === 'lab' ? 'lab-page' : undefined}>
+      <slot />
+    </main>
+    <Footer />
+    <DevConfigNotice />
+  </body>
+</html>

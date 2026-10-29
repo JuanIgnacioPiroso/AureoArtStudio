@@ -16,6 +16,7 @@ export function labProductHref(productId: string): string {
 /**
  * Enlaces viejos, de cuando el Lab era una sección de la home (`/?d=…#custom-lab`, `/?producto=…`):
  * devuelve la URL equivalente en la página del Lab, con los mismos parámetros, o null si no hace falta redirigir.
+ * La home aplica esta misma regla con un script inline en `src/pages/index.astro`: si cambia acá, cambia allá.
  */
 export function legacyLabRedirect(search: string): string | null {
   const params = new URLSearchParams(search)

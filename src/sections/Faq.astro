@@ -1,0 +1,21 @@
+---
+import { FAQ } from '../content/site'
+
+const answered = FAQ.filter((f) => f.a)
+---
+
+<section id="preguntas" class="section tone" data-tone="light" aria-labelledby="faq-title">
+  <div class="wrap faq">
+    <h2 id="faq-title" class="section-title">Preguntas frecuentes</h2>
+    <div class="faq__list">
+      {
+        answered.map((f) => (
+          <details class="faq__item">
+            <summary>{f.q}</summary>
+            <p>{f.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>

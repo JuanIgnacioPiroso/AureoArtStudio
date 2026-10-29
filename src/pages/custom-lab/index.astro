@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import CustomLab from '../../lab/CustomLab'
+---
+
+<BaseLayout
+  page="lab"
+  title="AUREO Custom Lab · Diseñá tu grabado en 3D"
+  description="Elegí un objeto, diseñá tu grabado y explorá una vista previa interactiva de tu creación antes de pedir tu presupuesto."
+  ogTitle="AUREO Custom Lab · Tu idea, antes de grabarla"
+  ogDescription="Elegí un objeto, diseñá tu grabado y explorá una vista previa interactiva de tu creación."
+  fontsHref="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..700&family=Hanken+Grotesk:wght@400;500;600&family=Cinzel:wght@500&family=Pinyon+Script&family=Playfair+Display:wght@500&family=Cormorant+Garamond:wght@600&family=EB+Garamond:wght@500&family=Libre+Baskerville&family=Cinzel+Decorative&family=Abril+Fatface&family=Bebas+Neue&family=Oswald:wght@500&family=Montserrat:wght@500&family=Josefin+Sans:wght@500&family=Raleway:wght@500&family=Great+Vibes&family=Dancing+Script:wght@500&family=Allura&family=Space+Mono&display=swap"
+>
+  <section id="custom-lab" class="lab-page__section tone" data-tone="dark" aria-labelledby="lab-title">
+    <div class="lab-page__head">
+      <p class="lab-section__name" translate="no">AUREO Custom Lab</p>
+      <h1 id="lab-title" class="lab-page__title">Tu idea, antes de grabarla.</h1>
+    </div>
+    <!-- El simulador necesita el navegador (three.js): se monta sólo en el cliente. -->
+    <CustomLab client:only="react">
+      <div slot="fallback" class="lab-placeholder" role="status">Cargando el Custom Lab…</div>
+    </CustomLab>
+  </section>
+</BaseLayout>
