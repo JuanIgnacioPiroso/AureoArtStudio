@@ -119,10 +119,12 @@ Formas de `leather-keychain` (`shapes`), en este orden:
 | id       | Nombre        | Pieza (mm)  | Zonas «Frente» y «Dorso» |
 | -------- | ------------- | ----------- | ------------------------ |
 | `rect`   | «Rectángulo»  | 35 × 70     | 25 × 45                  |
-| `round`  | «Redondo»     | Ø 50        | 32 × 32                  |
+| `round`  | «Redondo»     | Ø 50        | 28 × 28                  |
 | `shield` | «Escudo»      | 45 × 55     | 30 × 30                  |
 
 Las medidas de la pieza no incluyen el ojal.
+
+La zona del redondo era de 32 × 32 mm y se cambió durante la implementación: sus esquinas pisaban la costura (un círculo de Ø 42 mm). 28 × 28 mm es el cuadrado más grande que entra adentro de la costura.
 
 Diseños por defecto:
 
@@ -220,6 +222,8 @@ Categoría nueva (`src/content/site.ts`), después de «Copas y vasos»:
 - **No:** la billetera abierta con el interior grabable. La malla es mucho más compleja.
 - **Sí:** el llavero con el selector «Forma» (rectángulo, redondo y escudo). Lo eligió el usuario. Reusa las siluetas de la SPEC 07.
 - **No:** un llavero de una sola forma, ni cuatro formas.
+- **Sí:** la zona del llavero redondo es de 28 × 28 mm. Lo eligió el usuario durante la implementación: con 32 × 32 mm, las esquinas pisaban la costura.
+- **No:** dejar 32 × 32 mm, ni agrandar el llavero a Ø 56 mm.
 - **Sí:** el cinturón como un tramo recto de 350 mm con la hebilla, y la zona al lado de la hebilla. Lo eligió el usuario. La zona es plana y la cámara la encuadra entera.
 - **No:** el cinturón entero enrollado, ni grabar sólo la punta.
 - **Sí:** 35 mm de ancho y hebilla de acero fija. Lo eligió el usuario.

@@ -1,4 +1,5 @@
-import type { DesignState, StyleId, SurfaceDef } from '../model/types'
+import { getProduct, partMaterial } from '../model/catalog'
+import type { DesignState, MaterialDef, StyleId, SurfaceDef } from '../model/types'
 import { drawDesignMask } from '../render/drawDesign'
 
 export interface EngravingLook {
@@ -44,6 +45,13 @@ export const ENGRAVING_LOOKS: Record<StyleId, EngravingLook> = {
     halo: { rgb: [96, 100, 104], alpha: 0.22, radiusMm: 0.3 },
     glow: 0.45,
   },
+  // Cuero quemado por el láser: mate y apenas hundido. El tono sale del cuero (engraveRgb); éste es el de respaldo.
+  'leather-mark': { rgb: [40, 28, 22], alpha: 0.92, roughness: 0.92, metalness: 0, depth: 1.8, mottle: 0.2 },
+}
+
+/** Color de la marca: el del material si lo define (el cuero), si no el del estilo. */
+export function markRgb(look: EngravingLook, material: MaterialDef): readonly [number, number, number] {
+  return material.engraveRgb ?? look.rgb
 }
 
 export interface EngravingMaps {
@@ -127,6 +135,7 @@ export function renderEngravingMaps(design: DesignState, surface: SurfaceDef, ma
   const mctx = mask.getContext('2d')!
   const maskData = mctx.getImageData(0, 0, w, h).data
   const look = ENGRAVING_LOOKS[design.styleId]
+  const rgb = markRgb(look, partMaterial(getProduct(design.productId), surface.part, design.materialId))
 
   const alpha = new Float32Array(w * h)
   for (let i = 0; i < w * h; i++) alpha[i] = maskData[i * 4 + 3]! / 255
@@ -144,9 +153,9 @@ export function renderEngravingMaps(design: DesignState, surface: SurfaceDef, ma
     const a = Math.min(1, soft[i]! * 1.15)
     // El centro del trazo se carboniza más que los bordes; el ruido rompe el tono plano.
     const tone = 1 + (grain[i]! - 0.5) * look.mottle * 2 + (1 - a) * look.mottle
-    let r = look.rgb[0] * tone
-    let g = look.rgb[1] * tone
-    let b = look.rgb[2] * tone
+    let r = rgb[0] * tone
+    let g = rgb[1] * tone
+    let b = rgb[2] * tone
     let out = a * look.alpha * (1 - look.mottle * 0.3 * grain[i]!)
     if (halo && look.halo) {
       const ha = Math.max(0, halo[i]! * 1.6 - a) * look.halo.alpha

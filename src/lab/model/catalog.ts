@@ -99,7 +99,7 @@ export const MATERIALS: Record<string, MaterialDef> = {
     metalness: 0,
     texture: 'clear',
   },
-  // Cuero de los mates imperial y camionero: de aspecto (todavía no se graba; SPEC 08).
+  // Cueros de la billetera, el llavero y el cinturón. En los mates imperial y camionero son de aspecto: ahí se graba la virola.
   'leather-black': {
     id: 'leather-black',
     name: 'Cuero negro',
@@ -108,6 +108,8 @@ export const MATERIALS: Record<string, MaterialDef> = {
     roughness: 0.7,
     metalness: 0,
     texture: 'leather',
+    // El láser deja un gris oscuro y mate, apenas más claro que el cuero.
+    engraveRgb: [104, 99, 94],
   },
   'leather-brown': {
     id: 'leather-brown',
@@ -117,6 +119,27 @@ export const MATERIALS: Record<string, MaterialDef> = {
     roughness: 0.62,
     metalness: 0,
     texture: 'leather',
+    engraveRgb: [30, 19, 13],
+  },
+  'leather-tan': {
+    id: 'leather-tan',
+    name: 'Cuero suela',
+    kind: 'leather',
+    color: '#B9824F',
+    roughness: 0.6,
+    metalness: 0,
+    texture: 'leather',
+    engraveRgb: [88, 50, 26],
+  },
+  // Costuras de los productos de cuero: no se eligen ni se graban.
+  thread: {
+    id: 'thread',
+    name: 'Hilo',
+    kind: 'coated',
+    color: '#E6DAC0',
+    roughness: 0.85,
+    metalness: 0,
+    texture: 'matte',
   },
   // Base del trofeo: no se elige ni se graba.
   'black-acrylic': {
@@ -185,6 +208,12 @@ export const ENGRAVING_STYLES: Record<StyleId, EngravingStyleDef> = {
     name: 'Grabado esmerilado',
     description: 'Marca blanca y satinada dentro del acrílico.',
     kind: 'glass',
+  },
+  'leather-mark': {
+    id: 'leather-mark',
+    name: 'Grabado láser',
+    description: 'El láser oscurece y hunde apenas el cuero.',
+    kind: 'leather',
   },
 }
 
@@ -379,6 +408,87 @@ function dogTagFace(side: 1 | -1): SurfaceDef {
     cameraOffset: [0, 0.3, 1],
   }
 }
+
+/**
+ * Tapas de la billetera parada (110 × 90 mm, 12 mm de espesor), con el lomo a la izquierda mirando
+ * el frente. La zona de 80 × 60 mm queda adentro de la costura (a 4 mm del canto) y lejos del lomo.
+ * side: -1 = frente (mira hacia -Y), +1 = dorso (girado 180° sobre el eje vertical).
+ */
+function walletFace(side: 1 | -1): SurfaceDef {
+  return {
+    id: side === -1 ? 'front' : 'back',
+    name: side === -1 ? 'Frente' : 'Dorso',
+    part: 'body',
+    position: [0.01, side * 0.06, 0.45],
+    orientation: [Math.PI / 2, side === -1 ? 0 : Math.PI, 0],
+    widthMm: 80,
+    heightMm: 60,
+    depthMm: 2,
+    curved: false,
+    sizeRange: [4, 20],
+    cameraOffset: [0, 0.3, 1.5],
+  }
+}
+
+/**
+ * Caras del llavero parado (4 mm de espesor), con el punto más bajo de la pieza en la mesa.
+ * centerMm: centro de la zona desde el centro de la pieza; halfHeightMm: mitad del alto de la pieza,
+ * sin el ojal (como KEYCHAIN_HALF_HEIGHT_MM). La caja del decal (1,6 mm) toma sólo la cara de su lado.
+ * side: -1 = frente (mira hacia -Y), +1 = dorso (girado 180° sobre el eje vertical).
+ */
+function keychainFace(side: 1 | -1, widthMm: number, heightMm: number, centerMm: number, halfHeightMm: number): SurfaceDef {
+  return {
+    id: side === -1 ? 'front' : 'back',
+    name: side === -1 ? 'Frente' : 'Dorso',
+    part: 'body',
+    position: [0, side * 0.02, (halfHeightMm + centerMm) * MM],
+    orientation: [Math.PI / 2, side === -1 ? 0 : Math.PI, 0],
+    widthMm,
+    heightMm,
+    depthMm: 1.6,
+    curved: false,
+    sizeRange: [3, 12],
+    cameraOffset: [0, 0.25, 1],
+  }
+}
+
+const keychainFaces = (w: number, h: number, centerMm: number, halfHeightMm: number) => [
+  keychainFace(-1, w, h, centerMm, halfHeightMm),
+  keychainFace(1, w, h, centerMm, halfHeightMm),
+]
+
+/** Formas del llavero. Cada zona queda adentro de la costura (a 4 mm del borde); el ojal va arriba, fuera de la pieza. */
+const keychainShapes: ProductShapeDef[] = [
+  // La zona baja 4 mm: deja más aire debajo del ojal.
+  { id: 'rect', name: 'Rectángulo', surfaces: keychainFaces(25, 45, -4, 35) },
+  { id: 'round', name: 'Redondo', surfaces: keychainFaces(28, 28, 0, 25) },
+  // El escudo se angosta abajo: la zona sube 4 mm para no pisar la costura de la punta.
+  { id: 'shield', name: 'Escudo', surfaces: keychainFaces(30, 30, 4, 27.5) },
+]
+
+/**
+ * Frente del cinturón acostado (35 mm de ancho, 4 mm de espesor): 200 × 25 mm, entre la hebilla
+ * (que termina a 152,5 mm a la izquierda del centro) y los agujeros (desde 92,5 mm a la derecha).
+ * La costura va a 4 mm de cada borde largo.
+ */
+const beltFront: SurfaceDef = {
+  id: 'front',
+  name: 'Frente',
+  part: 'body',
+  position: [-0.48, 0, 0.02],
+  orientation: [0, 0, 0],
+  widthMm: 200,
+  heightMm: 25,
+  depthMm: 2,
+  curved: false,
+  sizeRange: [4, 18],
+  cameraOffset: [0, -0.6, 2.4],
+}
+
+/** Cuero elegible de los productos de cuero y su costura fija. */
+const leatherIds = ['leather-black', 'leather-brown', 'leather-tan']
+const leatherBody = { id: 'body', name: 'Cuero', fixedMaterialId: null }
+const leatherStitch = { id: 'stitch', name: 'Costura', fixedMaterialId: 'thread' }
 
 /**
  * Frente del trofeo parado: la placa (150 × 200 mm, 10 mm de espesor) arranca a 20 mm de la mesa.
@@ -814,6 +924,65 @@ export const PRODUCTS: readonly ProductDef[] = [
         textElement({ id: 'glassware-names', text: 'Sofía & Martín', fontId: 'great-vibes', sizeMm: 7, y: 5 }),
         textElement({ id: 'glassware-date', text: '12 · 10 · 2026', fontId: 'montserrat', sizeMm: 3.2, y: -8 }),
       ],
+    },
+  },
+  {
+    id: 'leather-wallet',
+    name: 'Billetera',
+    description: 'Billetera plegable de cuero, de 11 × 9 cm, con costura. Se graba en el frente o en el dorso.',
+    modelId: 'leather-wallet-v1',
+    parts: [leatherBody, leatherStitch],
+    selectablePart: 'body',
+    materialIds: leatherIds,
+    surfaces: [walletFace(-1), walletFace(1)],
+    camera: { position: [0.5, 1.1, 2.6], target: [0, 0.45, 0] },
+    frameRadius: 0.8,
+    defaultDesign: {
+      materialId: 'leather-brown',
+      surfaceId: 'front',
+      styleId: 'leather-mark',
+      elements: [
+        textElement({ id: 'wallet-name', text: 'Andrés', fontId: 'cinzel', sizeMm: 12, y: 5 }),
+        textElement({ id: 'wallet-year', text: '2026', fontId: 'montserrat', sizeMm: 5, y: -10 }),
+      ],
+    },
+  },
+  {
+    id: 'leather-keychain',
+    name: 'Llavero',
+    description: 'Llavero de cuero con costura y argolla de acero, rectangular, redondo o escudo. Se graba en el frente o en el dorso.',
+    modelId: 'leather-keychain-v1',
+    parts: [leatherBody, { id: 'ring', name: 'Argolla', fixedMaterialId: 'steel' }, leatherStitch],
+    selectablePart: 'body',
+    materialIds: leatherIds,
+    // Las zonas que usan los lugares que no conocen las formas: las del rectángulo.
+    surfaces: keychainShapes[0]!.surfaces,
+    shapes: keychainShapes,
+    camera: { position: [0.35, 0.95, 2.1], target: [0, 0.45, 0] },
+    frameRadius: 0.6,
+    defaultDesign: {
+      materialId: 'leather-tan',
+      surfaceId: 'front',
+      styleId: 'leather-mark',
+      elements: [textElement({ id: 'keychain-name', text: 'Nico', fontId: 'great-vibes', sizeMm: 8, y: 0 })],
+    },
+  },
+  {
+    id: 'leather-belt',
+    name: 'Cinturón',
+    description: 'Cinturón de cuero de 3,5 cm de ancho, con costura y hebilla de acero. Se graba al lado de la hebilla.',
+    modelId: 'leather-belt-v1',
+    parts: [leatherBody, { id: 'buckle', name: 'Hebilla', fixedMaterialId: 'steel' }, leatherStitch],
+    selectablePart: 'body',
+    materialIds: leatherIds,
+    surfaces: [beltFront],
+    camera: { position: [0.2, 3.4, 2.9], target: [0, 0, 0] },
+    frameRadius: 2,
+    defaultDesign: {
+      materialId: 'leather-black',
+      surfaceId: 'front',
+      styleId: 'leather-mark',
+      elements: [textElement({ id: 'belt-name', text: 'Ramiro Funes', fontId: 'cinzel', sizeMm: 11, y: 0 })],
     },
   },
 ]

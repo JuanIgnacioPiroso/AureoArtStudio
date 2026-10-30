@@ -14,7 +14,11 @@ import { EngravingWrap } from './EngravingWrap'
 import { Board } from './meshes/Board'
 import { DogTag } from './meshes/DogTag'
 import { Glassware } from './meshes/Glassware'
+import { BELT_HALF } from './meshes/beltLayout'
 import { Knife } from './meshes/Knife'
+import { LeatherBelt } from './meshes/LeatherBelt'
+import { LeatherKeychain } from './meshes/LeatherKeychain'
+import { LeatherWallet } from './meshes/LeatherWallet'
 import { MateCamionero } from './meshes/MateCamionero'
 import { MateImperial } from './meshes/MateImperial'
 import { MateSteel } from './meshes/MateSteel'
@@ -45,6 +49,12 @@ const MODELS: Record<ProductDef['modelId'], { Component: ComponentType<ProductMe
   'mate-camionero-v1': { Component: MateCamionero, rest: 0 },
   'mate-steel-v1': { Component: MateSteel, rest: 0 },
   'glassware-v1': { Component: Glassware, rest: 0 },
+  // La billetera va parada, como la chapita.
+  'leather-wallet-v1': { Component: LeatherWallet, rest: 0 },
+  // El llavero va parado sobre su punto más bajo, con la argolla arriba.
+  'leather-keychain-v1': { Component: LeatherKeychain, rest: 0 },
+  // El cinturón se acuesta, como la tabla.
+  'leather-belt-v1': { Component: LeatherBelt, rest: BELT_HALF },
 }
 
 type StageTone = 'dark' | 'light'

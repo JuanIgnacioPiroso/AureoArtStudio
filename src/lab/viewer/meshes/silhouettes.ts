@@ -1,6 +1,7 @@
 import type * as THREE from 'three'
 import type { ProductDef } from '../../model/types'
 import { glasswareSilhouette } from './glasswareProfiles'
+import { keychainOutline } from './keychainShapes'
 import { trophyShape } from './trophyShapes'
 
 /**
@@ -10,4 +11,5 @@ import { trophyShape } from './trophyShapes'
 export const SILHOUETTES: Partial<Record<ProductDef['modelId'], (shapeId: string) => THREE.Vector2[]>> = {
   'trophy-v1': (id) => trophyShape(id).getPoints(24),
   'glassware-v1': glasswareSilhouette,
+  'leather-keychain-v1': (id) => keychainOutline(id),
 }

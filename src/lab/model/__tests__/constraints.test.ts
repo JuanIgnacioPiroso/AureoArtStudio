@@ -187,6 +187,17 @@ describe('stylesForSurface', () => {
   it('ofrece los estilos del acero sobre dorado', () => {
     expect(ids('gold')).toEqual(['mark-dark', 'frost'])
   })
+
+  it('ofrece sólo el grabado láser sobre los tres cueros', () => {
+    for (const id of ['leather-black', 'leather-brown', 'leather-tan']) expect(ids(id)).toEqual(['leather-mark'])
+  })
+
+  it('sigue ofreciendo los estilos del acero en la virola de los mates de cuero', () => {
+    for (const productId of ['mate-imperial', 'mate-camionero']) {
+      const p = getProduct(productId)
+      for (const s of p.surfaces) expect(stylesForSurface(p, s, 'leather-black').map((x) => x.id)).toEqual(['mark-dark', 'frost'])
+    }
+  })
 })
 
 describe('fitTextWidth', () => {

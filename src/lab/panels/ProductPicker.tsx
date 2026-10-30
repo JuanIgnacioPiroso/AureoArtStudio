@@ -122,6 +122,35 @@ const THUMBS: Record<ProductDef['modelId'], ReactNode> = {
       <rect x="52" y="19" width="16" height="3" rx="1" fill="var(--panel)" />
     </>
   ),
+  // Billetera: tapa con el lomo redondeado a la izquierda, costura punteada y una línea de texto.
+  'leather-wallet-v1': (
+    <>
+      <path d="M47 7 H76 Q78 7 78 9 V31 Q78 33 76 33 H47 Q42 33 42 28 V12 Q42 7 47 7 Z" fill="currentColor" />
+      <path d="M47 10 H75 V30 H47" fill="none" stroke="var(--panel)" strokeWidth=".8" strokeDasharray="1.6 1.2" />
+      <rect x="53" y="18.5" width="16" height="3" rx="1" fill="var(--panel)" />
+    </>
+  ),
+  // Llavero: argolla arriba, ojal con su agujero y pieza rectangular con costura punteada.
+  'leather-keychain-v1': (
+    <>
+      <circle cx="60" cy="7" r="5" fill="none" stroke="currentColor" strokeWidth="1.3" opacity=".7" />
+      <path d="M56 15 V12 A4 4 0 0 1 64 12 V15 H66 Q68 15 68 17 V35 Q68 37 66 37 H54 Q52 37 52 35 V17 Q52 15 54 15 Z" fill="currentColor" />
+      <circle cx="60" cy="12" r="1.5" fill="var(--panel)" />
+      <rect x="54.5" y="17.5" width="11" height="17" rx="1" fill="none" stroke="var(--panel)" strokeWidth=".7" strokeDasharray="1.4 1" />
+    </>
+  ),
+  // Cinturón: hebilla a la izquierda, tira con costura, tres agujeros y punta redondeada.
+  'leather-belt-v1': (
+    <>
+      <path d="M20 14 H96 A6 6 0 0 1 96 26 H20 Z" fill="currentColor" />
+      <rect x="8" y="10" width="14" height="20" rx="2.5" fill="none" stroke="currentColor" strokeWidth="2" opacity=".7" />
+      <path d="M15 20 H24" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" opacity=".7" />
+      <path d="M26 16.5 H95 M26 23.5 H95" stroke="var(--panel)" strokeWidth=".7" strokeDasharray="1.6 1.2" />
+      {[80, 86, 92].map((cx) => (
+        <circle key={cx} cx={cx} cy="20" r="1.1" fill="var(--panel)" />
+      ))}
+    </>
+  ),
 }
 
 function Thumb({ modelId }: { modelId: ProductDef['modelId'] }) {

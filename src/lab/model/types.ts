@@ -28,7 +28,7 @@ export const FONT_CATEGORIES = ['classic', 'display', 'modern', 'script', 'techn
 export type FontCategory = (typeof FONT_CATEGORIES)[number]
 
 /** Estilos de grabado. Cada superficie habilita solo los compatibles con su material. */
-export const STYLE_IDS = ['burn', 'mark-dark', 'frost', 'reveal', 'carve', 'etch'] as const
+export const STYLE_IDS = ['burn', 'mark-dark', 'frost', 'reveal', 'carve', 'etch', 'leather-mark'] as const
 export type StyleId = (typeof STYLE_IDS)[number]
 
 export const ALIGNS = ['left', 'center', 'right'] as const
@@ -130,6 +130,8 @@ export interface MaterialDef {
   metalness: number
   /** Veta / textura procedural. */
   texture: 'wood-grain' | 'brushed' | 'matte' | 'marble' | 'clear' | 'gourd' | 'leather'
+  /** Color de la marca en este material, si el estilo depende del material (el cuero). */
+  engraveRgb?: readonly [number, number, number]
 }
 
 export interface EngravingStyleDef {
@@ -202,7 +204,7 @@ export interface ProductDef {
   name: string
   description: string
   /** Identificador del modelo 3D que renderiza el visor. */
-  modelId: 'knife-v1' | 'board-v1' | 'thermos-handle-v1' | 'thermos-half-v1' | 'plaque-base-v1' | 'plaque-wall-v1' | 'dog-tag-v1' | 'trophy-v1' | 'mate-wood-v1' | 'mate-camionero-v1' | 'mate-imperial-v1' | 'mate-steel-v1' | 'glassware-v1'
+  modelId: 'knife-v1' | 'board-v1' | 'thermos-handle-v1' | 'thermos-half-v1' | 'plaque-base-v1' | 'plaque-wall-v1' | 'dog-tag-v1' | 'trophy-v1' | 'mate-wood-v1' | 'mate-camionero-v1' | 'mate-imperial-v1' | 'mate-steel-v1' | 'glassware-v1' | 'leather-wallet-v1' | 'leather-keychain-v1' | 'leather-belt-v1'
   parts: readonly ProductPart[]
   /** Parte cuyo material elige el usuario. */
   selectablePart: string

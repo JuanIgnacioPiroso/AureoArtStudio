@@ -104,5 +104,20 @@
     "source": "https://commons.wikimedia.org/wiki/File:Wine_glasses_engraved_with_the_initials_of_the_von_Wintzingerode_family,_Thuringia_16-17th_cen._01.jpg",
     "changes": "recortada y retocada (se quitó un cartel del fondo)",
     "status": "provisional: reemplazar por fotografía propia"
+  },
+  {
+    "id": "leather-belts",
+    "files": [
+      "/img/placeholder/leather-belts-1600.webp",
+      "/img/placeholder/leather-belts-800.webp"
+    ],
+    "width": 2041,
+    "height": 1361,
+    "title": "Germany Belt-and-Buckle-01.jpg",
+    "author": "CEphoto, Uwe Aranas",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Germany_Belt-and-Buckle-01.jpg",
+    "status": "provisional: reemplazar por fotografía propia"
   }
 ]

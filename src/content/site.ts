@@ -36,6 +36,7 @@ export const IMAGES = {
   grain: ph('olive-wood-grain', 1600, 1067, 'Veta de madera de olivo vista de cerca'),
   thermos: ph('thermos-mate', 1600, 2133, 'Mate de madera con yerba y bombilla delante de un termo de acero'),
   glass: ph('engraved-glass', 1600, 2134, 'Vaso de vidrio con una inicial y una corona grabadas, sobre terciopelo rojo'),
+  leather: ph('leather-belts', 1600, 1067, 'Dos cinturones de cuero negro enrollados, con una hebilla plateada y otra dorada'),
 } satisfies Record<string, ImageAsset>
 
 export interface Category {
@@ -80,6 +81,14 @@ export const CATEGORIES: Category[] = [
     description: 'Copas, vasos y jarros de vidrio con nombres o una fecha grabados en esmerilado.',
     image: IMAGES.glass,
     labProductId: 'glassware',
+    enabled: true,
+  },
+  {
+    id: 'cuero',
+    name: 'Cuero',
+    description: 'Billeteras, llaveros y cinturones de cuero con un nombre o iniciales grabados a láser.',
+    image: IMAGES.leather,
+    labProductId: 'leather-wallet',
     enabled: true,
   },
   {
