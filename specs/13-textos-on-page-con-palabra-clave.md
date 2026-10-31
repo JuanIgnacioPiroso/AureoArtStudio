@@ -1,6 +1,6 @@
 # SPEC 13 — Títulos, descripciones y H1 con la palabra clave
 
-> **Estado:** Borrador
+> **Estado:** Aprobado
 > **Depende de:** SPEC 11, SPEC 12
 > **Fecha:** 2026-10-30
 > **Objetivo:** Que el `<title>`, la meta description, el H1 y el párrafo del hero de la home, y el `<title>` del Custom Lab, nombren lo que la gente busca («grabado láser personalizado», cuchillos, mates, tablas) sin perder el tono de la marca.
@@ -23,7 +23,7 @@ La auditoría SEO de la home (2026-10-29) encontró que los textos que más pesa
 **Entra:**
 
 - **Home** (`src/pages/index.astro`):
-  - `title`: «Grabado láser personalizado · cuchillos, mates y tablas» (55 caracteres);
+  - `title`: «Grabado láser personalizado · cuchillos, mates y placas (55 caracteres);
   - `description`: «Grabamos nombres, fechas y logos en cuchillos, tablas, mates, copas y cuero. Probá tu diseño en 3D antes de pedir presupuesto.» (126 caracteres);
   - con `business.city` cargada, la description cambia a la variante con ciudad (ver «Modelo de datos»), siempre de 155 caracteres como máximo;
   - `ogTitle`: «AUREO Art Studio · Grabados láser que dejan huella»;
