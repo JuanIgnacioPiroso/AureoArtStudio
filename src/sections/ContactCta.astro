@@ -23,9 +23,15 @@ const wa = business.whatsapp
         }
       </div>
       <ContactLinks>
-        <p slot="fallback" class="note">
-          Diseñá tu pieza en el Custom Lab y, al final, copiá o descargá el resumen para pedir tu presupuesto.
-        </p>
+        <Fragment slot="fallback">
+          <p class="note">
+            Diseñá tu pieza en el Custom Lab y, al final, copiá o descargá el resumen para pedir tu presupuesto.
+          </p>
+          <p class="note">
+            ¿Buscás otro objeto o un pedido para tu empresa? Diseñá algo parecido en el Custom Lab y contanos la idea en
+            el resumen.
+          </p>
+        </Fragment>
       </ContactLinks>
     </div>
   </div>

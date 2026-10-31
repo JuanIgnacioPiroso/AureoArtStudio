@@ -2,7 +2,7 @@
 import manifest from "../../content/image-credits.json";
 import { business } from "../../config/business";
 import { CATEGORIES, NAV } from "../../content/site";
-import { labProductHref } from "../../lab/intent";
+import { categoryHref } from "../../content/categories";
 import Logo from "../brand/Logo.astro";
 import ContactLinks from "../ContactLinks.astro";
 
@@ -35,15 +35,21 @@ const year = new Date().getFullYear();
       <h2 class="site-footer__h">Categorías</h2>
       <ul>
         {
-          CATEGORIES.filter((c) => c.enabled).map((c) => (
-            <li>
-              {c.labProductId ? (
-                <a href={labProductHref(c.labProductId)}>{c.name}</a>
-              ) : (
-                <a href="/#productos">{c.name}</a>
-              )}
-            </li>
-          ))
+          CATEGORIES.filter((c) => c.enabled).map((c) => {
+            const to = categoryHref(c, business);
+            return (
+              <li>
+                {to.kind === "whatsapp" ? (
+                  <a href={to.href} target="_blank" rel="noopener noreferrer">
+                    {c.name}
+                    <span class="visually-hidden"> (se abre en otra pestaña)</span>
+                  </a>
+                ) : (
+                  <a href={to.href}>{c.name}</a>
+                )}
+              </li>
+            );
+          })
         }
       </ul>
     </nav>

@@ -1,9 +1,16 @@
 ---
 import { CATEGORIES } from '../content/site'
-import { labProductHref } from '../lab/intent'
+import { categoryHref, type CategoryDestination } from '../content/categories'
+import { business } from '../config/business'
 import Picture from '../components/Picture.astro'
 
-const items = CATEGORIES.filter((c) => c.enabled)
+const items = CATEGORIES.filter((c) => c.enabled).map((c) => ({ ...c, to: categoryHref(c, business) }))
+
+const ACTION: Record<CategoryDestination['kind'], string> = {
+  lab: 'diseñarlo en el Custom Lab',
+  whatsapp: 'consultar por WhatsApp (se abre en otra pestaña)',
+  email: 'consultar por email',
+}
 ---
 
 <section id="productos" class="section tone" data-tone="light" aria-labelledby="productos-title">
@@ -20,19 +27,15 @@ const items = CATEGORIES.filter((c) => c.enabled)
             <div class="category__text">
               <h3 class="category__name display">
                 {/* El destino va en aria-label y no en el texto: Google lee el <h3>, el lector de pantalla el enlace. */}
-                {c.labProductId ? (
-                  <a
-                    class="category__link"
-                    href={labProductHref(c.labProductId)}
-                    aria-label={`${c.name}, diseñarlo en el Custom Lab`}
-                  >
-                    {c.name}
-                  </a>
-                ) : (
-                  <a class="category__link" href="#contacto" aria-label={`${c.name}, consultar por este producto`}>
-                    {c.name}
-                  </a>
-                )}
+                <a
+                  class="category__link"
+                  href={c.to.href}
+                  aria-label={`${c.name}, ${ACTION[c.to.kind]}`}
+                  target={c.to.kind === 'whatsapp' ? '_blank' : undefined}
+                  rel={c.to.kind === 'whatsapp' ? 'noopener noreferrer' : undefined}
+                >
+                  {c.name}
+                </a>
               </h3>
               <p>{c.description}</p>
             </div>

@@ -62,6 +62,8 @@ export interface Category {
   image: ImageAsset
   /** Producto del Custom Lab que se abre al elegir la categoría, si existe. */
   labProductId: string | null
+  /** Consulta para WhatsApp o asunto de email cuando la categoría no tiene producto en el Lab, sin el saludo. */
+  inquiry: string | null
   /** Pendiente de validar con el negocio: sólo se muestran las habilitadas. */
   enabled: boolean
 }
@@ -73,6 +75,7 @@ export const CATEGORIES: Category[] = [
     description: 'Un nombre, iniciales o una fecha en la hoja o en el mango.',
     image: IMAGES.knife,
     labProductId: 'knife',
+    inquiry: null,
     enabled: true,
   },
   {
@@ -81,6 +84,7 @@ export const CATEGORIES: Category[] = [
     description: 'Tablas para regalar o para el uso de todos los días, con el grabado sobre la cara principal.',
     image: IMAGES.board,
     labProductId: 'board',
+    inquiry: null,
     enabled: true,
   },
   {
@@ -89,6 +93,7 @@ export const CATEGORIES: Category[] = [
     description: 'Termos y mates de acero, madera o cuero, con un nombre o una frase en el cuerpo o en la virola.',
     image: IMAGES.thermos,
     labProductId: 'thermos-handle',
+    inquiry: null,
     enabled: true,
   },
   {
@@ -97,6 +102,7 @@ export const CATEGORIES: Category[] = [
     description: 'Copas, vasos y jarros de vidrio con nombres o una fecha grabados en esmerilado.',
     image: IMAGES.glass,
     labProductId: 'glassware',
+    inquiry: null,
     enabled: true,
   },
   {
@@ -105,6 +111,7 @@ export const CATEGORIES: Category[] = [
     description: 'Billeteras, llaveros y cinturones de cuero con un nombre o iniciales grabados a láser.',
     image: IMAGES.leather,
     labProductId: 'leather-wallet',
+    inquiry: null,
     enabled: true,
   },
   {
@@ -113,6 +120,7 @@ export const CATEGORIES: Category[] = [
     description: 'Piezas con una dedicatoria pensada para una persona y una ocasión.',
     image: IMAGES.box,
     labProductId: null,
+    inquiry: 'Quiero consultar por un regalo personalizado.',
     enabled: true,
   },
   {
@@ -121,6 +129,7 @@ export const CATEGORIES: Category[] = [
     description: 'Tu marca en objetos para equipos, clientes y eventos.',
     image: IMAGES.laser,
     labProductId: null,
+    inquiry: 'Quiero consultar por productos con el logo de mi empresa.',
     enabled: true,
   },
   {
@@ -129,6 +138,7 @@ export const CATEGORIES: Category[] = [
     description: 'Placas para homenajes, inauguraciones y premios.',
     image: IMAGES.laser,
     labProductId: 'plaque-base',
+    inquiry: null,
     enabled: true,
   },
 ]
