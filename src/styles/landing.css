@@ -167,8 +167,18 @@
   gap: clamp(2rem, 4vw, 4rem);
   align-items: center;
 }
+/* Mismo estilo que el título de «Confían en nosotros». */
+.hero__eyebrow {
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  margin-bottom: var(--s0);
+}
 .hero__title {
-  font-size: var(--step-6);
+  /* Como --step-6 pero con techo más bajo: el H1 no pasa de 3 líneas a 1440 px ni de 4 a 375 px. */
+  font-size: clamp(2.9rem, 1.6rem + 5.4vw, 3.8rem);
   line-height: 1.02;
   letter-spacing: -0.02em;
   margin-bottom: var(--s2);

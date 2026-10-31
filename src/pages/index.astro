@@ -2,6 +2,7 @@
 import JsonLd from '../components/seo/JsonLd.astro'
 import { business } from '../config/business'
 import { organizationSchema, websiteSchema } from '../config/seo'
+import { HOME_SEO } from '../content/site'
 import BaseLayout from '../layouts/BaseLayout.astro'
 import Categories from '../sections/Categories.astro'
 import ContactCta from '../sections/ContactCta.astro'
@@ -11,15 +12,17 @@ import Gallery from '../sections/Gallery.astro'
 import Hero from '../sections/Hero.astro'
 import Process from '../sections/Process.astro'
 import TrustedBy from '../sections/TrustedBy.astro'
+
+const description = HOME_SEO.description(business.city)
 ---
 
 <BaseLayout
   page="home"
   path="/"
-  title="AUREO Art Studio · Grabado láser personalizado con simulador 3D"
-  description="Grabados personalizados en cuchillos, tablas de madera y regalos. Diseñá tu grabado, miralo en 3D antes de pedirlo y solicitá tu presupuesto."
-  ogTitle="AUREO Art Studio · Objetos únicos, diseños que dejan huella"
-  ogDescription="Personalizamos tus objetos con precisión y diseño. Creá tu grabado y visualizá cómo podría quedar antes de pedir tu presupuesto."
+  title={HOME_SEO.title}
+  description={description}
+  ogTitle={HOME_SEO.ogTitle}
+  ogDescription={description}
   fontsHref="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..700&family=Hanken+Grotesk:wght@400;500;600&display=swap"
 >
   <!--

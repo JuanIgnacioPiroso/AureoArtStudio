@@ -9,6 +9,22 @@ export const NAV = [
   { href: '/#contacto', label: 'Contacto' },
 ] as const
 
+/** Textos del <head> de la home. La description nombra la ciudad cuando business.city está cargada. */
+export const HOME_SEO = {
+  title: 'Grabado láser personalizado · cuchillos, mates y tablas',
+  description: (city: string | null) =>
+    city
+      ? `Grabado láser personalizado en ${city}: cuchillos, tablas, mates, copas y cuero. Probá tu diseño en 3D y pedí presupuesto.`
+      : 'Grabamos nombres, fechas y logos en cuchillos, tablas, mates, copas y cuero. Probá tu diseño en 3D antes de pedir presupuesto.',
+  ogTitle: 'AUREO Art Studio · Grabados láser que dejan huella',
+} as const
+
+export const LAB_SEO = {
+  title: 'Simulador de grabado láser 3D · AUREO Custom Lab',
+  description:
+    'Elegí un objeto, escribí tu nombre o subí tu logo y mirá en 3D cómo queda el grabado antes de pedir tu presupuesto.',
+} as const
+
 export interface ImageAsset {
   src: string
   srcSmall: string

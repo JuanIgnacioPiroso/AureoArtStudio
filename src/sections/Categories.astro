@@ -19,13 +19,18 @@ const items = CATEGORIES.filter((c) => c.enabled)
             <Picture image={c.image} sizes="(min-width: 901px) 25vw, 50vw" />
             <div class="category__text">
               <h3 class="category__name display">
+                {/* El destino va en aria-label y no en el texto: Google lee el <h3>, el lector de pantalla el enlace. */}
                 {c.labProductId ? (
-                  <a class="category__link" href={labProductHref(c.labProductId)}>
-                    {c.name}<span class="visually-hidden">, diseñarlo en el <span translate="no">Custom Lab</span></span>
+                  <a
+                    class="category__link"
+                    href={labProductHref(c.labProductId)}
+                    aria-label={`${c.name}, diseñarlo en el Custom Lab`}
+                  >
+                    {c.name}
                   </a>
                 ) : (
-                  <a class="category__link" href="#contacto">
-                    {c.name}<span class="visually-hidden">, consultar por este producto</span>
+                  <a class="category__link" href="#contacto" aria-label={`${c.name}, consultar por este producto`}>
+                    {c.name}
                   </a>
                 )}
               </h3>

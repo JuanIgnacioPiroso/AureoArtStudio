@@ -1,6 +1,6 @@
 # SPEC 13 — Títulos, descripciones y H1 con la palabra clave
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 11, SPEC 12
 > **Fecha:** 2026-10-30
 > **Objetivo:** Que el `<title>`, la meta description, el H1 y el párrafo del hero de la home, y el `<title>` del Custom Lab, nombren lo que la gente busca («grabado láser personalizado», cuchillos, mates, tablas) sin perder el tono de la marca.
