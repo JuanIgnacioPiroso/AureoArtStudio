@@ -1,6 +1,6 @@
 # SPEC 17 — Guía de materiales: cómo toma el grabado cada material
 
-> **Estado:** Borrador
+> **Estado:** Aprobado
 > **Depende de:** SPEC 12, SPEC 13
 > **Fecha:** 2026-10-30
 > **Objetivo:** Publicar en `/materiales/` una guía de referencia sobre cómo graba el láser cada material que trabaja el estudio (madera, acero, alpaca y dorado, metal pintado, vidrio y acrílico, mármol y cuero), armada en lo posible con los datos que ya tiene el catálogo del Custom Lab.
