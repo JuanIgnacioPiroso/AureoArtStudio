@@ -1,6 +1,6 @@
 # SPEC 12 — SEO técnico base: canonical, Open Graph absoluto, sitemap, robots y datos estructurados
 
-> **Estado:** Borrador
+> **Estado:** Aprobado
 > **Depende de:** SPEC 08, SPEC 09
 > **Fecha:** 2026-10-30
 > **Objetivo:** Que cada página publique su URL canónica, una imagen de Open Graph con URL absoluta, un sitemap, un `robots.txt` y datos estructurados del negocio (JSON-LD), todo armado a partir de `src/config/business.ts` y sin mostrar datos que falten.

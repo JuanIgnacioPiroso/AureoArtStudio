@@ -1,6 +1,6 @@
 # SPEC 11 — Grilla pareja y compacta en «Qué personalizamos»
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 08, SPEC 10
 > **Fecha:** 2026-10-29
 > **Objetivo:** Reemplazar la grilla editorial de «Qué personalizamos» por una grilla uniforme de 4 × 2 tarjetas iguales, con todas las fotos en 4:3, que se vea compacta en escritorio, tablet y móvil.

@@ -1,6 +1,6 @@
 # SPEC 10 — Billetera, llavero y cinturón de cuero en el Custom Lab
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 06, SPEC 07
 > **Fecha:** 2026-10-28
 > **Objetivo:** Sumar al Custom Lab tres productos de cuero grabables con láser (billetera, llavero con forma elegible y cinturón) y una categoría «Cuero» en la home.
