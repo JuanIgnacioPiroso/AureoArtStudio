@@ -1,6 +1,6 @@
 # SPEC 15 — Preguntas frecuentes de compra y su JSON-LD
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 12
 > **Fecha:** 2026-10-30
 > **Objetivo:** Que el FAQ de la home responda lo que pregunta alguien antes de comprar (precio, plazos, envíos, pedidos por cantidad, uso con alimentos, cuidado, formato del logo) y que las preguntas respondidas se publiquen también como datos estructurados `FAQPage`.
