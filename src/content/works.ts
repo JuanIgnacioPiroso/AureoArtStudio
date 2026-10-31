@@ -1,18 +1,36 @@
-import { IMAGES, type ImageAsset } from './site'
+import type { ImageMetadata } from 'astro'
+import { CATEGORIES, IMAGES, type Category, type ImageAsset } from './site'
+
+/** Imagen importada desde src/assets/works/: astro:assets genera los tamaños y el formato en el build. */
+export interface WorkImage {
+  src: ImageMetadata
+  alt: string
+}
 
 export interface Work {
   id: string
   title: string
-  category: 'cuchillos' | 'tablas' | 'regalos' | 'empresas'
+  /** id de una categoría de CATEGORIES. */
+  category: Category['id']
   material: string
   detail: string
-  image: ImageAsset
+  /** Foto de la pieza: propia (de src/assets/works/) o ilustrativa. */
+  photo: WorkImage | ImageAsset
+  /** Captura del Custom Lab con el mismo diseño, si la hay. */
+  labPreview?: WorkImage
+  /** Producto del Lab para «Diseñar algo parecido». */
+  labProductId?: string
 }
 
+export const isImageAsset = (photo: Work['photo']): photo is ImageAsset => typeof photo.src === 'string'
+
+/** Una foto es propia si no es una imagen ilustrativa de terceros. */
+export const isOwnPhoto = (photo: Work['photo']): boolean => !(isImageAsset(photo) && photo.illustrative)
+
 /**
- * Trabajos de la galería. TODAS las imágenes actuales son ilustrativas (de terceros, con
- * licencia libre) y se rotulan así en la interfaz. Reemplazalas por fotos de trabajos reales
- * del taller y poné `illustrative: false` en cada imagen propia.
+ * Trabajos de la galería. Las imágenes actuales son ilustrativas (de terceros, con licencia libre) y se rotulan así
+ * en la interfaz. Para sumar un trabajo propio, copiá la foto en src/assets/works/, importala y agregá una entrada
+ * acá (ver «Fotos» en el README). Las ilustrativas se quitan cuando haya fotos propias de la misma categoría.
  */
 export const WORKS: Work[] = [
   {
@@ -21,7 +39,7 @@ export const WORKS: Work[] = [
     category: 'regalos',
     material: 'Madera',
     detail: 'Grabado de líneas finas en la tapa y los laterales.',
-    image: IMAGES.box,
+    photo: IMAGES.box,
   },
   {
     id: 'w-crest',
@@ -29,7 +47,7 @@ export const WORKS: Work[] = [
     category: 'empresas',
     material: 'Madera',
     detail: 'Logo con texto en arco, grabado a láser.',
-    image: IMAGES.laser,
+    photo: IMAGES.laser,
   },
   {
     id: 'w-knife',
@@ -37,7 +55,7 @@ export const WORKS: Work[] = [
     category: 'cuchillos',
     material: 'Acero y madera',
     detail: 'Zona de grabado en la hoja, cerca de la virola.',
-    image: IMAGES.knife,
+    photo: IMAGES.knife,
   },
   {
     id: 'w-board',
@@ -45,14 +63,19 @@ export const WORKS: Work[] = [
     category: 'tablas',
     material: 'Maderas mixtas',
     detail: 'Cara principal disponible para un nombre o una frase.',
-    image: IMAGES.board,
+    photo: IMAGES.board,
   },
 ]
 
-export const WORK_CATEGORIES: { id: Work['category'] | 'todos'; label: string }[] = [
-  { id: 'todos', label: 'Todos' },
-  { id: 'cuchillos', label: 'Cuchillos' },
-  { id: 'tablas', label: 'Tablas' },
-  { id: 'regalos', label: 'Regalos' },
-  { id: 'empresas', label: 'Empresas' },
-]
+/** Orden de la galería: los trabajos propios antes que los ilustrativos; dentro de cada grupo, el de WORKS. */
+export function orderedWorks(works: readonly Work[] = WORKS): Work[] {
+  return [...works.filter((w) => isOwnPhoto(w.photo)), ...works.filter((w) => !isOwnPhoto(w.photo))]
+}
+
+/** Filtros de la galería: «Todos» y las categorías de CATEGORIES que tienen al menos un trabajo, en ese orden. */
+export function workFilters(works: readonly Work[] = WORKS): { id: string; label: string }[] {
+  return [
+    { id: 'todos', label: 'Todos' },
+    ...CATEGORIES.filter((c) => works.some((w) => w.category === c.id)).map((c) => ({ id: c.id, label: c.name })),
+  ]
+}

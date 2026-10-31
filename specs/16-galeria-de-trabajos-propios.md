@@ -1,6 +1,6 @@
 # SPEC 16 — Galería lista para trabajos propios, con la vista 3D al lado de la pieza real
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 08, SPEC 11
 > **Fecha:** 2026-10-30
 > **Objetivo:** Preparar la galería para reemplazar las fotos ilustrativas por trabajos del taller: sumar fotos propias sin tocar componentes, filtrar por las mismas categorías que «Qué personalizamos» y, cuando exista, mostrar la captura del Custom Lab junto a la foto de la pieza grabada.

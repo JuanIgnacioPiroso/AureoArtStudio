@@ -1,8 +1,41 @@
 ---
-import { WORK_CATEGORIES, WORKS } from '../content/works'
+import { getImage, Picture } from 'astro:assets'
+import { labProductHref } from '../lab/intent'
+import { isImageAsset, isOwnPhoto, orderedWorks, type WorkImage, WORKS, workFilters } from '../content/works'
 
-const anyIllustrative = WORKS.some((w) => w.image.illustrative)
-const filters = WORK_CATEGORIES.filter((c) => c.id === 'todos' || WORKS.some((w) => w.category === c.id))
+const anyIllustrative = WORKS.some((w) => !isOwnPhoto(w.photo))
+const anyLabPreview = WORKS.some((w) => w.labPreview)
+const filters = workFilters()
+
+/**
+ * Las fotos propias (src/assets/works/) salen en webp a 800 y 1600 px: la tarjeta usa la de 800 y el visor pide la
+ * de 1600 al abrirse, igual que las ilustrativas con sus dos .webp pregenerados.
+ */
+const THUMB_WIDTH = 800
+const BIG_WIDTH = 1600
+
+interface BigImage {
+  src: string
+  width: number
+  height: number
+  alt: string
+}
+
+const big = async (img: WorkImage): Promise<BigImage> => {
+  const out = await getImage({ src: img.src, width: Math.min(BIG_WIDTH, img.src.width), format: 'webp' })
+  return { src: out.src, width: Number(out.attributes.width), height: Number(out.attributes.height), alt: img.alt }
+}
+
+const works = await Promise.all(
+  orderedWorks().map(async (w) => ({
+    ...w,
+    big: isImageAsset(w.photo)
+      ? { src: w.photo.src, width: w.photo.width, height: w.photo.height, alt: w.photo.alt }
+      : await big(w.photo),
+    lab: w.labPreview ? await big(w.labPreview) : null,
+    illustrative: !isOwnPhoto(w.photo),
+  })),
+)
 const count = (n: number) => (n === 1 ? '1 trabajo' : `${n} trabajos`)
 ---
 
@@ -11,11 +44,15 @@ const count = (n: number) => (n === 1 ? '1 trabajo' : `${n} trabajos`)
     <div class="section-head">
       <h2 id="galeria-title" class="section-title">Trabajos y referencias</h2>
       {
-        anyIllustrative && (
+        anyIllustrative ? (
           <p class="lede">
             Estamos sumando fotos de trabajos propios. Mientras tanto, estas imágenes son ilustrativas: muestran el tipo
             de pieza y de grabado, no encargos realizados por el estudio.
           </p>
+        ) : (
+          anyLabPreview && (
+            <p class="lede">Piezas grabadas en el taller. En las que tienen vista 3D, comparala con el resultado.</p>
+          )
         )
       }
     </div>
@@ -33,35 +70,58 @@ const count = (n: number) => (n === 1 ? '1 trabajo' : `${n} trabajos`)
     <p class="visually-hidden" role="status" data-gallery-count>{count(WORKS.length)}</p>
     <ul class="works">
       {
-        WORKS.map((w) => (
+        works.map((w) => (
           <li class="work" data-category={w.category} data-work-id={w.id}>
             <button
               type="button"
               class="work__button"
-              aria-label={`Ver ${w.title} en grande`}
+              aria-label={`Ver ${w.title} en grande${w.lab ? ', con vista 3D' : ''}`}
               data-title={w.title}
               data-material={w.material}
               data-detail={w.detail}
-              data-src={w.image.src}
-              data-width={w.image.width}
-              data-height={w.image.height}
-              data-alt={w.image.alt}
-              data-illustrative={w.image.illustrative ? 'true' : undefined}
+              data-src={w.big.src}
+              data-width={w.big.width}
+              data-height={w.big.height}
+              data-alt={w.big.alt}
+              data-illustrative={w.illustrative ? 'true' : undefined}
+              data-lab-src={w.lab?.src}
+              data-lab-width={w.lab?.width}
+              data-lab-height={w.lab?.height}
+              data-lab-alt={w.lab?.alt}
+              data-lab-href={w.labProductId ? labProductHref(w.labProductId) : undefined}
             >
-              <img
-                src={w.image.srcSmall}
-                width={w.image.width}
-                height={w.image.height}
-                alt={w.image.alt}
-                loading="lazy"
-                decoding="async"
-              />
+              {isImageAsset(w.photo) ? (
+                <img
+                  src={w.photo.srcSmall}
+                  width={w.photo.width}
+                  height={w.photo.height}
+                  alt={w.photo.alt}
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : (
+                <Picture
+                  src={w.photo.src}
+                  alt={w.photo.alt}
+                  widths={[Math.min(THUMB_WIDTH, w.photo.src.width)]}
+                  sizes={`${THUMB_WIDTH}px`}
+                  formats={['webp']}
+                  fallbackFormat="webp"
+                  loading="lazy"
+                  decoding="async"
+                />
+              )}
+              {w.lab && (
+                <span class="work__flag" aria-hidden="true">
+                  Con vista 3D
+                </span>
+              )}
             </button>
             <div class="work__meta">
               <h3 class="work__title">{w.title}</h3>
               <p class="note">
                 {w.material}. {w.detail}
-                {w.image.illustrative && ' Imagen ilustrativa.'}
+                {w.illustrative && ' Imagen ilustrativa.'}
               </p>
             </div>
           </li>
@@ -72,10 +132,16 @@ const count = (n: number) => (n === 1 ? '1 trabajo' : `${n} trabajos`)
 
   <dialog class="lightbox" aria-labelledby="lightbox-title" data-lightbox>
     <figure hidden>
-      <img decoding="async" alt="" />
+      <div class="lightbox__shots" data-lightbox-shots>
+        <figure class="lightbox__shot">
+          <img decoding="async" alt="" />
+          <figcaption class="lightbox__label" hidden>Pieza grabada</figcaption>
+        </figure>
+      </div>
       <figcaption><strong id="lightbox-title"></strong></figcaption>
     </figure>
     <form method="dialog">
+      <a class="button button--primary lightbox__lab" hidden data-lightbox-lab>Diseñar algo parecido</a>
       <button class="button lightbox__close" type="submit">Cerrar</button>
     </form>
   </dialog>
@@ -95,9 +161,13 @@ const count = (n: number) => (n === 1 ? '1 trabajo' : `${n} trabajos`)
   const status = root.querySelector<HTMLElement>('[data-gallery-count]')!
   const dialog = root.querySelector<HTMLDialogElement>('[data-lightbox]')!
   const figure = dialog.querySelector('figure')!
-  const bigImg = figure.querySelector('img')!
-  const caption = figure.querySelector('figcaption')!
+  const shots = figure.querySelector<HTMLElement>('[data-lightbox-shots]')!
+  const photoShot = shots.querySelector('figure')!
+  const bigImg = photoShot.querySelector('img')!
+  const photoLabel = photoShot.querySelector('figcaption')!
+  const caption = figure.querySelector(':scope > figcaption')!
   const captionTitle = caption.querySelector('strong')!
+  const labLink = dialog.querySelector<HTMLAnchorElement>('[data-lightbox-lab]')!
 
   function writeParam(name: string, value: string | null) {
     const url = new URL(window.location.href)
@@ -122,17 +192,45 @@ const count = (n: number) => (n === 1 ? '1 trabajo' : `${n} trabajos`)
     writeParam(CAT_PARAM, id === 'todos' ? null : id)
   }
 
+  /** Figura de la captura del Custom Lab, junto a la foto. Sólo se arma si el trabajo la tiene. */
+  function labShot(d: DOMStringMap): HTMLElement {
+    const shot = document.createElement('figure')
+    shot.className = 'lightbox__shot'
+    shot.dataset.labShot = ''
+    const img = document.createElement('img')
+    img.decoding = 'async'
+    img.src = d.labSrc!
+    img.width = Number(d.labWidth)
+    img.height = Number(d.labHeight)
+    img.alt = d.labAlt!
+    const label = document.createElement('figcaption')
+    label.className = 'lightbox__label'
+    label.textContent = 'Vista en el Custom Lab'
+    shot.append(img, label)
+    return shot
+  }
+
   function openWork(li: HTMLLIElement) {
     const d = li.querySelector<HTMLButtonElement>('.work__button')!.dataset
     bigImg.src = d.src!
     bigImg.width = Number(d.width)
     bigImg.height = Number(d.height)
     bigImg.alt = d.alt!
+    shots.querySelector('[data-lab-shot]')?.remove()
+    const withLab = Boolean(d.labSrc)
+    if (withLab) shots.prepend(labShot(d))
+    shots.toggleAttribute('data-pair', withLab)
+    photoLabel.hidden = !withLab
+    if (d.labHref) labLink.href = d.labHref
+    else labLink.removeAttribute('href')
+    labLink.hidden = !d.labHref
     captionTitle.textContent = d.title!
     caption.replaceChildren(captionTitle, ` ${d.material}. ${d.detail}${d.illustrative ? ' Imagen ilustrativa.' : ''}`)
     figure.hidden = false
     writeParam(WORK_PARAM, li.dataset.workId!)
     if (!dialog.open) dialog.showModal()
+    // showModal enfoca el primer botón, que está al pie: el visor arranca desde arriba igual.
+    dialog.scrollTop = 0
   }
 
   for (const chip of chips) chip.addEventListener('click', () => setFilter(chip.dataset.filter!))
@@ -141,6 +239,7 @@ const count = (n: number) => (n === 1 ? '1 trabajo' : `${n} trabajos`)
   dialog.addEventListener('close', () => {
     figure.hidden = true
     bigImg.removeAttribute('src')
+    shots.querySelector('[data-lab-shot]')?.remove()
     writeParam(WORK_PARAM, null)
   })
   // Clic en el fondo (fuera del contenido) cierra, como en cualquier visor de imágenes.

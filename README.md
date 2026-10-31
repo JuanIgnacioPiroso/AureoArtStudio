@@ -59,7 +59,30 @@ npm run typecheck  # astro check
   - Usá la versión oscura o a color sobre fondo transparente: la franja es clara y los logos se muestran en escala de grises (toman su color al pasar el mouse). Un logo blanco no se ve.
   - El nombre del archivo es el texto alternativo: `-` y `_` pasan a espacios y sólo se pone en mayúscula la primera letra, así que escribilo con sus mayúsculas y tildes (`Municipalidad-de-Tandil.svg` → «Municipalidad de Tandil»).
   - El orden es por nombre de archivo. Un prefijo numérico opcional lo fija y no se muestra: `01-Café_Martínez.webp` va antes de `2-Aceros.svg` y se lee «Café Martínez».
-- **Fotos**: las imágenes de `public/img/placeholder/` son provisionales, de Wikimedia Commons (créditos en `src/content/image-credits.json` y en el footer). Reemplazalas por fotos propias y marcá `illustrative: false`.
+- **Fotos**: las imágenes de `public/img/placeholder/` son provisionales, de Wikimedia Commons (créditos en `src/content/image-credits.json` y en el footer). En la galería se reemplazan por trabajos del taller, que se suman sin tocar `src/sections/Gallery.astro`:
+  1. Copiá la foto en `src/assets/works/` en `.jpg`, `.png` o `.webp`, con la extensión en minúsculas. Si el celular saca `.heic`, exportala antes como `.jpg`. Usá un nombre corto y sin espacios (`tabla-asado-gomez.jpg`).
+  2. Tamaño mínimo: 1600 px del lado largo. El build genera los `.webp` de 800 px (tarjeta) y de 1600 px (visor), así que no hay que achicarla a mano.
+  3. Para que se vea pareja con el resto: luz natural, fondo liso y el grabado en foco.
+  4. Si el diseño se armó en el Custom Lab, sacá la captura para mostrarla al lado de la foto. Abrí el diseño (con su enlace o rearmándolo), elegí «Zona de grabado» en «Encuadre», que es la vista que más se parece a una foto del grabado, y tocá «Descargar imagen». Guardá el PNG en la misma carpeta (`tabla-asado-gomez-lab.png`).
+  5. Agregá el trabajo en `WORKS` (`src/content/works.ts`), importando las imágenes:
+     ```ts
+     import tablaGomez from '../assets/works/tabla-asado-gomez.jpg'
+     import tablaGomezLab from '../assets/works/tabla-asado-gomez-lab.png'
+
+     {
+       id: 'w-tabla-gomez',
+       title: 'Tabla de asado con apellido',
+       category: 'tablas', // id de CATEGORIES en src/content/site.ts
+       material: 'Algarrobo',
+       detail: 'Apellido en Bodoni Moda, quemado en la cara principal.',
+       photo: { src: tablaGomez, alt: 'Tabla de algarrobo con el apellido Gómez grabado en el centro' },
+       labPreview: { src: tablaGomezLab, alt: 'Vista 3D del Custom Lab con el apellido Gómez sobre la tabla' }, // opcional
+       labProductId: 'board', // opcional: suma «Diseñar algo parecido»
+     },
+     ```
+  6. En `alt`, describí lo que se ve: el objeto, el material y qué dice o muestra el grabado. No repitas el título ni empieces con «Foto de». `npm run test` falla si un `alt` queda vacío, si la categoría no existe o si `labProductId` no es un producto del Lab.
+  - Los trabajos propios se muestran antes que los ilustrativos, en el orden de `WORKS`. El filtro de una categoría aparece apenas tiene un trabajo.
+  - Cuando haya fotos propias de una categoría, borrá su trabajo ilustrativo de `WORKS`. Cuando no quede ninguno, desaparece la bajada que avisa que las imágenes son ilustrativas.
 - **Legales**: no hay páginas de privacidad ni términos, así que no se enlazan.
 
 ## Custom Lab: cómo agregar un producto
