@@ -100,3 +100,34 @@ export function faqSchema(items: readonly Faq[]): object | null {
     })),
   }
 }
+
+export interface ArticleInput {
+  path: string
+  headline: string
+  description: string
+  /** Fecha ISO (AAAA-MM-DD) de la última revisión del contenido. */
+  dateModified: string
+}
+
+/**
+ * JSON-LD `Article` de una página de contenido. Autor y editor apuntan al `@id` del negocio
+ * (el de `organizationSchema`); sin `siteUrl` no hay `@id` y se nombra al negocio como `Organization`.
+ */
+export function articleSchema(b: BusinessConfig, a: ArticleInput): object {
+  const site = baseUrl(b.siteUrl)
+  const org = site ? { '@id': `${site}/#negocio` } : { '@type': 'Organization', name: b.name }
+  const url = absoluteUrl(a.path, b.siteUrl)
+  return compact({
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: a.headline,
+    description: a.description,
+    inLanguage: 'es-AR',
+    url,
+    mainEntityOfPage: url,
+    image: absoluteUrl(OG_IMAGE.path, b.siteUrl),
+    dateModified: a.dateModified,
+    author: org,
+    publisher: org,
+  })
+}

@@ -714,6 +714,9 @@
   margin-top: var(--s2);
   font-size: var(--step-0);
 }
+.craft__more {
+  margin-top: var(--s1);
+}
 .differentials {
   margin: var(--s3) 0 0;
   display: grid;
@@ -840,6 +843,144 @@
 @media (max-width: 800px) {
   .closing__grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ───────── Guía de materiales ───────── */
+.materials-intro {
+  padding-top: calc(var(--header-h) + clamp(2rem, 6vw, 5rem));
+}
+.materials-intro__title {
+  font-size: var(--step-6);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  max-width: 16ch;
+  margin-bottom: var(--s2);
+}
+/* La tabla se desplaza dentro de su caja: la página no gana scroll horizontal en móvil. */
+.materials-table {
+  margin-top: clamp(2rem, 5vw, 3rem);
+  overflow-x: auto;
+  border-top: 1px solid var(--rule);
+}
+.materials-table:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
+}
+.materials-table table {
+  width: 100%;
+  min-width: 820px;
+  /* `separate`: con `collapse`, Chrome pierde el borde de las celdas fijas al desplazar. */
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--step--1);
+  line-height: 1.5;
+}
+/* El rótulo queda fijo a la izquierda: no se corta con el ancho de la tabla. */
+.materials-table caption {
+  position: sticky;
+  left: 0;
+  max-width: calc(100vw - 2 * var(--gutter));
+  caption-side: top;
+  text-align: left;
+  padding-block: var(--s1);
+  color: var(--fg-muted);
+}
+.materials-table th,
+.materials-table td {
+  padding: var(--s1) var(--s1) var(--s1) 0;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--rule);
+}
+.materials-table thead th {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  color: var(--fg-muted);
+}
+/* La columna del material (y su encabezado) queda fija al desplazar la tabla. */
+.materials-table th:first-child {
+  position: sticky;
+  left: 0;
+  background: var(--bg);
+}
+.materials-table tbody th {
+  width: 10rem;
+  font-family: var(--font-display);
+  font-size: var(--step-0);
+  font-weight: 400;
+}
+.materials-table tbody th a {
+  color: inherit;
+}
+@media (max-width: 560px) {
+  .materials-table tbody th {
+    width: 7.5rem;
+    font-size: var(--step--1);
+  }
+}
+.materials__list {
+  display: grid;
+  gap: clamp(3rem, 7vw, 5rem);
+}
+.material {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.618fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: start;
+  padding-top: var(--s3);
+  border-top: 1px solid var(--rule);
+}
+.material__copy {
+  grid-column: 2;
+}
+.material__image {
+  aspect-ratio: 4 / 3;
+}
+.material__title {
+  font-size: var(--step-4);
+  margin-bottom: var(--s2);
+  scroll-margin-top: calc(var(--header-h) + var(--s2));
+}
+.material__facts {
+  margin: 0;
+  display: grid;
+  gap: var(--s2);
+}
+.material__facts dt {
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  margin-bottom: var(--s-1);
+}
+.material__facts dd {
+  margin: 0;
+  max-width: var(--measure);
+}
+.material__styles,
+.material__products {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.material__styles li + li {
+  margin-top: var(--s-1);
+}
+.material__products {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1) var(--s1);
+}
+@media (max-width: 900px) {
+  .material {
+    grid-template-columns: 1fr;
+  }
+  .material__copy {
+    grid-column: auto;
   }
 }
 

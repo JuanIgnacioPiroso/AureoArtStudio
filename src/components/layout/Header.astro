@@ -9,7 +9,7 @@ import Logo from "../brand/Logo.astro";
  * En la página del Custom Lab (`page="lab"`) no muestra el CTA y marca «Simulador 3D» como página actual.
  */
 interface Props {
-  page: "home" | "lab";
+  page: "home" | "lab" | "materiales";
 }
 
 const isLab = Astro.props.page === "lab";

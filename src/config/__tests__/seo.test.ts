@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { BusinessConfig } from '../business'
-import { absoluteUrl, faqSchema, organizationSchema, websiteSchema } from '../seo'
+import { absoluteUrl, articleSchema, faqSchema, organizationSchema, websiteSchema } from '../seo'
 
 const empty: BusinessConfig = {
   name: 'AUREO Art Studio',
@@ -128,5 +128,37 @@ describe('faqSchema', () => {
       { q: '¿Materiales?', a: 'Madera y acero.', link: { href: '/materiales/', label: 'Ver la guía.' } },
     ]) as { mainEntity: { acceptedAnswer: { text: string } }[] }
     expect(schema.mainEntity[0]?.acceptedAnswer.text).toBe('Madera y acero. Ver la guía.')
+  })
+})
+
+describe('articleSchema', () => {
+  const input = { path: '/materiales/', headline: 'Título', description: 'Descripción', dateModified: '2026-10-31' }
+
+  it('autor y editor apuntan al @id del negocio, con URL de la página', () => {
+    expect(articleSchema(full, input)).toEqual({
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: 'Título',
+      description: 'Descripción',
+      inLanguage: 'es-AR',
+      url: 'https://example.com/materiales/',
+      mainEntityOfPage: 'https://example.com/materiales/',
+      image: 'https://example.com/og-image.png',
+      dateModified: '2026-10-31',
+      author: { '@id': 'https://example.com/#negocio' },
+      publisher: { '@id': 'https://example.com/#negocio' },
+    })
+  })
+
+  it('el @id coincide con el de organizationSchema', () => {
+    const article = articleSchema(full, input) as { author: { '@id': string } }
+    expect(article.author['@id']).toBe((organizationSchema(full) as { '@id': string })['@id'])
+  })
+
+  it('sin siteUrl nombra al negocio y omite las URLs', () => {
+    const article = articleSchema(empty, input) as Record<string, unknown>
+    expect(article.author).toEqual({ '@type': 'Organization', name: 'AUREO Art Studio' })
+    expect(article).not.toHaveProperty('url')
+    expect(article).not.toHaveProperty('mainEntityOfPage')
   })
 })

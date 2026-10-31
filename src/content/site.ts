@@ -181,7 +181,11 @@ export const FAQ: Faq[] = [
   { q: '¿Cómo se paga?', a: null },
   { q: '¿Hacen pedidos por cantidad o para empresas?', a: null },
   { q: '¿Puedo enviar mi propio diseño o logo? ¿En qué formato?', a: null },
-  { q: '¿Qué materiales se pueden grabar?', a: null },
+  {
+    q: '¿Qué materiales se pueden grabar?',
+    a: null,
+    link: { href: '/materiales/', label: 'Ver la guía de materiales' },
+  },
   { q: '¿Las tablas grabadas se pueden usar con alimentos?', a: null },
   { q: '¿Cómo cuido una pieza grabada?', a: null },
   {

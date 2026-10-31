@@ -1,6 +1,6 @@
 # SPEC 17 — Guía de materiales: cómo toma el grabado cada material
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 12, SPEC 13
 > **Fecha:** 2026-10-30
 > **Objetivo:** Publicar en `/materiales/` una guía de referencia sobre cómo graba el láser cada material que trabaja el estudio (madera, acero, alpaca y dorado, metal pintado, vidrio y acrílico, mármol y cuero), armada en lo posible con los datos que ya tiene el catálogo del Custom Lab.
@@ -34,10 +34,10 @@ Una página de referencia con esos datos sirve para las búsquedas informativas 
   - los estilos y los productos de cada material se calculan desde `ENGRAVING_STYLES`, `MATERIALS` y `PRODUCTS`, no se escriben a mano;
   - los textos editoriales (qué hace el láser, cómo se ve) se escriben en el archivo;
   - lo que depende del taller (letra mínima, cuidado) es `string | null` y no se muestra en `null`.
-- **Materiales de la guía** (por `MaterialKind` del catálogo, sin los materiales que no se graban: hilo y plásticos):
-  - Madera y calabaza (`wood`): quemado láser.
+- **Materiales de la guía** (por `MaterialKind` del catálogo, sin los materiales que el Lab no graba: hilo, plásticos, calabaza y acrílico negro):
+  - Madera (`wood`, sin la calabaza del interior de los mates): quemado láser.
   - Acero inoxidable, alpaca y dorado (`steel`): marcado oscuro y esmerilado.
-  - Metal pintado y acrílico negro (`coated`, sólo `black-matte` y `black-acrylic`): grabado a metal.
+  - Metal pintado (`coated`, sólo `black-matte`; el acrílico negro de la base del trofeo no se graba): grabado a metal.
   - Vidrio y acrílico transparente (`glass`): grabado esmerilado.
   - Mármol (`stone`): bajorrelieve.
   - Cuero (`leather`): grabado láser.
@@ -87,7 +87,7 @@ export const MATERIAL_GUIDES: readonly MaterialGuide[]
 
 /** Estilos del Lab que corresponden a la sección (por el MaterialKind de sus materiales). */
 export function stylesFor(g: MaterialGuide): EngravingStyleDef[]
-/** Productos del Lab que ofrecen alguno de los materiales de la sección. */
+/** Productos del Lab con alguna zona de grabado sobre un material de la sección (por partMaterial). */
 export function productsFor(g: MaterialGuide): ProductDef[]
 ```
 
@@ -95,7 +95,7 @@ export function productsFor(g: MaterialGuide): ProductDef[]
 
 ## Textos sugeridos (para validar con el taller)
 
-- **Madera y calabaza.** *Proceso:* el láser tuesta la capa de arriba de la madera, sin tinta. *Resultado:* un tono marrón cálido que sigue la veta; en maderas claras contrasta más que en las oscuras.
+- **Madera.** *Proceso:* el láser tuesta la capa de arriba de la madera, sin tinta. *Resultado:* un tono marrón cálido que sigue la veta; en maderas claras contrasta más que en las oscuras.
 - **Acero, alpaca y dorado.** *Proceso:* el láser oxida la superficie del metal (marcado oscuro) o la vuelve mate (esmerilado), sin sacar material. *Resultado:* una marca fina y de alto contraste, o una más sutil y satinada.
 - **Metal pintado.** *Proceso:* el láser retira la pintura y deja ver el metal de abajo. *Resultado:* una marca plateada y brillante sobre el negro mate.
 - **Vidrio y acrílico.** *Proceso:* el láser microfractura la superficie. *Resultado:* una marca blanca y satinada, como un esmerilado.
@@ -133,6 +133,7 @@ export function productsFor(g: MaterialGuide): ProductDef[]
 ## Decisiones
 
 - **Sí:** una sola página con anclas, no una por material. Hoy hay contenido para una página sólida y no para siete finas.
+- **Sí:** los productos se asignan por la zona que se graba, no por el material elegible: los mates de cuero van en «Acero, alpaca y dorado» porque se graba la virola.
 - **Sí:** estilos y productos calculados desde el catálogo. Si el Lab suma un producto o un material, la guía se actualiza sola y no se contradice con el simulador.
 - **Sí:** tabla comparativa arriba. Es el formato que Google y los buscadores con IA citan mejor para comparaciones.
 - **Sí:** verbos concretos en los textos (tuesta, oxida, microfractura, retira la pintura). Es lo que distingue un texto de oficio de uno genérico.
