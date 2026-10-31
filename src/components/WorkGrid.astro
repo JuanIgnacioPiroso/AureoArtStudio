@@ -1,0 +1,203 @@
+---
+import { getImage, Picture } from 'astro:assets'
+import { labProductHref } from '../lab/intent'
+import { isImageAsset, isOwnPhoto, orderedWorks, type Work, type WorkImage } from '../content/works'
+
+/**
+ * Grilla de trabajos con su visor: la usan la galería de la home y las páginas de categoría.
+ * Una sola por página: el visor refleja la obra abierta en `?obra=` y la abre al cargar.
+ */
+interface Props {
+  works: readonly Work[]
+}
+
+/**
+ * Las fotos propias (src/assets/works/) salen en webp a 800 y 1600 px: la tarjeta usa la de 800 y el visor pide la
+ * de 1600 al abrirse, igual que las ilustrativas con sus dos .webp pregenerados.
+ */
+const THUMB_WIDTH = 800
+const BIG_WIDTH = 1600
+
+interface BigImage {
+  src: string
+  width: number
+  height: number
+  alt: string
+}
+
+const big = async (img: WorkImage): Promise<BigImage> => {
+  const out = await getImage({ src: img.src, width: Math.min(BIG_WIDTH, img.src.width), format: 'webp' })
+  return { src: out.src, width: Number(out.attributes.width), height: Number(out.attributes.height), alt: img.alt }
+}
+
+const works = await Promise.all(
+  orderedWorks(Astro.props.works).map(async (w) => ({
+    ...w,
+    big: isImageAsset(w.photo)
+      ? { src: w.photo.src, width: w.photo.width, height: w.photo.height, alt: w.photo.alt }
+      : await big(w.photo),
+    lab: w.labPreview ? await big(w.labPreview) : null,
+    illustrative: !isOwnPhoto(w.photo),
+  })),
+)
+---
+
+<div data-works>
+  <ul class="works">
+    {
+      works.map((w) => (
+        <li class="work" data-category={w.category} data-work-id={w.id}>
+          <button
+            type="button"
+            class="work__button"
+            aria-label={`Ver ${w.title} en grande${w.lab ? ', con vista 3D' : ''}`}
+            data-title={w.title}
+            data-material={w.material}
+            data-detail={w.detail}
+            data-src={w.big.src}
+            data-width={w.big.width}
+            data-height={w.big.height}
+            data-alt={w.big.alt}
+            data-illustrative={w.illustrative ? 'true' : undefined}
+            data-lab-src={w.lab?.src}
+            data-lab-width={w.lab?.width}
+            data-lab-height={w.lab?.height}
+            data-lab-alt={w.lab?.alt}
+            data-lab-href={w.labProductId ? labProductHref(w.labProductId) : undefined}
+          >
+            {isImageAsset(w.photo) ? (
+              <img
+                src={w.photo.srcSmall}
+                width={w.photo.width}
+                height={w.photo.height}
+                alt={w.photo.alt}
+                loading="lazy"
+                decoding="async"
+              />
+            ) : (
+              <Picture
+                src={w.photo.src}
+                alt={w.photo.alt}
+                widths={[Math.min(THUMB_WIDTH, w.photo.src.width)]}
+                sizes={`${THUMB_WIDTH}px`}
+                formats={['webp']}
+                fallbackFormat="webp"
+                loading="lazy"
+                decoding="async"
+              />
+            )}
+            {w.lab && (
+              <span class="work__flag" aria-hidden="true">
+                Con vista 3D
+              </span>
+            )}
+          </button>
+          <div class="work__meta">
+            <h3 class="work__title">{w.title}</h3>
+            <p class="note">
+              {w.material}. {w.detail}
+              {w.illustrative && ' Imagen ilustrativa.'}
+            </p>
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+  <dialog class="lightbox" aria-labelledby="lightbox-title" data-lightbox>
+    <figure hidden>
+      <div class="lightbox__shots" data-lightbox-shots>
+        <figure class="lightbox__shot">
+          <img decoding="async" alt="" />
+          <figcaption class="lightbox__label" hidden>Pieza grabada</figcaption>
+        </figure>
+      </div>
+      <figcaption><strong id="lightbox-title"></strong></figcaption>
+    </figure>
+    <form method="dialog">
+      <a class="button button--primary lightbox__lab" hidden data-lightbox-lab>Diseñar algo parecido</a>
+      <button class="button lightbox__close" type="submit">Cerrar</button>
+    </form>
+  </dialog>
+</div>
+
+<script>
+  /** Visor de obras. Refleja la obra abierta (`?obra=`) en la URL, sin sumar entradas al historial, y la abre al cargar. */
+  const WORK_PARAM = 'obra'
+
+  const root = document.querySelector<HTMLElement>('[data-works]')!
+  const items = Array.from(root.querySelectorAll<HTMLLIElement>('[data-work-id]'))
+  const dialog = root.querySelector<HTMLDialogElement>('[data-lightbox]')!
+  const figure = dialog.querySelector('figure')!
+  const shots = figure.querySelector<HTMLElement>('[data-lightbox-shots]')!
+  const photoShot = shots.querySelector('figure')!
+  const bigImg = photoShot.querySelector('img')!
+  const photoLabel = photoShot.querySelector('figcaption')!
+  const caption = figure.querySelector(':scope > figcaption')!
+  const captionTitle = caption.querySelector('strong')!
+  const labLink = dialog.querySelector<HTMLAnchorElement>('[data-lightbox-lab]')!
+
+  function writeParam(name: string, value: string | null) {
+    const url = new URL(window.location.href)
+    if (value) url.searchParams.set(name, value)
+    else url.searchParams.delete(name)
+    history.replaceState(history.state, '', url)
+  }
+
+  /** Figura de la captura del Custom Lab, junto a la foto. Sólo se arma si el trabajo la tiene. */
+  function labShot(d: DOMStringMap): HTMLElement {
+    const shot = document.createElement('figure')
+    shot.className = 'lightbox__shot'
+    shot.dataset.labShot = ''
+    const img = document.createElement('img')
+    img.decoding = 'async'
+    img.src = d.labSrc!
+    img.width = Number(d.labWidth)
+    img.height = Number(d.labHeight)
+    img.alt = d.labAlt!
+    const label = document.createElement('figcaption')
+    label.className = 'lightbox__label'
+    label.textContent = 'Vista en el Custom Lab'
+    shot.append(img, label)
+    return shot
+  }
+
+  function openWork(li: HTMLLIElement) {
+    const d = li.querySelector<HTMLButtonElement>('.work__button')!.dataset
+    bigImg.src = d.src!
+    bigImg.width = Number(d.width)
+    bigImg.height = Number(d.height)
+    bigImg.alt = d.alt!
+    shots.querySelector('[data-lab-shot]')?.remove()
+    const withLab = Boolean(d.labSrc)
+    if (withLab) shots.prepend(labShot(d))
+    shots.toggleAttribute('data-pair', withLab)
+    photoLabel.hidden = !withLab
+    if (d.labHref) labLink.href = d.labHref
+    else labLink.removeAttribute('href')
+    labLink.hidden = !d.labHref
+    captionTitle.textContent = d.title!
+    caption.replaceChildren(captionTitle, ` ${d.material}. ${d.detail}${d.illustrative ? ' Imagen ilustrativa.' : ''}`)
+    figure.hidden = false
+    writeParam(WORK_PARAM, li.dataset.workId!)
+    if (!dialog.open) dialog.showModal()
+    // showModal enfoca el primer botón, que está al pie: el visor arranca desde arriba igual.
+    dialog.scrollTop = 0
+  }
+
+  for (const li of items) li.querySelector('.work__button')!.addEventListener('click', () => openWork(li))
+
+  dialog.addEventListener('close', () => {
+    figure.hidden = true
+    bigImg.removeAttribute('src')
+    shots.querySelector('[data-lab-shot]')?.remove()
+    writeParam(WORK_PARAM, null)
+  })
+  // Clic en el fondo (fuera del contenido) cierra, como en cualquier visor de imágenes.
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) dialog.close()
+  })
+
+  // Obra abierta desde la URL.
+  const initial = items.find((li) => li.dataset.workId === new URLSearchParams(window.location.search).get(WORK_PARAM))
+  if (initial) openWork(initial)
+</script>

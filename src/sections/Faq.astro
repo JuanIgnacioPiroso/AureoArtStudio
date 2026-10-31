@@ -1,9 +1,15 @@
 ---
 import JsonLd from '../components/seo/JsonLd.astro'
 import { faqSchema } from '../config/seo'
-import { FAQ } from '../content/site'
+import { FAQ, type Faq } from '../content/site'
 
-const answered = FAQ.filter((f) => f.a)
+interface Props {
+  /** Preguntas de la sección; por defecto, las de la home. */
+  items?: readonly Faq[]
+}
+
+const { items = FAQ } = Astro.props
+const answered = items.filter((f) => f.a)
 ---
 
 <section id="preguntas" class="section tone" data-tone="light" aria-labelledby="faq-title">
@@ -30,5 +36,5 @@ const answered = FAQ.filter((f) => f.a)
       }
     </div>
   </div>
-  <JsonLd data={faqSchema(FAQ)} />
+  <JsonLd data={faqSchema(items)} />
 </section>

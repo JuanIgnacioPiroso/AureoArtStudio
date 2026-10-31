@@ -2,7 +2,7 @@
 import manifest from "../../content/image-credits.json";
 import { business } from "../../config/business";
 import { CATEGORIES, NAV } from "../../content/site";
-import { categoryHref } from "../../content/categories";
+import { categoryLink } from "../../content/categories";
 import Logo from "../brand/Logo.astro";
 import ContactLinks from "../ContactLinks.astro";
 
@@ -37,7 +37,7 @@ const year = new Date().getFullYear();
       <ul>
         {
           CATEGORIES.filter((c) => c.enabled).map((c) => {
-            const to = categoryHref(c, business);
+            const to = categoryLink(c, business);
             return (
               <li>
                 {to.kind === "whatsapp" ? (

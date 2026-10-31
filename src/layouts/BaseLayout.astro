@@ -8,9 +8,9 @@ import Header from '../components/layout/Header.astro'
 import { absoluteUrl, OG_IMAGE } from '../config/seo'
 
 interface Props {
-  page: 'home' | 'lab' | 'materiales'
+  page: 'home' | 'lab' | 'materiales' | 'categoria'
   /** Ruta canónica de la página, sin query string (`/custom-lab/?d=…` declara `/custom-lab/`). */
-  path: '/' | '/custom-lab/' | '/materiales/'
+  path: '/' | `/${string}/`
   title: string
   description: string
   ogTitle: string

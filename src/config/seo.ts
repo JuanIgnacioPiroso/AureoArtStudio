@@ -101,6 +101,60 @@ export function faqSchema(items: readonly Faq[]): object | null {
   }
 }
 
+export interface Crumb {
+  name: string
+  path: string
+}
+
+/**
+ * JSON-LD `BreadcrumbList` de las migas de una página. El último paso es la página actual y va sin `item`.
+ * `null` mientras no haya `siteUrl`: los pasos anteriores necesitan una URL absoluta.
+ */
+export function breadcrumbSchema(crumbs: readonly Crumb[], b: BusinessConfig = business): object | null {
+  if (!baseUrl(b.siteUrl)) return null
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: crumbs.map((c, i) =>
+      compact({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: c.name,
+        item: i < crumbs.length - 1 ? absoluteUrl(c.path, b.siteUrl) : null,
+      }),
+    ),
+  }
+}
+
+export interface ListEntry {
+  name: string
+  description: string
+  path: string
+}
+
+/**
+ * JSON-LD `ItemList` de los productos de una página (y no `Product`: sin precio ni stock da avisos en Search Console).
+ * Sin `siteUrl` cada elemento va sin `url`. `null` si la lista está vacía.
+ */
+export function itemListSchema(name: string, entries: readonly ListEntry[], b: BusinessConfig = business): object | null {
+  if (entries.length === 0) return null
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name,
+    numberOfItems: entries.length,
+    itemListElement: entries.map((e, i) =>
+      compact({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: e.name,
+        description: e.description,
+        url: absoluteUrl(e.path, b.siteUrl),
+      }),
+    ),
+  }
+}
+
 export interface ArticleInput {
   path: string
   headline: string

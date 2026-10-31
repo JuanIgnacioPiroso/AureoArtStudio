@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import type { BusinessConfig } from '../business'
-import { absoluteUrl, articleSchema, faqSchema, organizationSchema, websiteSchema } from '../seo'
+import {
+  absoluteUrl,
+  articleSchema,
+  breadcrumbSchema,
+  faqSchema,
+  itemListSchema,
+  organizationSchema,
+  websiteSchema,
+} from '../seo'
 
 const empty: BusinessConfig = {
   name: 'AUREO Art Studio',
@@ -160,5 +168,58 @@ describe('articleSchema', () => {
     expect(article.author).toEqual({ '@type': 'Organization', name: 'AUREO Art Studio' })
     expect(article).not.toHaveProperty('url')
     expect(article).not.toHaveProperty('mainEntityOfPage')
+  })
+})
+
+describe('breadcrumbSchema', () => {
+  const crumbs = [
+    { name: 'Inicio', path: '/' },
+    { name: 'Termos y mates', path: '/mates-y-termos-grabados/' },
+  ]
+
+  it('devuelve null sin siteUrl', () => {
+    expect(breadcrumbSchema(crumbs, empty)).toBeNull()
+  })
+
+  it('numera los pasos y deja la página actual sin item', () => {
+    expect(breadcrumbSchema(crumbs, full)).toEqual({
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://example.com/' },
+        { '@type': 'ListItem', position: 2, name: 'Termos y mates' },
+      ],
+    })
+  })
+})
+
+describe('itemListSchema', () => {
+  const entries = [{ name: 'Cuchillo', description: 'Cuchillo de cocina.', path: '/custom-lab/?producto=knife' }]
+
+  it('devuelve null sin elementos', () => {
+    expect(itemListSchema('Productos', [], full)).toBeNull()
+  })
+
+  it('lista los productos con su URL absoluta', () => {
+    expect(itemListSchema('Productos', entries, full)).toEqual({
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: 'Productos',
+      numberOfItems: 1,
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Cuchillo',
+          description: 'Cuchillo de cocina.',
+          url: 'https://example.com/custom-lab/?producto=knife',
+        },
+      ],
+    })
+  })
+
+  it('sin siteUrl, los elementos van sin url', () => {
+    const list = itemListSchema('Productos', entries, empty) as { itemListElement: object[] }
+    expect(list.itemListElement[0]).not.toHaveProperty('url')
   })
 })

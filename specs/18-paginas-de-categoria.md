@@ -1,6 +1,6 @@
 # SPEC 18 — Páginas de categoría indexables
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 12, SPEC 13, SPEC 14, SPEC 15, SPEC 16, SPEC 17
 > **Fecha:** 2026-10-30
 > **Objetivo:** Darle a cada categoría de «Qué personalizamos» su propia página, con una URL que la gente busca (`/mates-y-termos-grabados/`, `/tablas-personalizadas/`…), los productos del Lab con sus medidas reales, los materiales, los trabajos de la galería, preguntas propias y un acceso directo al producto en el Custom Lab.

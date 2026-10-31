@@ -1,12 +1,13 @@
 ---
 import { CATEGORIES } from '../content/site'
-import { categoryHref, type CategoryDestination } from '../content/categories'
+import { categoryLink, type CategoryLink } from '../content/categories'
 import { business } from '../config/business'
 import Picture from '../components/Picture.astro'
 
-const items = CATEGORIES.filter((c) => c.enabled).map((c) => ({ ...c, to: categoryHref(c, business) }))
+const items = CATEGORIES.filter((c) => c.enabled).map((c) => ({ ...c, to: categoryLink(c, business) }))
 
-const ACTION: Record<CategoryDestination['kind'], string> = {
+const ACTION: Record<CategoryLink['kind'], string> = {
+  page: 'ver productos',
   lab: 'diseñarlo en el Custom Lab',
   whatsapp: 'consultar por WhatsApp (se abre en otra pestaña)',
   email: 'consultar por email',
