@@ -1,6 +1,6 @@
 # SPEC 14 — Contacto sin callejones: Regalos y Productos empresariales
 
-> **Estado:** Borrador
+> **Estado:** Aprobado
 > **Depende de:** SPEC 11, SPEC 13
 > **Fecha:** 2026-10-30
 > **Objetivo:** Que las categorías sin producto en el Custom Lab («Regalos personalizados» y «Productos empresariales») siempre lleven a un lugar donde se pueda hacer el pedido, haya o no datos de contacto cargados.
