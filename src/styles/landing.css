@@ -386,81 +386,68 @@
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: clamp(1.5rem, 3vw, 2.6rem) clamp(1rem, 2.4vw, 2rem);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(1.25rem, 2vw, 1.75rem) clamp(0.75rem, 1.6vw, 1.25rem);
 }
+/* Tarjetas del mismo alto por fila: el texto crece hasta el pie. */
 .category {
-  grid-column: span 2;
-  display: grid;
-  grid-template-rows: auto 1fr;
-  gap: var(--s1);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s0);
 }
 .category .picture {
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 4 / 3;
 }
-.category--lead {
-  grid-column: span 4;
-  grid-row: span 2;
-}
-.category--lead .picture {
-  aspect-ratio: auto;
-  height: 100%;
-  min-height: 420px;
-}
-.category:nth-child(2) .picture,
-.category:nth-child(3) .picture {
-  aspect-ratio: 1.618 / 1;
+.category__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 .category__name {
-  font-size: var(--step-2);
+  font-size: var(--step-1);
   margin-bottom: var(--s-1);
 }
+/* Dos líneas como máximo, con el alto de las dos reservado aunque la descripción sea corta. */
 .category__text p {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  min-height: 2lh;
   color: var(--fg-muted);
   margin-bottom: var(--s0);
-  max-width: 40ch;
 }
-/* La cuarta categoría cierra la grilla en una franja horizontal. */
-.category:nth-child(4) {
-  grid-column: 1 / -1;
-  grid-template-columns: minmax(0, 1.618fr) minmax(0, 1fr);
-  grid-template-rows: auto;
-  align-items: end;
-  column-gap: var(--s3);
+/* El enlace del nombre se estira sobre toda la tarjeta: un clic en la foto o en la descripción también lo sigue. */
+.category__link {
+  color: inherit;
+  text-decoration: none;
 }
-.category:nth-child(4) .picture {
-  aspect-ratio: 2.4 / 1;
+.category__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.category__link:focus-visible {
+  outline: none;
+}
+.category__link:focus-visible::after {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
+}
+.category:hover .category__name {
+  color: var(--accent);
 }
 @media (max-width: 900px) {
   .categories {
-    grid-template-columns: 1fr 1fr;
-  }
-  .category,
-  .category:nth-child(n) {
-    grid-column: span 1;
-    grid-template-columns: 1fr;
-  }
-  .category--lead {
-    grid-column: span 2;
-    grid-row: auto;
-  }
-  .category--lead .picture {
-    min-height: 0;
-    aspect-ratio: 1.618 / 1;
-  }
-  .category:nth-child(n + 2) .picture {
-    aspect-ratio: 1 / 1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @media (max-width: 560px) {
-  .categories {
-    grid-template-columns: 1fr;
-  }
-  .category--lead {
-    grid-column: span 1;
-  }
-  .category:nth-child(n + 2) .picture {
-    aspect-ratio: 1.618 / 1;
+  .category__text p {
+    display: none;
   }
 }
 
