@@ -1,0 +1,14 @@
+---
+/**
+ * Bloque de datos estructurados. Con `data` en `null` no imprime nada.
+ * `<` se escapa como `<` para que un texto con `</script>` no cierre la etiqueta.
+ */
+interface Props {
+  data: object | null
+}
+
+const { data } = Astro.props
+const json = data ? JSON.stringify(data).replace(/</g, '\\u003c') : null
+---
+
+{json && <script is:inline type="application/ld+json" set:html={json} />}

@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets'
+import { getImage } from 'astro:assets'
 import { TRUSTED_LOGOS } from '../content/logos'
 
 /**
@@ -7,6 +7,8 @@ import { TRUSTED_LOGOS } from '../content/logos'
  * Carrusel en CSS puro: la pista tiene dos mitades iguales y se desplaza un 50 %, así el bucle no salta.
  * Con pocos logos, cada mitad repite el set hasta MIN_TRACK_ITEMS para que nunca quede un hueco.
  * Sólo los logos originales de la primera mitad son legibles; las copias llevan aria-hidden y alt="".
+ * Las <img> se escriben a mano (con getImage para los raster) porque Astro imprime un alt="" dinámico
+ * como `alt` sin valor, y los validadores lo marcan como falta de alt.
  */
 
 const MIN_TRACK_ITEMS = 8
@@ -14,6 +16,32 @@ const MIN_TRACK_ITEMS = 8
 const repeats = Math.ceil(MIN_TRACK_ITEMS / Math.max(TRUSTED_LOGOS.length, 1))
 const half = Array.from({ length: repeats }, (_, r) => TRUSTED_LOGOS.map((logo) => ({ logo, repeat: r > 0 }))).flat()
 const duration = `${half.length * 3}s`
+
+// SVG directo; raster optimizado a 56 px de alto con 1x y 2x, como hacía <Image>.
+interface LogoImg {
+  src: string
+  srcset?: string
+  width: number
+  height: number
+}
+
+const images = new Map<string, LogoImg>(
+  await Promise.all(
+    TRUSTED_LOGOS.map(async (logo): Promise<[string, LogoImg]> => {
+      if (logo.isSvg) return [logo.file, { src: logo.src.src, width: logo.src.width, height: logo.src.height }]
+      const img = await getImage({ src: logo.src, height: 56, densities: [1, 2] })
+      return [
+        logo.file,
+        {
+          src: img.src,
+          srcset: img.srcSet.attribute,
+          width: Number(img.attributes.width),
+          height: Number(img.attributes.height),
+        },
+      ]
+    }),
+  ),
+)
 ---
 
 {
@@ -30,26 +58,28 @@ const duration = `${half.length * 3}s`
             <ul class="trusted__logos" aria-hidden={copyHalf ? 'true' : undefined}>
               {half.map(({ logo, repeat }) => {
                 const copy = copyHalf || repeat
-                const alt = copy ? '' : logo.name
+                const img = images.get(logo.file)!
                 return (
                   <li class="trusted__item" aria-hidden={copy ? 'true' : undefined}>
-                    {logo.isSvg ? (
+                    {copy ? (
                       <img
                         class="trusted__logo"
-                        src={logo.src.src}
-                        width={logo.src.width}
-                        height={logo.src.height}
-                        alt={alt}
+                        src={img.src}
+                        srcset={img.srcset}
+                        width={img.width}
+                        height={img.height}
+                        alt=""
                         loading="lazy"
                         decoding="async"
                       />
                     ) : (
-                      <Image
+                      <img
                         class="trusted__logo"
-                        src={logo.src}
-                        height={56}
-                        densities={[1, 2]}
-                        alt={alt}
+                        src={img.src}
+                        srcset={img.srcset}
+                        width={img.width}
+                        height={img.height}
+                        alt={logo.name}
                         loading="lazy"
                         decoding="async"
                       />

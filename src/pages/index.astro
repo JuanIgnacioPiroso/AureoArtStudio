@@ -1,4 +1,7 @@
 ---
+import JsonLd from '../components/seo/JsonLd.astro'
+import { business } from '../config/business'
+import { organizationSchema, websiteSchema } from '../config/seo'
 import BaseLayout from '../layouts/BaseLayout.astro'
 import Categories from '../sections/Categories.astro'
 import ContactCta from '../sections/ContactCta.astro'
@@ -12,6 +15,7 @@ import TrustedBy from '../sections/TrustedBy.astro'
 
 <BaseLayout
   page="home"
+  path="/"
   title="AUREO Art Studio · Grabado láser personalizado con simulador 3D"
   description="Grabados personalizados en cuchillos, tablas de madera y regalos. Diseñá tu grabado, miralo en 3D antes de pedirlo y solicitá tu presupuesto."
   ogTitle="AUREO Art Studio · Objetos únicos, diseños que dejan huella"
@@ -28,6 +32,10 @@ import TrustedBy from '../sections/TrustedBy.astro'
       if (params.has('d') || params.has('producto')) location.replace('/custom-lab/?' + params.toString())
     }
   </script>
+  <Fragment slot="jsonld">
+    <JsonLd data={organizationSchema(business)} />
+    <JsonLd data={websiteSchema(business)} />
+  </Fragment>
   <Hero />
   <TrustedBy />
   <Categories />

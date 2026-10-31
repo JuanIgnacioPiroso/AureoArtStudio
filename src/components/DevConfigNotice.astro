@@ -7,6 +7,7 @@ const missing = import.meta.env.DEV
       .filter(([, v]) => v === null)
       .map(([k]) => k)
   : []
+const missingSiteUrl = missing.includes('siteUrl')
 ---
 
 {
@@ -14,6 +15,12 @@ const missing = import.meta.env.DEV
     <aside class="dev-notice" role="note">
       Desarrollo: faltan datos en <code>src/config/business.ts</code>: {missing.join(', ')}. Los botones que los usan
       están ocultos.
+      {missingSiteUrl && (
+        <>
+          <br />
+          Sin <code>siteUrl</code> no hay URL canónica, sitemap ni imagen de Open Graph con URL absoluta.
+        </>
+      )}
     </aside>
   )
 }

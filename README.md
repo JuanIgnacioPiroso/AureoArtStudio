@@ -25,6 +25,8 @@ npm run typecheck  # astro check
 ## Datos pendientes del negocio
 
 - **`src/config/business.ts`**: WhatsApp, email, Instagram, Facebook, ciudad, dirección, razón social y URL del sitio están en `null`. Mientras falten, se ocultan los botones que los usan (en desarrollo, un aviso los lista).
+  - Al completar `siteUrl` se activan la URL canónica y `og:url` de cada página, la imagen de Open Graph con URL absoluta, el `sitemap-index.xml`, la línea `Sitemap` de `robots.txt` y, en el JSON-LD de la home, `url`, `logo`, `image` y el bloque `WebSite`. Copiá la URL exacta con la que responde Vercel (con o sin `www`, siempre `https`).
+  - Al completar `city` o `address`, el JSON-LD del negocio pasa de `Organization` a `LocalBusiness` con su dirección (`addressCountry: "AR"`).
 - **Categorías** (`src/content/site.ts`): validar cuáles trabaja el negocio (`enabled`).
 - **Tipografías** (`FONTS` en `src/lab/model/catalog.ts` + URL de Google Fonts en la prop `fontsHref` de `src/pages/custom-lab/index.astro`; la home sólo carga Bodoni Moda y Hanken Grotesk): 19 fuentes en 5 categorías. Para sumar una, agregá su id en `FONT_IDS` (`types.ts`), su entrada en `FONTS` y la familia en la URL.
 - **Estilos de grabado** (`src/lab/model/catalog.ts`): quemado en madera, marcado oscuro o esmerilado en acero, dorado y la alpaca de las virolas, grabado a metal (el láser retira la pintura y deja ver el acero) sobre negro mate, bajorrelieve (letra hundida y oscura) en mármol, grabado esmerilado en acrílico y vidrio, y grabado láser en cuero (oscurece y hunde apenas el cuero; el tono de la marca sale de `engraveRgb` de cada cuero). Confirmar que el taller los ofrece.

@@ -5,9 +5,12 @@ import '../styles/landing.css'
 import DevConfigNotice from '../components/DevConfigNotice.astro'
 import Footer from '../components/layout/Footer.astro'
 import Header from '../components/layout/Header.astro'
+import { absoluteUrl, OG_IMAGE } from '../config/seo'
 
 interface Props {
   page: 'home' | 'lab'
+  /** Ruta canónica de la página, sin query string (`/custom-lab/?d=…` declara `/custom-lab/`). */
+  path: '/' | '/custom-lab/'
   title: string
   description: string
   ogTitle: string
@@ -16,7 +19,11 @@ interface Props {
   fontsHref: string
 }
 
-const { page, title, description, ogTitle, ogDescription, fontsHref } = Astro.props
+const { page, path, title, description, ogTitle, ogDescription, fontsHref } = Astro.props
+
+// Sin `business.siteUrl` no hay URL absoluta: se omiten canonical y og:url, y og:image queda relativa.
+const canonicalUrl = absoluteUrl(path)
+const ogImage = absoluteUrl(OG_IMAGE.path) ?? OG_IMAGE.path
 ---
 
 <!doctype html>
@@ -29,16 +36,24 @@ const { page, title, description, ogTitle, ogDescription, fontsHref } = Astro.pr
     <meta name="description" content={description} />
     <meta name="theme-color" content="#16171A" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="es_AR" />
     <meta property="og:site_name" content="AUREO Art Studio" />
     <meta property="og:title" content={ogTitle} />
     <meta property="og:description" content={ogDescription} />
-    <meta property="og:image" content="/og-image.png" />
+    {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content={String(OG_IMAGE.width)} />
+    <meta property="og:image:height" content={String(OG_IMAGE.height)} />
+    <meta property="og:image:alt" content={OG_IMAGE.alt} />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={ogTitle} />
+    <meta name="twitter:description" content={ogDescription} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href={fontsHref} />
+    <slot name="jsonld" />
   </head>
   <body>
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
