@@ -161,6 +161,8 @@ export const DIFFERENTIALS = [
 export interface Faq {
   q: string
   a: string | null
+  /** Enlace opcional al final de la respuesta. */
+  link?: { href: string; label: string }
 }
 
 /** Las respuestas en null están pendientes de completar con el negocio y no se muestran. */
@@ -173,12 +175,17 @@ export const FAQ: Faq[] = [
     q: '¿Cómo pido un presupuesto?',
     a: 'Al terminar tu diseño, en el paso 5 del Custom Lab, generás un resumen con todos los datos. Podés enviarlo directamente o copiarlo y descargarlo junto con la imagen del diseño.',
   },
+  { q: '¿Cuánto cuesta un grabado personalizado?', a: null },
+  { q: '¿Cuánto tarda un pedido?', a: null },
+  { q: '¿Hacen envíos? ¿A qué zonas?', a: null },
+  { q: '¿Cómo se paga?', a: null },
+  { q: '¿Hacen pedidos por cantidad o para empresas?', a: null },
+  { q: '¿Puedo enviar mi propio diseño o logo? ¿En qué formato?', a: null },
+  { q: '¿Qué materiales se pueden grabar?', a: null },
+  { q: '¿Las tablas grabadas se pueden usar con alimentos?', a: null },
+  { q: '¿Cómo cuido una pieza grabada?', a: null },
   {
     q: '¿Puedo retomar un diseño más tarde?',
     a: 'Sí. Con «Copiar enlace del diseño» guardás un link que abre el simulador con tu configuración exacta. No guardamos tus diseños en ningún servidor.',
   },
-  { q: '¿Puedo enviar mi propio diseño o logo?', a: null },
-  { q: '¿Qué materiales se pueden grabar?', a: null },
-  { q: '¿Cómo se coordinan los pagos y las entregas?', a: null },
-  { q: '¿Cuánto tarda un pedido?', a: null },
 ]

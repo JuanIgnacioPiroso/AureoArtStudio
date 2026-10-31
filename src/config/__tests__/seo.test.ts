@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { BusinessConfig } from '../business'
-import { absoluteUrl, organizationSchema, websiteSchema } from '../seo'
+import { absoluteUrl, faqSchema, organizationSchema, websiteSchema } from '../seo'
 
 const empty: BusinessConfig = {
   name: 'AUREO Art Studio',
@@ -96,5 +96,37 @@ describe('websiteSchema', () => {
       name: 'AUREO Art Studio',
       url: 'https://example.com',
     })
+  })
+})
+
+describe('faqSchema', () => {
+  it('es null sin preguntas respondidas', () => {
+    expect(faqSchema([{ q: '¿Pregunta?', a: null }])).toBeNull()
+  })
+
+  it('omite las preguntas con a: null', () => {
+    expect(
+      faqSchema([
+        { q: '¿Respondida?', a: 'Sí.' },
+        { q: '¿Pendiente?', a: null },
+      ]),
+    ).toEqual({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: '¿Respondida?',
+          acceptedAnswer: { '@type': 'Answer', text: 'Sí.' },
+        },
+      ],
+    })
+  })
+
+  it('suma el texto del enlace a la respuesta', () => {
+    const schema = faqSchema([
+      { q: '¿Materiales?', a: 'Madera y acero.', link: { href: '/materiales/', label: 'Ver la guía.' } },
+    ]) as { mainEntity: { acceptedAnswer: { text: string } }[] }
+    expect(schema.mainEntity[0]?.acceptedAnswer.text).toBe('Madera y acero. Ver la guía.')
   })
 })

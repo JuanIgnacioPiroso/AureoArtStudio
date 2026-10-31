@@ -1,3 +1,4 @@
+import type { Faq } from '../content/site'
 import type { BusinessConfig } from './business'
 import { business } from './business'
 
@@ -75,5 +76,27 @@ export function websiteSchema(b: BusinessConfig): object | null {
     '@type': 'WebSite',
     name: b.name,
     url: site,
+  }
+}
+
+/**
+ * JSON-LD `FAQPage` con las preguntas respondidas, filtradas igual que en la página.
+ * El texto del enlace se suma a la respuesta para que coincida con lo visible.
+ * `null` si no hay ninguna respondida.
+ */
+export function faqSchema(items: readonly Faq[]): object | null {
+  const answered = items.filter((f) => f.a)
+  if (answered.length === 0) return null
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: answered.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: f.link ? `${f.a} ${f.link.label}` : f.a,
+      },
+    })),
   }
 }
