@@ -2,6 +2,7 @@ import type { BusinessConfig } from '../config/business'
 import { LAB_PATH, labProductHref } from '../lab/intent'
 import { getProduct, MATERIALS, surfacesOf } from '../lab/model/catalog'
 import type { ProductDef, SurfaceDef } from '../lab/model/types'
+import { CORPORATE_PATH } from './corporate'
 import { MATERIAL_GUIDES, productsFor, type MaterialGuide } from './materials'
 import { GIFT_IDEA_PRODUCT_IDS, PURCHASE_FAQ, type Category, type Faq } from './site'
 import { WORKS, type Work } from './works'
@@ -29,14 +30,15 @@ export function hasCategoryPage(c: Category): boolean {
   return c.enabled && c.id !== 'empresas'
 }
 
-/** Ruta de la página de la categoría, o null si no tiene. */
+/** Ruta de la página de la categoría, o null si no tiene. Empresas lleva a su página propia. */
 export function categoryPagePath(c: Category): string | null {
+  if (c.enabled && c.id === 'empresas') return CORPORATE_PATH
   return hasCategoryPage(c) ? `/${c.slug}/` : null
 }
 
 export type CategoryLink = { href: string; kind: 'page' } | CategoryDestination
 
-/** Enlace de la categoría en la home y el footer: su página; si todavía no tiene (empresas), `categoryHref`. */
+/** Enlace de la categoría en la home y el footer: su página; si no tiene, `categoryHref`. */
 export function categoryLink(c: Category, b: BusinessConfig): CategoryLink {
   const page = categoryPagePath(c)
   return page ? { href: page, kind: 'page' } : categoryHref(c, b)
@@ -82,7 +84,12 @@ export function categoryProductIds(c: Category): readonly string[] {
 
 /** Tarjetas de producto de la página de la categoría, con materiales y medidas tomados del catálogo del Lab. */
 export function categoryProducts(c: Category): CategoryProduct[] {
-  return categoryProductIds(c).map((id) => {
+  return labProducts(categoryProductIds(c))
+}
+
+/** Tarjetas de los productos del Lab pedidos, en ese orden (categorías y página de empresas). */
+export function labProducts(ids: readonly string[]): CategoryProduct[] {
+  return ids.map((id) => {
     const p = getProduct(id)
     return {
       id: p.id,

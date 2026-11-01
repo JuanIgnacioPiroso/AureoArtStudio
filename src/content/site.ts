@@ -206,7 +206,7 @@ export const CATEGORIES: Category[] = [
   },
   {
     id: 'empresas',
-    /** Provisional: la página de empresas es de la SPEC 19, que puede reemplazar slug y textos. */
+    /** La página es /regalos-empresariales/ (SPEC 19, textos en src/content/corporate.ts); seo no se usa. */
     slug: 'regalos-empresariales',
     name: 'Productos empresariales',
     description: 'Tu marca en objetos para equipos, clientes y eventos.',
@@ -257,6 +257,11 @@ export const GIFT_IDEA_PRODUCT_IDS: readonly string[] = [
   'leather-wallet',
   'plaque-base',
 ]
+
+export interface ProcessStep {
+  title: string
+  text: string
+}
 
 export const PROCESS = [
   { title: 'Elegís el producto', text: 'Partís de uno de nuestros objetos o nos contás qué querés personalizar.' },

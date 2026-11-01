@@ -1,0 +1,43 @@
+---
+import type { CategoryProduct } from '../content/categories'
+
+/** Tarjeta de un producto del Lab: materiales, zonas de grabado en mm y enlace que lo abre en el Custom Lab. */
+interface Props {
+  product: CategoryProduct
+  /** Texto del botón. */
+  linkLabel?: string
+  /** Nombre accesible del botón: tiene que nombrar el producto. */
+  linkAriaLabel?: string
+}
+
+const { product: p, linkLabel = 'Diseñarlo' } = Astro.props
+const { linkAriaLabel = `Diseñar ${p.name} en el Custom Lab` } = Astro.props
+---
+
+<li class="lab-product">
+  <h3 class="lab-product__name display">{p.name}</h3>
+  <p class="lab-product__description">{p.description}</p>
+  <dl class="lab-product__facts">
+    <div>
+      <dt>Materiales</dt>
+      <dd>{p.materials.join(', ')}</dd>
+    </div>
+    <div>
+      <dt>Zonas de grabado</dt>
+      <dd>
+        <ul class="lab-product__zones">
+          {
+            p.zones.map((z) => (
+              <li>
+                <strong>{z.label}:</strong> {z.size}
+              </li>
+            ))
+          }
+        </ul>
+      </dd>
+    </div>
+  </dl>
+  <a class="button lab-product__link" href={p.href} aria-label={linkAriaLabel}>
+    {linkLabel}
+  </a>
+</li>

@@ -129,8 +129,14 @@ describe('categoryLink', () => {
     expect(categoryLink(byId('regalos'), noContact)).toEqual({ href: '/regalos-personalizados/', kind: 'page' })
   })
 
-  it('empresas, sin página todavía, sigue la regla de categoryHref', () => {
+  it('empresas lleva a /regalos-empresariales/ aunque haya canales', () => {
+    const b = { ...noContact, whatsapp: '5491112345678', email: 'hola@ejemplo.com' }
+    expect(categoryLink(byId('empresas'), b)).toEqual({ href: '/regalos-empresariales/', kind: 'page' })
+  })
+
+  it('una categoría deshabilitada sin producto sigue la regla de categoryHref', () => {
+    const c = { ...byId('empresas'), enabled: false }
     const b = { ...noContact, email: 'hola@ejemplo.com' }
-    expect(categoryLink(byId('empresas'), b)).toEqual(categoryHref(byId('empresas'), b))
+    expect(categoryLink(c, b)).toEqual(categoryHref(c, b))
   })
 })

@@ -7,6 +7,7 @@ import {
   faqSchema,
   itemListSchema,
   organizationSchema,
+  serviceSchema,
   websiteSchema,
 } from '../seo'
 
@@ -168,6 +169,35 @@ describe('articleSchema', () => {
     expect(article.author).toEqual({ '@type': 'Organization', name: 'AUREO Art Studio' })
     expect(article).not.toHaveProperty('url')
     expect(article).not.toHaveProperty('mainEntityOfPage')
+  })
+})
+
+describe('serviceSchema', () => {
+  const input = {
+    path: '/regalos-empresariales/',
+    name: 'Regalos empresariales',
+    serviceType: 'Grabado láser de regalos empresariales',
+    description: 'Descripción',
+  }
+
+  it('el proveedor apunta al @id del negocio y el área es la ciudad', () => {
+    expect(serviceSchema(full, input)).toEqual({
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      name: 'Regalos empresariales',
+      serviceType: 'Grabado láser de regalos empresariales',
+      description: 'Descripción',
+      url: 'https://example.com/regalos-empresariales/',
+      provider: { '@id': (organizationSchema(full) as { '@id': string })['@id'] },
+      areaServed: { '@type': 'City', name: full.city },
+    })
+  })
+
+  it('sin siteUrl ni ciudad nombra al negocio y omite url y areaServed', () => {
+    const service = serviceSchema(empty, input) as Record<string, unknown>
+    expect(service.provider).toEqual({ '@type': 'Organization', name: 'AUREO Art Studio' })
+    expect(service).not.toHaveProperty('url')
+    expect(service).not.toHaveProperty('areaServed')
   })
 })
 

@@ -65,7 +65,9 @@
   color: var(--fg-muted);
   padding-block: 0.4rem;
   border-bottom: 1px solid transparent;
-  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+  transition:
+    color 0.2s var(--ease),
+    border-color 0.2s var(--ease);
 }
 .site-nav a:hover {
   color: var(--fg);
@@ -94,14 +96,16 @@
   width: 18px;
   height: 1.5px;
   background: currentColor;
-  transition: transform 0.25s var(--ease), opacity 0.2s;
+  transition:
+    transform 0.25s var(--ease),
+    opacity 0.2s;
 }
 .menu-toggle__bars {
   top: 21px;
 }
 .menu-toggle__bars::before,
 .menu-toggle__bars::after {
-  content: '';
+  content: "";
   left: 0;
 }
 .menu-toggle__bars::before {
@@ -182,7 +186,7 @@
   line-height: 1.02;
   letter-spacing: -0.02em;
   margin-bottom: var(--s2);
-  font-variation-settings: 'opsz' 96;
+  font-variation-settings: "opsz" 96;
 }
 .hero__actions {
   display: flex;
@@ -387,9 +391,23 @@
     row-gap: var(--s2);
     padding-inline: var(--gutter);
   }
-  .trusted__track [aria-hidden='true'] {
+  .trusted__track [aria-hidden="true"] {
     display: none;
   }
+}
+
+.trusted__more {
+  margin-top: var(--s1);
+  text-align: center;
+  font-size: var(--step--1);
+}
+/* Versión quieta (prop static): la misma grilla que el carrusel con movimiento reducido. */
+.trusted__logos--static {
+  margin-top: var(--s2);
+  flex-wrap: wrap;
+  justify-content: center;
+  row-gap: var(--s2);
+  padding-right: 0;
 }
 
 /* ───────── Categorías ───────── */
@@ -438,7 +456,7 @@
   text-decoration: none;
 }
 .category__link::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
 }
@@ -528,12 +546,15 @@
   color: var(--fg);
   cursor: pointer;
   font-size: 0.92rem;
-  transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease), color 0.2s var(--ease);
+  transition:
+    border-color 0.2s var(--ease),
+    background-color 0.2s var(--ease),
+    color 0.2s var(--ease);
 }
 .chip:hover {
   border-color: var(--accent);
 }
-.chip[aria-pressed='true'] {
+.chip[aria-pressed="true"] {
   background: var(--fg);
   color: var(--bg);
   border-color: var(--fg);
@@ -651,7 +672,9 @@
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  /* Una columna por paso: la página de empresas tiene cuatro o cinco según la muestra. */
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
   border-top: 1px solid var(--rule);
 }
 .process__step {
@@ -680,7 +703,7 @@
 }
 @media (max-width: 900px) {
   .process__steps {
-    grid-template-columns: 1fr;
+    grid-auto-flow: row;
     border-top: 0;
   }
   .process__step,
@@ -774,7 +797,7 @@
   display: none;
 }
 .faq__item summary::after {
-  content: '';
+  content: "";
   position: absolute;
   right: 0.4rem;
   top: 50%;
@@ -1019,7 +1042,7 @@
   color: var(--fg-muted);
 }
 .breadcrumbs li + li::before {
-  content: '›';
+  content: "›";
   margin-right: var(--s-1);
 }
 .breadcrumbs a {
@@ -1103,6 +1126,79 @@
 }
 .category-works__title {
   margin-bottom: clamp(2rem, 5vw, 3rem);
+}
+
+/* ───────── Página para empresas ───────── */
+.corporate__title {
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+}
+.corporate-occasions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  gap: var(--s2);
+}
+.corporate-occasion {
+  padding-top: var(--s1);
+  border-top: 1px solid var(--rule);
+}
+.corporate-occasion__title {
+  font-size: var(--step-1);
+  margin-bottom: var(--s-1);
+}
+.corporate-occasion p {
+  color: var(--fg-muted);
+}
+.corporate-occasion__products {
+  margin-top: var(--s0);
+  font-size: var(--step--1);
+}
+.corporate-occasion__label {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+.corporate-order {
+  display: grid;
+  gap: var(--s4) var(--s3);
+}
+.corporate-order--split {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (max-width: 800px) {
+  .corporate-order--split {
+    grid-template-columns: 1fr;
+  }
+}
+.corporate-conditions {
+  margin: 0;
+  display: grid;
+  gap: var(--s1);
+}
+.corporate-conditions div {
+  padding-top: var(--s0);
+  border-top: 1px solid var(--rule);
+}
+.corporate-conditions dt {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  color: var(--fg-muted);
+  margin-bottom: 0.15rem;
+}
+.corporate-conditions dd {
+  margin: 0;
+}
+.corporate-logo {
+  margin: 0;
+  padding-left: 1.2em;
+  display: grid;
+  gap: var(--s0);
+  max-width: 38rem;
 }
 
 /* ───────── Footer ───────── */

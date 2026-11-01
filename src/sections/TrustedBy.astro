@@ -1,5 +1,6 @@
 ---
 import { getImage } from 'astro:assets'
+import { CORPORATE_PATH } from '../content/corporate'
 import { TRUSTED_LOGOS } from '../content/logos'
 
 /**
@@ -7,9 +8,18 @@ import { TRUSTED_LOGOS } from '../content/logos'
  * Carrusel en CSS puro: la pista tiene dos mitades iguales y se desplaza un 50 %, así el bucle no salta.
  * Con pocos logos, cada mitad repite el set hasta MIN_TRACK_ITEMS para que nunca quede un hueco.
  * Sólo los logos originales de la primera mitad son legibles; las copias llevan aria-hidden y alt="".
+ * Con `static`, cada logo una sola vez en una grilla quieta, sin pista ni copias (como el carrusel con movimiento reducido).
+ * El carrusel (la home) suma el enlace a la página de empresas; la versión quieta ya vive en ella.
  * Las <img> se escriben a mano (con getImage para los raster) porque Astro imprime un alt="" dinámico
  * como `alt` sin valor, y los validadores lo marcan como falta de alt.
  */
+
+interface Props {
+  /** Grilla quieta en lugar del carrusel. */
+  static?: boolean
+}
+
+const { static: isStatic = false } = Astro.props
 
 const MIN_TRACK_ITEMS = 8
 
@@ -52,45 +62,76 @@ const images = new Map<string, LogoImg>(
           Confían en nosotros
         </h2>
       </div>
-      <div class="trusted__marquee">
-        <div class="trusted__track" style={`--trusted-duration: ${duration}`}>
-          {[false, true].map((copyHalf) => (
-            <ul class="trusted__logos" aria-hidden={copyHalf ? 'true' : undefined}>
-              {half.map(({ logo, repeat }) => {
-                const copy = copyHalf || repeat
-                const img = images.get(logo.file)!
-                return (
-                  <li class="trusted__item" aria-hidden={copy ? 'true' : undefined}>
-                    {copy ? (
-                      <img
-                        class="trusted__logo"
-                        src={img.src}
-                        srcset={img.srcset}
-                        width={img.width}
-                        height={img.height}
-                        alt=""
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    ) : (
-                      <img
-                        class="trusted__logo"
-                        src={img.src}
-                        srcset={img.srcset}
-                        width={img.width}
-                        height={img.height}
-                        alt={logo.name}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    )}
-                  </li>
-                )
-              })}
-            </ul>
-          ))}
+      {isStatic ? (
+        <div class="wrap">
+          <ul class="trusted__logos trusted__logos--static">
+            {TRUSTED_LOGOS.map((logo) => {
+              const img = images.get(logo.file)!
+              return (
+                <li class="trusted__item">
+                  <img
+                    class="trusted__logo"
+                    src={img.src}
+                    srcset={img.srcset}
+                    width={img.width}
+                    height={img.height}
+                    alt={logo.name}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </li>
+              )
+            })}
+          </ul>
         </div>
-      </div>
+      ) : (
+        <div class="trusted__marquee">
+          <div class="trusted__track" style={`--trusted-duration: ${duration}`}>
+            {[false, true].map((copyHalf) => (
+              <ul class="trusted__logos" aria-hidden={copyHalf ? 'true' : undefined}>
+                {half.map(({ logo, repeat }) => {
+                  const copy = copyHalf || repeat
+                  const img = images.get(logo.file)!
+                  return (
+                    <li class="trusted__item" aria-hidden={copy ? 'true' : undefined}>
+                      {copy ? (
+                        <img
+                          class="trusted__logo"
+                          src={img.src}
+                          srcset={img.srcset}
+                          width={img.width}
+                          height={img.height}
+                          alt=""
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      ) : (
+                        <img
+                          class="trusted__logo"
+                          src={img.src}
+                          srcset={img.srcset}
+                          width={img.width}
+                          height={img.height}
+                          alt={logo.name}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      )}
+                    </li>
+                  )
+                })}
+              </ul>
+            ))}
+          </div>
+        </div>
+      )}
+      {!isStatic && (
+        <p class="wrap trusted__more">
+          <a class="text-link" href={CORPORATE_PATH}>
+            Pedidos para empresas
+          </a>
+        </p>
+      )}
     </section>
   )
 }

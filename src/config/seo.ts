@@ -163,13 +163,18 @@ export interface ArticleInput {
   dateModified: string
 }
 
+/** Referencia al negocio: su `@id` (el de `organizationSchema`) o, sin `siteUrl`, su nombre como `Organization`. */
+function businessRef(b: BusinessConfig): object {
+  const site = baseUrl(b.siteUrl)
+  return site ? { '@id': `${site}/#negocio` } : { '@type': 'Organization', name: b.name }
+}
+
 /**
  * JSON-LD `Article` de una página de contenido. Autor y editor apuntan al `@id` del negocio
  * (el de `organizationSchema`); sin `siteUrl` no hay `@id` y se nombra al negocio como `Organization`.
  */
 export function articleSchema(b: BusinessConfig, a: ArticleInput): object {
-  const site = baseUrl(b.siteUrl)
-  const org = site ? { '@id': `${site}/#negocio` } : { '@type': 'Organization', name: b.name }
+  const org = businessRef(b)
   const url = absoluteUrl(a.path, b.siteUrl)
   return compact({
     '@context': 'https://schema.org',
@@ -183,5 +188,29 @@ export function articleSchema(b: BusinessConfig, a: ArticleInput): object {
     dateModified: a.dateModified,
     author: org,
     publisher: org,
+  })
+}
+
+export interface ServiceInput {
+  path: string
+  name: string
+  serviceType: string
+  description: string
+}
+
+/**
+ * JSON-LD `Service` de una página de servicio. `provider` apunta al negocio como en `articleSchema`;
+ * `areaServed` es la ciudad del negocio y se omite mientras `business.city` no esté cargada.
+ */
+export function serviceSchema(b: BusinessConfig, s: ServiceInput): object {
+  return compact({
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: s.name,
+    serviceType: s.serviceType,
+    description: s.description,
+    url: absoluteUrl(s.path, b.siteUrl),
+    provider: businessRef(b),
+    areaServed: b.city ? { '@type': 'City', name: b.city } : null,
   })
 }

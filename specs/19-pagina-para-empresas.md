@@ -1,6 +1,6 @@
 # SPEC 19 — Página para empresas: regalos y productos con logo
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 09, SPEC 12, SPEC 14, SPEC 15, SPEC 18
 > **Fecha:** 2026-10-30
 > **Objetivo:** Publicar `/regalos-empresariales/`, una página para quien compra para una empresa o un organismo: qué productos se graban con logo, cómo es el proceso para un pedido por cantidad, qué datos hacen falta, qué clientes ya confiaron y cómo pedir el presupuesto.

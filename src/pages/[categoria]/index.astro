@@ -1,4 +1,5 @@
 ---
+import LabProductCard from '../../components/LabProductCard.astro'
 import Picture from '../../components/Picture.astro'
 import JsonLd from '../../components/seo/JsonLd.astro'
 import WorkGrid from '../../components/WorkGrid.astro'
@@ -108,31 +109,7 @@ const MAIN_LABEL: Record<CategoryDestination['kind'], string> = {
           </h2>
           <ul class="lab-products">
             {products.map((p) => (
-              <li class="lab-product">
-                <h3 class="lab-product__name display">{p.name}</h3>
-                <p class="lab-product__description">{p.description}</p>
-                <dl class="lab-product__facts">
-                  <div>
-                    <dt>Materiales</dt>
-                    <dd>{p.materials.join(', ')}</dd>
-                  </div>
-                  <div>
-                    <dt>Zonas de grabado</dt>
-                    <dd>
-                      <ul class="lab-product__zones">
-                        {p.zones.map((z) => (
-                          <li>
-                            <strong>{z.label}:</strong> {z.size}
-                          </li>
-                        ))}
-                      </ul>
-                    </dd>
-                  </div>
-                </dl>
-                <a class="button lab-product__link" href={p.href} aria-label={`Diseñar ${p.name} en el Custom Lab`}>
-                  Diseñarlo
-                </a>
-              </li>
+              <LabProductCard product={p} />
             ))}
           </ul>
         </div>
