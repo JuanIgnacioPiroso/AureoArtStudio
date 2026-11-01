@@ -70,7 +70,7 @@ npm run typecheck  # astro check
   - Usá la versión oscura o a color sobre fondo transparente: la franja es clara y los logos se muestran en escala de grises (toman su color al pasar el mouse). Un logo blanco no se ve.
   - El nombre del archivo es el texto alternativo: `-` y `_` pasan a espacios y sólo se pone en mayúscula la primera letra, así que escribilo con sus mayúsculas y tildes (`Municipalidad-de-Tandil.svg` → «Municipalidad de Tandil»).
   - El orden es por nombre de archivo. Un prefijo numérico opcional lo fija y no se muestra: `01-Café_Martínez.webp` va antes de `2-Aceros.svg` y se lee «Café Martínez».
-- **Fotos**: las imágenes de `public/img/placeholder/` son provisionales, de Wikimedia Commons (créditos en `src/content/image-credits.json` y en el footer). En la galería se reemplazan por trabajos del taller, que se suman sin tocar `src/sections/Gallery.astro`:
+- **Fotos**: la galería muestra trabajos del taller (`src/assets/works/`). Las imágenes de `public/img/placeholder/` siguen siendo provisionales, de Wikimedia Commons (créditos en `src/content/image-credits.json` y en el footer), y sólo las usan las tarjetas de categorías y de materiales. Un trabajo nuevo se suma sin tocar `src/sections/Gallery.astro`:
   1. Copiá la foto en `src/assets/works/` en `.jpg`, `.png` o `.webp`, con la extensión en minúsculas. Si el celular saca `.heic`, exportala antes como `.jpg`. Usá un nombre corto y sin espacios (`tabla-asado-gomez.jpg`).
   2. Tamaño mínimo: 1600 px del lado largo. El build genera los `.webp` de 800 px (tarjeta) y de 1600 px (visor), así que no hay que achicarla a mano.
   3. Para que se vea pareja con el resto: luz natural, fondo liso y el grabado en foco.
@@ -92,8 +92,15 @@ npm run typecheck  # astro check
      },
      ```
   6. En `alt`, describí lo que se ve: el objeto, el material y qué dice o muestra el grabado. No repitas el título ni empieces con «Foto de». `npm run test` falla si un `alt` queda vacío, si la categoría no existe o si `labProductId` no es un producto del Lab.
-  - Los trabajos propios se muestran antes que los ilustrativos, en el orden de `WORKS`. El filtro de una categoría aparece apenas tiene un trabajo.
-  - Cuando haya fotos propias de una categoría, borrá su trabajo ilustrativo de `WORKS`. Cuando no quede ninguno, desaparece la bajada que avisa que las imágenes son ilustrativas.
+  - Los trabajos se muestran en el orden de `WORKS`. La home muestra los primeros `HOME_WORKS_LIMIT` (8) y el resto detrás de «Ver más trabajos»: poné adelante los más representativos. Las páginas de categoría muestran todos los suyos.
+  - La barra de filtros aparece cuando hay trabajos de al menos dos categorías. Con una sola, no filtraría nada.
+  - No publicar placas funerarias ni datos de particulares (nombres de difuntos, de familiares o de clientes que no pidieron aparecer) sin su permiso. Antes de publicar un reconocimiento con nombre, confirmarlo con el cliente. Quitar un trabajo es borrar su entrada en `WORKS` y su foto.
+  - Materiales a confirmar con el taller (se ven en la tarjeta y en el visor; si alguno está mal, corregir `material` en `WORKS`):
+    - `w-embajada-argentina` y `w-homenaje-cgt`: «Acero inoxidable».
+    - `w-utn-fin-de-cursada`, `w-eseade-honoris-causa`, `w-bodega-iaccarini` y `w-di-tella`: «Chapa dorada sobre base de madera», ¿bronce o aluminio?
+    - `w-arneg-jubilacion`: «Chapa dorada con separadores», ¿bronce o aluminio?
+    - `w-municipio-tigre`: «Chapa dorada en cuadro con marco».
+    - `w-bandeja-adicora`: «Vidrio con borde dorado». En la foto parece metal pulido.
 - **Legales**: no hay páginas de privacidad ni términos, así que no se enlazan.
 
 ## Custom Lab: cómo agregar un producto

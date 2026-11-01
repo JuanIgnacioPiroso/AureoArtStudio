@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { PRODUCTS } from '../../lab/model/catalog'
 import { CATEGORIES, IMAGES } from '../site'
-import { orderedWorks, WORKS, workFilters } from '../works'
+import { isOwnPhoto, orderedWorks, WORKS, workFilters } from '../works'
 
 describe('WORKS', () => {
   it('toda categoría existe en CATEGORIES', () => {
@@ -22,6 +22,15 @@ describe('WORKS', () => {
   it('los ids no se repiten', () => {
     expect(new Set(WORKS.map((w) => w.id)).size).toBe(WORKS.length)
   })
+
+  it('ningún trabajo es ilustrativo', () => {
+    expect(WORKS.filter((w) => !isOwnPhoto(w.photo)).map((w) => w.id)).toEqual([])
+  })
+
+  it('ningún título, material, detalle ni alt está vacío', () => {
+    const empty = WORKS.filter((w) => [w.title, w.material, w.detail, w.photo.alt].some((text) => !text.trim()))
+    expect(empty.map((w) => w.id)).toEqual([])
+  })
 })
 
 describe('workFilters', () => {
@@ -38,9 +47,9 @@ describe('orderedWorks', () => {
   it('pone los trabajos propios antes que los ilustrativos, sin cambiar el orden dentro de cada grupo', () => {
     const base = WORKS[0]!
     const works = [
-      { ...base, id: 'ilus-1' },
+      { ...base, id: 'ilus-1', photo: IMAGES.box },
       { ...base, id: 'propio-1', photo: { ...IMAGES.box, illustrative: false } },
-      { ...base, id: 'ilus-2' },
+      { ...base, id: 'ilus-2', photo: IMAGES.board },
       { ...base, id: 'propio-2', photo: { ...IMAGES.board, illustrative: false } },
     ]
     expect(orderedWorks(works).map((w) => w.id)).toEqual(['propio-1', 'propio-2', 'ilus-1', 'ilus-2'])
