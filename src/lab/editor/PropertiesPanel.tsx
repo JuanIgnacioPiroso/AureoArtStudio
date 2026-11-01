@@ -2,6 +2,7 @@ import { useId, useMemo, useState } from 'react'
 import { assetStatus } from '../assets/assetStore'
 import { getProduct, getSurface } from '../model/catalog'
 import { checkDesign, minDetailMm } from '../model/constraints'
+import { RING_WARNING, ringOverflowIds } from '../render/ringCheck'
 import { elementLabel, SHAPE_LABEL } from '../model/elements'
 import { measureTextMm } from '../model/measure'
 import { ALIGNS, MAX_TEXT_LENGTH, SHAPES, type Align, type DesignElement, type ImageElement, type ShapeElement, type ShapeKind, type SurfaceDef, type TextElement } from '../model/types'
@@ -9,6 +10,7 @@ import { ChoiceGroup, Slider } from '../panels/controls'
 import { useRenderRevision } from '../render/preview'
 import { useLab, type ElementPatch } from '../store'
 import { PRIMARY_TEXT_ID } from '../ids'
+import { AddButtons } from './AddButtons'
 import { FontPicker } from './FontPicker'
 import { NumberField } from './NumberField'
 import { useLogoPicker } from './logoPicker'
@@ -37,7 +39,7 @@ function TextProps({ el, surface, update }: { el: TextElement; surface: SurfaceD
           rows={multiline ? 3 : 2}
           maxLength={MAX_TEXT_LENGTH}
           value={el.text}
-          onChange={(e) => update({ text: e.target.value }, `text:${el.id}`)}
+          onChange={(e) => useLab.getState().setText(el.id, e.target.value)}
           placeholder="Ej.: Martín, M · A o Siempre juntos…"
           autoComplete="off"
         />
@@ -228,10 +230,16 @@ export function PropertiesPanel() {
   const a = useLab.getState()
   const [logoError, setLogoError] = useState('')
   const logo = useLogoPicker(setLogoError)
-  const surface = getSurface(getProduct(design.productId), design.surfaceId)
+  const surface = getSurface(getProduct(design.productId), design.surfaceId, design.shapeId)
   const warnings = useMemo(
     () => checkDesign(design, surface, measureTextMm),
     // revision: medir de nuevo cuando cargan las tipografías.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [design, surface, revision],
+  )
+  // Zonas con anillo (la boca de una virola): capas que caen en la boca o fuera del anillo.
+  const ringIds = useMemo(
+    () => ringOverflowIds(design, surface),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [design, surface, revision],
   )
@@ -242,24 +250,38 @@ export function PropertiesPanel() {
   if (!el) {
     return (
       <div className="stack-s">
-        <p className="note">
-          {selected.length > 1
-            ? `${selected.length} capas seleccionadas. Usá la barra del lienzo para alinearlas, distribuirlas o eliminarlas.`
-            : 'Tocá una capa en el lienzo o en la lista para editarla. Shift + clic selecciona varias.'}
-        </p>
+        {selected.length > 1 ? (
+          <p className="note">
+            {selected.length} capas seleccionadas. Usá el menú «Organizar» de la barra del lienzo para alinearlas o distribuirlas, o
+            eliminalas.
+          </p>
+        ) : (
+          <>
+            <p>Elegí una capa en el lienzo o agregá una.</p>
+            <div className="add-buttons" role="group" aria-label="Agregar una capa">
+              <AddButtons onError={setLogoError} onAdd={() => setLogoError('')} />
+            </div>
+            <p className="note" role="status">
+              {logoError}
+            </p>
+            <p className="note">Shift + clic en el lienzo selecciona varias capas.</p>
+          </>
+        )}
         <ul className="warnings" aria-label="Avisos del diseño">
           {warnings.map((w, i) => (
             <li key={i} className="note note--warn">
               {w.message}
             </li>
           ))}
+          {ringIds.length > 0 && <li className="note note--warn">{RING_WARNING}</li>}
         </ul>
       </div>
     )
   }
 
   const update: Update = (patch, coalesce) => a.updateElement(el.id, patch, coalesce)
-  const own = warnings.filter((w) => w.elementId === el.id && w.code !== 'too-small')
+  const own = warnings.filter((w) => w.elementId === el.id && w.code !== 'too-small').map((w) => w.message)
+  if (ringIds.includes(el.id)) own.push(RING_WARNING)
 
   return (
     <div className="stack-m properties" aria-label={`Propiedades de ${elementLabel(el)}`} role="group">
@@ -292,9 +314,9 @@ export function PropertiesPanel() {
       <CommonProps el={el} surface={surface} update={update} />
       {own.length > 0 && (
         <ul className="warnings" aria-label="Avisos de esta capa">
-          {own.map((w, i) => (
+          {own.map((message, i) => (
             <li key={i} className="note note--warn">
-              {w.message}
+              {message}
             </li>
           ))}
         </ul>

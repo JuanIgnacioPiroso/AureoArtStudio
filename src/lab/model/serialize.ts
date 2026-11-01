@@ -1,3 +1,4 @@
+import { LAB_PATH } from '../intent'
 import { LegacyDesignV1Schema, migrateV1 } from './legacy'
 import { DesignStateSchema, type DesignState, type MeasureText } from './types'
 
@@ -46,10 +47,9 @@ export function designId(design: DesignState): string {
   return `AU-${(h >>> 0).toString(36).toUpperCase().padStart(7, '0')}`
 }
 
+/** Enlace que reabre el diseño en la página del Lab; de `base` sólo se toma el origen. */
 export function designUrl(design: DesignState, base: string): string {
-  const url = new URL(base)
-  url.search = ''
-  url.hash = 'custom-lab'
+  const url = new URL(LAB_PATH, base)
   url.searchParams.set('d', encodeDesign(design))
   return url.toString()
 }

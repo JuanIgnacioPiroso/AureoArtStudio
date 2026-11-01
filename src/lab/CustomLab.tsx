@@ -1,19 +1,14 @@
-import { lazy, Suspense, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
+import { lazy, Suspense, useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
 import { DesignCanvas } from './editor/DesignCanvas'
-import { DesignPanel } from './editor/DesignPanel'
 import { EditorToolbar } from './editor/EditorToolbar'
 import { onEditorKey } from './editor/shortcuts'
 import { FONTS, getProduct, getSurface, MATERIALS } from './model/catalog'
 import { elementHasContent, elementLabel } from './model/elements'
 import { designFonts, ensureFonts } from './model/measure'
 import { designUrl } from './model/serialize'
-import { DesignAssistant } from './panels/DesignAssistant'
-import { MaterialSelector } from './panels/MaterialSelector'
-import { PreviewGenerator } from './panels/PreviewGenerator'
-import { ProductPicker } from './panels/ProductPicker'
-import { QuoteRequest } from './panels/QuoteRequest'
+import { EditTabs } from './panels/EditTabs'
+import { ObjectBar } from './panels/ObjectBar'
 import { downloadFile } from './services/quote'
-import { onLabProductRequest } from './intent'
 import { useLab } from './store'
 import { Fallback2D } from './viewer/Fallback2D'
 import { ViewerBoundary } from './viewer/ViewerBoundary'
@@ -42,30 +37,16 @@ const ORBIT_KEYS: Record<string, [number, number, number]> = {
   _: [0, 0, 1.1],
 }
 
-function Step({ n, title, open, children }: { n: number; title: string; open?: boolean; children: ReactNode }) {
-  return (
-    <details className="step" open={open}>
-      <summary className="step__summary">
-        <span className="step__n" aria-hidden="true">
-          {n}
-        </span>
-        <span className="step__title">{title}</span>
-      </summary>
-      <div className="step__body">{children}</div>
-    </details>
-  )
-}
-
 export default function CustomLab() {
   const design = useLab((s) => s.design)
   const viewMode = useLab((s) => s.viewMode)
   const capture = useLab((s) => s.capture)
-  const stageTab = useLab((s) => s.stageTab)
-  const { setViewMode, resetView, setStageTab } = useLab.getState()
+  const tab = useLab((s) => s.tab)
+  const { setViewMode, resetView, setTab } = useLab.getState()
   const [gl, setGl] = useState<'ok' | 'unsupported' | 'lost'>(() => (webglAvailable() ? 'ok' : 'unsupported'))
   const [toast, setToastText] = useState('')
   const [fullscreen, setFullscreen] = useState(false)
-  const stageRef = useRef<HTMLDivElement>(null)
+  const stageRef = useRef<HTMLElement>(null)
   const toastTimer = useRef<number | undefined>(undefined)
   const hintId = useId()
 
@@ -87,8 +68,6 @@ export default function CustomLab() {
     return () => document.removeEventListener('fullscreenchange', onChange)
   }, [])
 
-  useEffect(() => onLabProductRequest((id) => useLab.getState().setProduct(id)), [])
-
   // Las tipografías se cargan bajo demanda: al terminar, se mide y se dibuja de nuevo.
   const fontKey = designFonts(design).join(',')
   useEffect(() => {
@@ -100,9 +79,18 @@ export default function CustomLab() {
       alive = false
     }
   }, [fontKey])
+  // Una fuente también puede terminar de cargar por otro camino (el lienzo la pide al dibujar,
+  // o las vistas previas del selector) antes de que ensureFonts la vea faltante. Cualquier carga
+  // invalida las medidas tomadas con la fuente de respaldo.
+  useEffect(() => {
+    if (typeof document === 'undefined' || !('fonts' in document)) return
+    const onLoaded = () => useLab.getState().fontsLoaded()
+    document.fonts.addEventListener('loadingdone', onLoaded)
+    return () => document.fonts.removeEventListener('loadingdone', onLoaded)
+  }, [])
 
   const product = getProduct(design.productId)
-  const surface = getSurface(product, design.surfaceId)
+  const surface = getSurface(product, design.surfaceId, design.shapeId)
 
   const items = design.elements.filter(elementHasContent).map((e) =>
     e.kind === 'text' ? `«${elementLabel(e)}» en ${FONTS[e.fontId].name}, ${e.sizeMm} mm de alto` : elementLabel(e).toLowerCase(),
@@ -144,22 +132,28 @@ export default function CustomLab() {
   const fallback2d = <Fallback2D product={product} surface={surface} design={design} />
 
   return (
-    <div className="lab" onKeyDown={onEditorKey}>
-      <div className="lab__stage" ref={stageRef} data-tab={stageTab}>
-        <div className="lab__tabs segmented" role="group" aria-label="Vista">
-          <button type="button" aria-pressed={stageTab === 'design'} onClick={() => setStageTab('design')}>
-            Diseñar
-          </button>
-          <button type="button" aria-pressed={stageTab === '3d'} onClick={() => setStageTab('3d')}>
-            Ver en 3D
-          </button>
-        </div>
+    <div className="lab" data-tab={tab} onKeyDown={onEditorKey}>
+      {/* Pestañas Editar / Ver en 3D: sólo en pantallas angostas (en escritorio se ven las dos mitades). */}
+      <ObjectBar />
 
-        <section className="lab__editor" aria-label="Editor del grabado">
+      <div className="lab__tabs segmented" role="group" aria-label="Vista">
+        <button type="button" aria-pressed={tab === 'edit'} onClick={() => setTab('edit')}>
+          Editar
+        </button>
+        <button type="button" aria-pressed={tab === '3d'} onClick={() => setTab('3d')}>
+          Ver en 3D
+        </button>
+      </div>
+
+      <section className="lab__edit" aria-label="Edición">
+        <div className="lab__editor">
           <EditorToolbar />
           <DesignCanvas />
-        </section>
+        </div>
+        <EditTabs />
+      </section>
 
+      <section className="lab__stage" ref={stageRef} aria-label="Vista 3D">
         <div className="lab__view3d">
           <div
             className="lab__canvas"
@@ -221,7 +215,6 @@ export default function CustomLab() {
               <button type="button" className="tool" onClick={copyLink}>
                 Copiar enlace
               </button>
-              <PreviewGenerator />
             </div>
           )}
           <p className="lab__hint" id={hintId}>
@@ -234,25 +227,7 @@ export default function CustomLab() {
         <p className="lab__toast" role="status" aria-atomic="true">
           {toast}
         </p>
-      </div>
-
-      <div className="lab__panel">
-        <Step n={1} title="Elegí el objeto" open>
-          <ProductPicker />
-        </Step>
-        <Step n={2} title="Elegí el material" open>
-          <MaterialSelector />
-        </Step>
-        <Step n={3} title="Diseñá el grabado" open>
-          <DesignPanel />
-        </Step>
-        <Step n={4} title="Pedile ideas a la IA">
-          <DesignAssistant />
-        </Step>
-        <Step n={5} title="Revisá y pedí tu presupuesto">
-          <QuoteRequest />
-        </Step>
-      </div>
+      </section>
     </div>
   )
 }

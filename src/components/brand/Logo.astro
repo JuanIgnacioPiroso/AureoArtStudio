@@ -1,0 +1,25 @@
+---
+/**
+ * Logo con isotipo: un rectángulo áureo (1 : 1,618) dibujado con líneas de barrido láser.
+ * El cuadrado se raya en horizontal y el rectángulo menor en vertical, así la
+ * subdivisión áurea se lee sin trazar la espiral. Monocromo (currentColor) y grabable.
+ */
+interface Props {
+  compact?: boolean
+}
+
+const { compact = false } = Astro.props
+const size = compact ? 18 : 22
+const rows = [0, 3.07, 6.13, 9.2, 12.27, 15.33, 18.4]
+const cols = [21.2, 24.39, 27.57, 30.76]
+---
+
+<span class:list={['logo', { 'logo--compact': compact }]}
+  ><svg width={size * 1.618} height={size} viewBox="0 0 32.36 20" aria-hidden="true" fill="currentColor"
+    >{rows.map((y) => <rect x="0" y={y} width="20" height="1.6" />)}{
+      cols.map((x) => <rect x={x} y="0" width="1.6" height="20" />)
+    }</svg
+  ><span class="logo__words" translate="no"
+    ><span class="logo__name">AUREO</span><span class="logo__sub">Art Studio</span></span
+  ></span
+>

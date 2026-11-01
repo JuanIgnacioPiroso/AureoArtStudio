@@ -1,0 +1,36 @@
+---
+import { business } from '../config/business'
+
+/** Sólo muestra los canales configurados en src/config/business.ts. Sin datos, muestra el slot `fallback`. */
+const items: { label: string; href: string; text: string }[] = [
+  { label: 'WhatsApp', href: business.whatsapp ? `https://wa.me/${business.whatsapp}` : null, text: business.whatsapp ? `+${business.whatsapp}` : '' },
+  { label: 'Email', href: business.email ? `mailto:${business.email}` : null, text: business.email ?? '' },
+  { label: 'Instagram', href: business.instagram, text: business.instagram?.replace(/^https?:\/\/(www\.)?instagram\.com\//, '@').replace(/\/$/, '') ?? '' },
+  { label: 'Facebook', href: business.facebook, text: 'Facebook' },
+].filter((i): i is { label: string; href: string; text: string } => !!i.href)
+const place = [business.address, business.city].filter(Boolean).join(', ')
+---
+
+{
+  !items.length && !place ? (
+    <slot name="fallback" />
+  ) : (
+    <ul class="contact-links">
+      {items.map((i) => (
+        <li>
+          <span class="contact-links__label">{i.label}</span>
+          <a href={i.href} target={i.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer" translate="no">
+            {i.text}
+            {i.href.startsWith('http') && <span class="visually-hidden"> (se abre en otra pestaña)</span>}
+          </a>
+        </li>
+      ))}
+      {place && (
+        <li>
+          <span class="contact-links__label">Taller</span>
+          <span>{place}</span>
+        </li>
+      )}
+    </ul>
+  )
+}

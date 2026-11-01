@@ -4,21 +4,64 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ComponentType }
 import * as THREE from 'three'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { getProduct, getSurface, partMaterial } from '../model/catalog'
-import type { DesignState, ProductDef } from '../model/types'
+import { elementBounds, unionBounds } from '../model/constraints'
+import { measureTextMm } from '../model/measure'
+import type { DesignState, MaterialKind, ProductDef } from '../model/types'
 import { useRenderRevision } from '../render/preview'
 import { useLab, type ViewMode } from '../store'
 import { EngravingDecal } from './EngravingDecal'
+import { EngravingWrap } from './EngravingWrap'
 import { Board } from './meshes/Board'
+import { DogTag } from './meshes/DogTag'
+import { Glassware } from './meshes/Glassware'
+import { BELT_HALF } from './meshes/beltLayout'
 import { Knife } from './meshes/Knife'
+import { LeatherBelt } from './meshes/LeatherBelt'
+import { LeatherKeychain } from './meshes/LeatherKeychain'
+import { LeatherWallet } from './meshes/LeatherWallet'
+import { MateCamionero } from './meshes/MateCamionero'
+import { MateImperial } from './meshes/MateImperial'
+import { MateSteel } from './meshes/MateSteel'
+import { MateWood } from './meshes/MateWood'
+import { PLAQUE_BASE_HALF, PlaqueBase } from './meshes/PlaqueBase'
+import { PLAQUE_WALL_HALF, PlaqueWall } from './meshes/PlaqueWall'
+import { ThermosHalf } from './meshes/ThermosHalf'
+import { ThermosHandle } from './meshes/ThermosHandle'
+import { Trophy } from './meshes/Trophy'
 import type { ProductMeshProps } from './meshes/types'
 import { zoneCamera } from './surfaceFrame'
 
 const MODELS: Record<ProductDef['modelId'], { Component: ComponentType<ProductMeshProps>; rest: number }> = {
   'knife-v1': { Component: Knife, rest: 0.1 },
   'board-v1': { Component: Board, rest: 0.11 },
+  // Los termos se arman parados con la base en z = 0.
+  'thermos-handle-v1': { Component: ThermosHandle, rest: 0 },
+  'thermos-half-v1': { Component: ThermosHalf, rest: 0 },
+  // Las placas se apoyan boca arriba, como la tabla.
+  'plaque-base-v1': { Component: PlaqueBase, rest: PLAQUE_BASE_HALF },
+  'plaque-wall-v1': { Component: PlaqueWall, rest: PLAQUE_WALL_HALF },
+  // La chapita va parada sobre su canto, con el borde de abajo en z = 0.
+  'dog-tag-v1': { Component: DogTag, rest: 0 },
+  'trophy-v1': { Component: Trophy, rest: 0 },
+  // Los mates se arman parados con la base en z = 0, como los termos.
+  'mate-wood-v1': { Component: MateWood, rest: 0 },
+  'mate-imperial-v1': { Component: MateImperial, rest: 0 },
+  'mate-camionero-v1': { Component: MateCamionero, rest: 0 },
+  'mate-steel-v1': { Component: MateSteel, rest: 0 },
+  'glassware-v1': { Component: Glassware, rest: 0 },
+  // La billetera va parada, como la chapita.
+  'leather-wallet-v1': { Component: LeatherWallet, rest: 0 },
+  // El llavero va parado sobre su punto más bajo, con la argolla arriba.
+  'leather-keychain-v1': { Component: LeatherKeychain, rest: 0 },
+  // El cinturón se acuesta, como la tabla.
+  'leather-belt-v1': { Component: LeatherBelt, rest: BELT_HALF },
 }
 
-const BG = '#1D1F23'
+type StageTone = 'dark' | 'light'
+/** Fondo y piso del estudio. El claro (gris cálido) deja ver la transparencia del vidrio y el acrílico. */
+const STAGE_BG: Record<StageTone, string> = { dark: '#1D1F23', light: '#D3CEC4' }
+/** Tono según el tipo de material de la parte que se elige: claro sólo para `glass`. */
+const stageTone = (kind: MaterialKind): StageTone => (kind === 'glass' ? 'light' : 'dark')
 const MIN_DISTANCE = 0.9
 const MAX_DISTANCE = 12
 const MAX_POLAR = Math.PI * 0.44
@@ -27,6 +70,13 @@ const prefersReducedMotion = () =>
   typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 type Parts = Partial<Record<string, THREE.Mesh>>
+
+/** Centro horizontal (mm) de las capas seleccionadas, o `fallback` si no hay ninguna. */
+function wrapFocus(fallback: number): number {
+  const { design, selection } = useLab.getState()
+  const box = unionBounds(design.elements.filter((e) => selection.includes(e.id)).map((e) => elementBounds(e, measureTextMm)))
+  return box ? (box.minX + box.maxX) / 2 : fallback
+}
 
 /** Encuadre de producto: misma dirección de cámara, distancia ajustada al aspecto del canvas. */
 function productCamera(product: ProductDef, cam: THREE.PerspectiveCamera) {
@@ -57,15 +107,18 @@ function CameraRig({
   const controls = useThree((s) => s.controls) as OrbitControlsImpl | null
   const invalidate = useThree((s) => s.invalidate)
   const goal = useRef<{ eye: THREE.Vector3; target: THREE.Vector3 } | null>(null)
-  const surface = getSurface(product, design.surfaceId)
+  const surface = getSurface(product, design.surfaceId, design.shapeId)
   const zoneMesh = parts[surface.part]
+  // En una tira, la vista de zona sigue a la selección; sin selección, mira el frente.
+  // Depende de qué está seleccionado y no de dónde está: mover una capa no mueve la cámara.
+  const selectionKey = useLab((s) => s.selection.join(','))
 
   useEffect(() => {
     if (!controls) return
     let next: { eye: THREE.Vector3; target: THREE.Vector3 }
     if (viewMode === 'zone' && zoneMesh) {
       zoneMesh.updateWorldMatrix(true, false)
-      next = zoneCamera(zoneMesh, surface)
+      next = zoneCamera(zoneMesh, surface, surface.wrap ? wrapFocus(surface.wrap.frontOffsetMm) : 0)
     } else {
       next = productCamera(product, camera as THREE.PerspectiveCamera)
     }
@@ -78,7 +131,7 @@ function CameraRig({
       goal.current = next
     }
     invalidate()
-  }, [product, surface, zoneMesh, viewMode, resetToken, controls, camera, invalidate, aspect])
+  }, [product, surface, zoneMesh, viewMode, resetToken, controls, camera, invalidate, aspect, selectionKey])
 
   // Sólo en desarrollo: acceso a cámara y controles para capturas y depuración.
   useEffect(() => {
@@ -152,10 +205,10 @@ function CaptureBridge() {
  * Estudio de producto: cajas de luz rectangulares sobre fondo oscuro. Los metales reflejan
  * el entorno, así que el contraste entre las cajas y el fondo es lo que define el acero.
  */
-function Studio() {
+function Studio({ tone }: { tone: StageTone }) {
   return (
     <>
-      <color attach="background" args={[BG]} />
+      <color attach="background" args={[STAGE_BG[tone]]} />
       <ambientLight intensity={0.12} />
       <directionalLight position={[-3, 6, 3]} intensity={1.5} />
       <directionalLight position={[4, 3, -4]} intensity={0.45} color="#E8D9BE" />
@@ -171,23 +224,36 @@ function Studio() {
         {/* Relleno bajo y frontal: las caras verticales del metal no se ven negras. */}
         <Lightformer form="rect" intensity={0.7} position={[0, 0.6, 6]} scale={[10, 1.2, 1]} />
         <Lightformer form="rect" intensity={1.1} position={[-3, 3.5, -3]} rotation-y={2.4} scale={[4, 2, 1]} color="#F2EDE4" />
+        {/* Paneles grandes y suaves: las caras planas de metal (placas, chapita) reflejan un gris claro y no el fondo. */}
+        <Lightformer form="rect" intensity={0.45} position={[0, 6, -3]} rotation-x={Math.PI / 2} scale={[12, 7, 1]} color="#EDEDEA" />
+        <Lightformer form="rect" intensity={0.4} position={[0, 2.4, 6]} scale={[10, 3.5, 1]} color="#EDEDEA" />
+        {/* Vista desde arriba, una cara vertical refleja lo que tiene adelante y abajo: una mesa clara. */}
+        <Lightformer form="rect" intensity={0.4} position={[0, -1.8, 6]} rotation-x={-0.3} scale={[12, 3.6, 1]} color="#EDEDEA" />
       </Environment>
       <mesh rotation-x={-Math.PI / 2} position={[0, -0.001, 0]}>
         <planeGeometry args={[40, 40]} />
         {/* Sin iluminar: coincide exactamente con el fondo y sólo recibe las sombras de contacto. */}
-        <meshBasicMaterial color={BG} toneMapped={false} />
+        <meshBasicMaterial color={STAGE_BG[tone]} toneMapped={false} />
       </mesh>
     </>
   )
 }
 
-function Scene({ design, maxTexturePx }: { design: DesignState; maxTexturePx: number }) {
+interface TextureCaps {
+  /** Tope de textura del decal (frente y demás zonas planas). */
+  decal: number
+  /** Tope de la tira cilíndrica, más largo: 250 mm necesitan más píxeles. */
+  wrap: number
+}
+
+function Scene({ design, textureCaps }: { design: DesignState; textureCaps: TextureCaps }) {
   const revision = useRenderRevision()
+  const maxTextureSize = useThree((s) => s.gl.capabilities.maxTextureSize)
   const viewMode = useLab((s) => s.viewMode)
   const resetToken = useLab((s) => s.viewResetToken)
   const product = useLab((s) => s.design.productId)
   const productDef = useMemo(() => getProduct(product), [product])
-  const surface = getSurface(productDef, design.surfaceId)
+  const surface = getSurface(productDef, design.surfaceId, design.shapeId)
   const model = MODELS[productDef.modelId]
 
   const [parts, setParts] = useState<Parts>({})
@@ -201,18 +267,30 @@ function Scene({ design, maxTexturePx }: { design: DesignState; maxTexturePx: nu
 
   return (
     <>
-      <Studio />
-      <group key={productDef.id} position={[0, model.rest, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <model.Component materialFor={materialFor} registerPart={registerPart} />
+      <Studio tone={stageTone(partMaterial(productDef, productDef.selectablePart, design.materialId).kind)} />
+      {/* La forma va en la clave: al cambiarla se vuelve a montar la malla y se reproyecta el grabado. */}
+      <group key={`${productDef.id}:${design.shapeId ?? ''}`} position={[0, model.rest, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <model.Component materialFor={materialFor} registerPart={registerPart} shapeId={design.shapeId} />
       </group>
-      <EngravingDecal
-        key={`${productDef.id}:${surface.id}`}
-        design={design}
-        surface={surface}
-        target={parts[surface.part] ?? null}
-        maxTexturePx={maxTexturePx}
-        revision={revision}
-      />
+      {surface.wrap ? (
+        <EngravingWrap
+          key={`${productDef.id}:${design.shapeId ?? ''}:${surface.id}`}
+          design={design}
+          surface={surface}
+          target={parts[surface.part] ?? null}
+          maxTexturePx={Math.min(textureCaps.wrap, maxTextureSize)}
+          revision={revision}
+        />
+      ) : (
+        <EngravingDecal
+          key={`${productDef.id}:${design.shapeId ?? ''}:${surface.id}`}
+          design={design}
+          surface={surface}
+          target={parts[surface.part] ?? null}
+          maxTexturePx={textureCaps.decal}
+          revision={revision}
+        />
+      )}
       {/* Dos capas: penumbra amplia y oclusión ajustada donde el objeto toca la mesa. */}
       <ContactShadows key={`shadow-${productDef.id}`} frames={1} position={[0, 0, 0]} scale={7} blur={2.6} opacity={0.6} far={1.2} resolution={512} />
       <ContactShadows key={`ao-${productDef.id}`} frames={1} position={[0, 0.0005, 0]} scale={7} blur={0.9} opacity={0.55} far={0.25} resolution={1024} />
@@ -232,7 +310,7 @@ interface ViewerProps {
 export default function ProductViewer3D({ design, onContextLost, label }: ViewerProps) {
   const product = getProduct(design.productId)
   const [coarse] = useState(() => typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches)
-  const maxTexturePx = coarse ? 1024 : 2048
+  const textureCaps = useMemo<TextureCaps>(() => (coarse ? { decal: 1024, wrap: 2048 } : { decal: 2048, wrap: 4096 }), [coarse])
 
   return (
     <Canvas
@@ -255,7 +333,7 @@ export default function ProductViewer3D({ design, onContextLost, label }: Viewer
       aria-label={label}
       role="img"
     >
-      <Scene design={design} maxTexturePx={maxTexturePx} />
+      <Scene design={design} textureCaps={textureCaps} />
       <OrbitControls
         makeDefault
         enablePan={false}

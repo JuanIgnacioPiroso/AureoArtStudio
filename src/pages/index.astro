@@ -1,0 +1,50 @@
+---
+import JsonLd from '../components/seo/JsonLd.astro'
+import { business } from '../config/business'
+import { organizationSchema, websiteSchema } from '../config/seo'
+import { HOME_SEO } from '../content/site'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import Categories from '../sections/Categories.astro'
+import ContactCta from '../sections/ContactCta.astro'
+import Differentials from '../sections/Differentials.astro'
+import Faq from '../sections/Faq.astro'
+import Gallery from '../sections/Gallery.astro'
+import Hero from '../sections/Hero.astro'
+import Process from '../sections/Process.astro'
+import TrustedBy from '../sections/TrustedBy.astro'
+
+const description = HOME_SEO.description(business.city)
+---
+
+<BaseLayout
+  page="home"
+  path="/"
+  title={HOME_SEO.title}
+  description={description}
+  ogTitle={HOME_SEO.ogTitle}
+  ogDescription={description}
+  fontsHref="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..700&family=Hanken+Grotesk:wght@400;500;600&display=swap"
+>
+  <!--
+    Enlaces viejos del Lab (?d= o ?producto= en la home): se mandan a su página antes de pintar nada.
+    Es la misma regla que `legacyLabRedirect` en src/lab/intent.ts (un script inline no puede importarla).
+  -->
+  <script is:inline slot="head">
+    {
+      const params = new URLSearchParams(location.search)
+      if (params.has('d') || params.has('producto')) location.replace('/custom-lab/?' + params.toString())
+    }
+  </script>
+  <Fragment slot="jsonld">
+    <JsonLd data={organizationSchema(business)} />
+    <JsonLd data={websiteSchema(business)} />
+  </Fragment>
+  <Hero />
+  <TrustedBy />
+  <Categories />
+  <Gallery />
+  <Process />
+  <Differentials />
+  <Faq />
+  <ContactCta />
+</BaseLayout>

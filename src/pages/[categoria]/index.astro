@@ -1,0 +1,159 @@
+---
+import LabProductCard from '../../components/LabProductCard.astro'
+import Picture from '../../components/Picture.astro'
+import JsonLd from '../../components/seo/JsonLd.astro'
+import WorkGrid from '../../components/WorkGrid.astro'
+import { business } from '../../config/business'
+import { breadcrumbSchema, itemListSchema } from '../../config/seo'
+import {
+  categoryFaq,
+  categoryHref,
+  categoryMaterials,
+  categoryProducts,
+  categoryWorks,
+  hasCategoryPage,
+  type CategoryDestination,
+} from '../../content/categories'
+import { CATEGORIES, type Category } from '../../content/site'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import ContactCta from '../../sections/ContactCta.astro'
+import Faq from '../../sections/Faq.astro'
+
+/** Una página por categoría habilitada. Empresas tiene la suya (SPEC 19). */
+export function getStaticPaths() {
+  return CATEGORIES.filter(hasCategoryPage).map((c) => ({
+    params: { categoria: c.slug },
+    props: { category: c },
+  }))
+}
+
+interface Props {
+  category: Category
+}
+
+const { category: c } = Astro.props
+const path = `/${c.slug}/` as const
+// Catálogo leído en el build: la página no manda el catálogo al navegador.
+const products = categoryProducts(c)
+const materials = categoryMaterials(c)
+const works = categoryWorks(c)
+const faq = categoryFaq(c)
+const hasAnswers = faq.some((f) => f.a)
+const main = categoryHref(c, business)
+const isGifts = c.id === 'regalos'
+const productsTitle = isGifts ? 'Ideas para regalar' : 'Productos'
+
+const MAIN_LABEL: Record<CategoryDestination['kind'], string> = {
+  lab: 'Diseñar en el Custom Lab',
+  whatsapp: 'Consultar por WhatsApp',
+  email: 'Consultar por email',
+}
+---
+
+<BaseLayout
+  page="categoria"
+  path={path}
+  title={c.seo.title}
+  description={c.seo.description}
+  ogTitle={c.seo.title}
+  ogDescription={c.seo.description}
+  fontsHref="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..700&family=Hanken+Grotesk:wght@400;500;600&display=swap"
+>
+  <Fragment slot="jsonld">
+    <JsonLd
+      data={breadcrumbSchema([
+        { name: 'Inicio', path: '/' },
+        { name: c.name, path },
+      ])}
+    />
+    <JsonLd
+      data={itemListSchema(
+        `${productsTitle}: ${c.name}`,
+        products.map((p) => ({ name: p.name, description: p.description, path: p.href })),
+      )}
+    />
+  </Fragment>
+  <section class="section tone category-hero" data-tone="dark" aria-labelledby="categoria-title">
+    <div class="wrap category-hero__grid">
+      <div>
+        <nav class="breadcrumbs" aria-label="Migas de pan">
+          <ol>
+            <li><a href="/">Inicio</a></li>
+            <li aria-current="page">{c.name}</li>
+          </ol>
+        </nav>
+        <h1 id="categoria-title" class="category-hero__title display">{c.seo.h1}</h1>
+        <p class="lede">{c.seo.intro}</p>
+        <div class="hero__actions">
+          <a
+            class="button button--primary"
+            href={main.href}
+            target={main.kind === 'whatsapp' ? '_blank' : undefined}
+            rel={main.kind === 'whatsapp' ? 'noopener noreferrer' : undefined}
+          >
+            {MAIN_LABEL[main.kind]}
+            {main.kind === 'whatsapp' && <span class="visually-hidden"> (se abre en otra pestaña)</span>}
+          </a>
+        </div>
+      </div>
+      <Picture image={c.image} sizes="(min-width: 901px) 40vw, 100vw" class="category-hero__image" />
+    </div>
+  </section>
+
+  {
+    products.length > 0 && (
+      <section class="section tone" data-tone="light" aria-labelledby="productos-title">
+        <div class="wrap">
+          <h2 id="productos-title" class="section-title">
+            {productsTitle}
+          </h2>
+          <ul class="lab-products">
+            {products.map((p) => (
+              <LabProductCard product={p} />
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    materials.length > 0 && (
+      <section class="section tone" data-tone="dark" aria-labelledby="materiales-title">
+        <div class="wrap">
+          <div class="section-head">
+            <h2 id="materiales-title" class="section-title">Materiales</h2>
+            <p class="lede">Cada material toma el láser a su manera. Más detalle en la guía de materiales.</p>
+          </div>
+          <ul class="category-materials">
+            {materials.map((g) => (
+              <li>
+                <a class="category-materials__name display" href={`/materiales/#${g.id}`}>
+                  {g.name}
+                </a>
+                <p>{g.process}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    works.length > 0 && (
+      <section class="section tone" data-tone="light" aria-labelledby="trabajos-title">
+        <div class="wrap">
+          <h2 id="trabajos-title" class="section-title category-works__title">
+            Trabajos
+          </h2>
+          <WorkGrid works={works} />
+        </div>
+      </section>
+    )
+  }
+
+  {hasAnswers && <Faq items={faq} />}
+
+  <ContactCta />
+</BaseLayout>

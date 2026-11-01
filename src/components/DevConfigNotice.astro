@@ -1,0 +1,47 @@
+---
+import { business } from '../config/business'
+import { CORPORATE_PATH, pendingCorporateFields } from '../content/corporate'
+
+/** Aviso visible sólo en desarrollo: datos comerciales que faltan completar. */
+const missing = import.meta.env.DEV
+  ? Object.entries(business)
+      .filter(([, v]) => v === null)
+      .map(([k]) => k)
+  : []
+const missingSiteUrl = missing.includes('siteUrl')
+// En la página de empresas, también las condiciones de CORPORATE que faltan.
+const missingCorporate = import.meta.env.DEV && Astro.url.pathname === CORPORATE_PATH ? pendingCorporateFields() : []
+---
+
+{
+  (missing.length > 0 || missingCorporate.length > 0) && (
+    <aside class="dev-notice" role="note">
+      {missing.length > 0 && (
+        <>
+          Desarrollo: faltan datos en <code>src/config/business.ts</code>: {missing.join(', ')}. Los botones que los
+          usan están ocultos.
+        </>
+      )}
+      {missingCorporate.length > 0 && (
+        <>
+          {missing.length > 0 ? (
+            <>
+              <br />
+              Faltan
+            </>
+          ) : (
+            'Desarrollo: faltan'
+          )}{' '}
+          condiciones en <code>src/content/corporate.ts</code>: {missingCorporate.join(', ')}. No se muestran
+          en «Datos del pedido».
+        </>
+      )}
+      {missingSiteUrl && (
+        <>
+          <br />
+          Sin <code>siteUrl</code> no hay URL canónica, sitemap ni imagen de Open Graph con URL absoluta.
+        </>
+      )}
+    </aside>
+  )
+}

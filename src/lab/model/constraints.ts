@@ -1,4 +1,4 @@
-import { getProduct, getSurface, PRODUCTS, stylesForSurface } from './catalog'
+import { getProduct, getShape, getSurface, PRODUCTS, stylesForSurface } from './catalog'
 import { elementHasContent, elementLabel } from './elements'
 import { MAX_ELEMENTS, MAX_TEXT_LENGTH, type DesignElement, type DesignState, type MeasureText, type SurfaceDef, type TextElement } from './types'
 
@@ -283,10 +283,14 @@ function normalizeElement(el: DesignElement, surface: SurfaceDef): DesignElement
  */
 export function normalizeDesign(input: DesignState): DesignState {
   const product = PRODUCTS.some((p) => p.id === input.productId) ? getProduct(input.productId) : PRODUCTS[0]!
-  const d: DesignState = { ...input, productId: product.id }
+  // La forma sólo existe en los productos que tienen formas; si falta o no existe, va la primera.
+  const { shapeId: _shapeId, ...rest } = input
+  const d: DesignState = { ...rest, productId: product.id }
+  const shape = getShape(product, input.shapeId)
+  if (shape) d.shapeId = shape.id
 
   if (!product.materialIds.includes(d.materialId)) d.materialId = product.defaultDesign.materialId
-  const surface = getSurface(product, d.surfaceId)
+  const surface = getSurface(product, d.surfaceId, d.shapeId)
   d.surfaceId = surface.id
 
   const styles = stylesForSurface(product, surface, d.materialId)
@@ -303,6 +307,57 @@ export function normalizeDesign(input: DesignState): DesignState {
   return d
 }
 
+/** ¿La caja de la capa entra en el ancho de la zona? */
+export function fitsWidth(el: DesignElement, surface: SurfaceDef, measure: MeasureText): boolean {
+  const b = elementBounds(el, measure)
+  return b.minX >= -surface.widthMm / 2 - 1e-6 && b.maxX <= surface.widthMm / 2 + 1e-6
+}
+
+/**
+ * Achica el texto para que su caja entre en el ancho de la zona, sin bajar de sizeRange[0].
+ * La caja crece en proporción al tamaño y alrededor del centro de la capa (x), así que alcanza
+ * con un factor. Si el texto ya entra, o si el centro queda fuera de la zona, no lo toca.
+ */
+export function fitTextWidth(el: TextElement, surface: SurfaceDef, measure: MeasureText): TextElement {
+  const room = surface.widthMm / 2 - Math.abs(el.x)
+  const box = elementBounds(el, measure)
+  const half = (box.maxX - box.minX) / 2
+  if (room <= 0 || half <= room) return el
+  // Hacia abajo al décimo de mm, para que el redondeo no lo deje apenas afuera.
+  const fitted = Math.floor(((el.sizeMm * room) / half) * 10) / 10
+  return { ...el, sizeMm: Math.max(surface.sizeRange[0], fitted) }
+}
+
+/**
+ * De un anillo (la boca de una virola) a una banda: los textos se enderezan, se ponen en fila
+ * centrados en el frente y se achican para entrar en el alto y el ancho de la banda, sin bajar de
+ * sizeRange[0]. Las demás capas se reescalan como en cualquier cambio de zona.
+ */
+export function straightenForBand(elements: readonly DesignElement[], from: SurfaceDef, to: SurfaceDef, measure: MeasureText): DesignElement[] {
+  const texts = elements.filter((e): e is TextElement => e.kind === 'text')
+  const others = rescaleElements(
+    elements.filter((e) => e.kind !== 'text'),
+    from,
+    to,
+  )
+  if (!texts.length) return others
+  const gap = to.heightMm * 0.6
+  let size = Math.min(to.heightMm * 0.6, to.sizeRange[1])
+  const flat = texts.map((t) => ({ ...t, arc: 0, rotation: 0, text: t.text.replace(/\s*\n\s*/g, ' ') }))
+  const widths = (s: number) => flat.map((t) => measure(t.text, t.fontId, s) + t.letterSpacing * s * Math.max(0, Array.from(t.text).length - 1))
+  const total = (s: number) => widths(s).reduce((a, w) => a + w, 0) + gap * (flat.length - 1)
+  if (total(size) > to.widthMm * 0.9) size = Math.max(to.sizeRange[0], (size * to.widthMm * 0.9) / total(size))
+  const ws = widths(size)
+  const center = to.wrap?.frontOffsetMm ?? 0
+  let x = center - total(size) / 2
+  const placed = flat.map((t, i) => {
+    const el = { ...t, sizeMm: Math.floor(size * 10) / 10, x: x + ws[i]! / 2, y: 0 }
+    x += ws[i]! + gap
+    return el
+  })
+  return [...placed, ...others]
+}
+
 /** Reescala las capas al pasar a otra zona, conservando la composición. */
 export function rescaleElements(elements: readonly DesignElement[], from: SurfaceDef, to: SurfaceDef): DesignElement[] {
   const k = Math.min(to.widthMm / from.widthMm, to.heightMm / from.heightMm)
@@ -313,4 +368,15 @@ export function rescaleElements(elements: readonly DesignElement[], from: Surfac
     if (el.kind === 'image') return { ...el, ...pos, widthMm: el.widthMm * k, heightMm: el.heightMm * k }
     return { ...el, ...pos, widthMm: el.widthMm * k, heightMm: el.heightMm * k, strokeMm: Math.max(MIN_STROKE_MM, el.strokeMm * k), radiusMm: el.radiusMm * k }
   })
+}
+
+/**
+ * Pasa las capas de una zona a otra. Entre el frente y la tira que lo rodea (misma parte), corre x
+ * en ±frontOffsetMm sin reescalar, para que el diseño siga en el frente; en el resto, reescala.
+ */
+export function transferElements(elements: readonly DesignElement[], from: SurfaceDef, to: SurfaceDef): DesignElement[] {
+  const shiftX = (dx: number) => elements.map((el) => ({ ...el, x: el.x + dx }))
+  if (from.part === to.part && to.wrap && !from.wrap) return shiftX(to.wrap.frontOffsetMm)
+  if (from.part === to.part && from.wrap && !to.wrap) return shiftX(-from.wrap.frontOffsetMm)
+  return rescaleElements(elements, from, to)
 }

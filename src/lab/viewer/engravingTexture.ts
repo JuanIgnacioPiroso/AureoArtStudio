@@ -1,4 +1,5 @@
-import type { DesignState, StyleId, SurfaceDef } from '../model/types'
+import { getProduct, partMaterial } from '../model/catalog'
+import type { DesignState, MaterialDef, StyleId, SurfaceDef } from '../model/types'
 import { drawDesignMask } from '../render/drawDesign'
 
 export interface EngravingLook {
@@ -13,6 +14,8 @@ export interface EngravingLook {
   mottle: number
   /** Aureola alrededor del trazo: el calor tuesta la madera vecina. */
   halo?: { rgb: readonly [number, number, number]; alpha: number; radiusMm: number }
+  /** Brillo propio de la marca (0–1): el esmerilado dispersa la luz dentro del acrílico y se ve más claro que su entorno. */
+  glow?: number
 }
 
 export const ENGRAVING_LOOKS: Record<StyleId, EngravingLook> = {
@@ -27,6 +30,28 @@ export const ENGRAVING_LOOKS: Record<StyleId, EngravingLook> = {
   },
   'mark-dark': { rgb: [30, 31, 34], alpha: 0.95, roughness: 0.5, metalness: 0.6, depth: 0.6, mottle: 0.12 },
   frost: { rgb: [214, 217, 221], alpha: 0.85, roughness: 0.85, metalness: 0.7, depth: 1.2, mottle: 0.1 },
+  // Acero claro que asoma bajo la pintura retirada. Satinado: con metal espejo no se ve contra el estudio.
+  reveal: { rgb: [214, 217, 221], alpha: 0.95, roughness: 0.55, metalness: 0.45, depth: 0.4, mottle: 0.08 },
+  // Letra tallada en la piedra: gris oscuro mate y hundimiento marcado.
+  carve: { rgb: [58, 58, 60], alpha: 0.95, roughness: 0.9, metalness: 0, depth: 3.5, mottle: 0.15 },
+  // Acrílico esmerilado: blanco satinado, con un borde gris tenue para que se lea sobre el fondo claro.
+  etch: {
+    rgb: [252, 253, 253],
+    alpha: 0.92,
+    roughness: 0.8,
+    metalness: 0,
+    depth: 0.5,
+    mottle: 0.08,
+    halo: { rgb: [96, 100, 104], alpha: 0.22, radiusMm: 0.3 },
+    glow: 0.45,
+  },
+  // Cuero quemado por el láser: mate y apenas hundido. El tono sale del cuero (engraveRgb); éste es el de respaldo.
+  'leather-mark': { rgb: [40, 28, 22], alpha: 0.92, roughness: 0.92, metalness: 0, depth: 1.8, mottle: 0.2 },
+}
+
+/** Color de la marca: el del material si lo define (el cuero), si no el del estilo. */
+export function markRgb(look: EngravingLook, material: MaterialDef): readonly [number, number, number] {
+  return material.engraveRgb ?? look.rgb
 }
 
 export interface EngravingMaps {
@@ -110,6 +135,7 @@ export function renderEngravingMaps(design: DesignState, surface: SurfaceDef, ma
   const mctx = mask.getContext('2d')!
   const maskData = mctx.getImageData(0, 0, w, h).data
   const look = ENGRAVING_LOOKS[design.styleId]
+  const rgb = markRgb(look, partMaterial(getProduct(design.productId), surface.part, design.materialId))
 
   const alpha = new Float32Array(w * h)
   for (let i = 0; i < w * h; i++) alpha[i] = maskData[i * 4 + 3]! / 255
@@ -127,9 +153,9 @@ export function renderEngravingMaps(design: DesignState, surface: SurfaceDef, ma
     const a = Math.min(1, soft[i]! * 1.15)
     // El centro del trazo se carboniza más que los bordes; el ruido rompe el tono plano.
     const tone = 1 + (grain[i]! - 0.5) * look.mottle * 2 + (1 - a) * look.mottle
-    let r = look.rgb[0] * tone
-    let g = look.rgb[1] * tone
-    let b = look.rgb[2] * tone
+    let r = rgb[0] * tone
+    let g = rgb[1] * tone
+    let b = rgb[2] * tone
     let out = a * look.alpha * (1 - look.mottle * 0.3 * grain[i]!)
     if (halo && look.halo) {
       const ha = Math.max(0, halo[i]! * 1.6 - a) * look.halo.alpha

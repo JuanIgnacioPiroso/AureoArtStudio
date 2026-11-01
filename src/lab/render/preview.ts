@@ -3,7 +3,7 @@ import { assetsVersion, subscribeAssets } from '../assets/assetStore'
 import { partMaterial } from '../model/catalog'
 import type { DesignState, ProductDef, SurfaceDef } from '../model/types'
 import { useLab } from '../store'
-import { ENGRAVING_LOOKS } from '../viewer/engravingTexture'
+import { ENGRAVING_LOOKS, markRgb } from '../viewer/engravingTexture'
 import { drawDesignMask } from './drawDesign'
 
 export interface PaintOptions {
@@ -39,7 +39,7 @@ export function paintZone(canvas: HTMLCanvasElement, design: DesignState, produc
   const mctx = mask.getContext('2d')!
   drawDesignMask(mctx, design.elements, { x: w / 2, y: h / 2 }, ppm)
   mctx.globalCompositeOperation = 'source-in'
-  mctx.fillStyle = `rgb(${look.rgb.join(',')})`
+  mctx.fillStyle = `rgb(${markRgb(look, material).join(',')})`
   mctx.fillRect(0, 0, w, h)
 
   const zx = padMm * ppm

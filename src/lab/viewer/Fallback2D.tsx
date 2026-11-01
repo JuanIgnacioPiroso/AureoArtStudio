@@ -17,7 +17,7 @@ interface Props {
 
 /**
  * Vista plana de la zona grabable con el diseño, en milímetros reales.
- * Se usa cuando no hay WebGL y como miniatura de las propuestas del asistente.
+ * Se usa cuando no hay WebGL.
  */
 export function Fallback2D({ product, surface, design, framed = true, resolution = 900, className }: Props) {
   const ref = useRef<HTMLCanvasElement>(null)

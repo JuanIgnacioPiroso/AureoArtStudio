@@ -1,0 +1,155 @@
+---
+import Picture from '../../components/Picture.astro'
+import JsonLd from '../../components/seo/JsonLd.astro'
+import { business } from '../../config/business'
+import { articleSchema } from '../../config/seo'
+import { MATERIAL_GUIDES, MATERIALS_SEO, productsFor, stylesFor } from '../../content/materials'
+import { LAB_PATH, labProductHref } from '../../lab/intent'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+
+/** Última revisión del contenido de la guía: actualizar al cambiar los textos. */
+const DATE_MODIFIED = '2026-10-31'
+
+// Estilos y productos salen del catálogo del Lab en el build: la página no manda el catálogo al navegador.
+const guides = MATERIAL_GUIDES.map((g) => ({ ...g, styles: stylesFor(g), products: productsFor(g) }))
+---
+
+<BaseLayout
+  page="materiales"
+  path="/materiales/"
+  title={MATERIALS_SEO.title}
+  description={MATERIALS_SEO.description}
+  ogTitle={MATERIALS_SEO.title}
+  ogDescription={MATERIALS_SEO.description}
+  fontsHref="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..700&family=Hanken+Grotesk:wght@400;500;600&display=swap"
+>
+  <JsonLd
+    slot="jsonld"
+    data={articleSchema(business, {
+      path: '/materiales/',
+      headline: 'Cómo graba el láser cada material',
+      description: MATERIALS_SEO.description,
+      dateModified: DATE_MODIFIED,
+    })}
+  />
+  <section class="section tone materials-intro" data-tone="dark" aria-labelledby="materiales-title">
+    <div class="wrap">
+      <p class="hero__eyebrow">Guía de materiales</p>
+      <h1 id="materiales-title" class="materials-intro__title display">Cómo graba el láser cada material</h1>
+      <p class="lede">
+        El mismo láser deja una marca distinta en cada material: tuesta la madera, oxida el acero, retira la pintura
+        del metal pintado y microfractura el vidrio. Por eso cada material tiene sus propios estilos de grabado y su
+        propio contraste.
+      </p>
+    </div>
+  </section>
+
+  <section class="section tone" data-tone="light" aria-labelledby="comparativa-title">
+    <div class="wrap">
+      <h2 id="comparativa-title" class="section-title">Comparativa</h2>
+      <div class="materials-table" role="region" aria-labelledby="comparativa-caption" tabindex="0">
+        <table>
+          <caption id="comparativa-caption">Qué hace el láser en cada material y cómo se ve la marca</caption>
+          <thead>
+            <tr>
+              <th scope="col">Material</th>
+              <th scope="col">Qué hace el láser</th>
+              <th scope="col">Cómo se ve</th>
+              <th scope="col">Estilos en el Custom Lab</th>
+              <th scope="col">Dónde lo usamos</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              guides.map((g) => (
+                <tr>
+                  <th scope="row">
+                    <a href={`#${g.id}`}>{g.name}</a>
+                  </th>
+                  <td>{g.process}</td>
+                  <td>{g.result}</td>
+                  <td>{g.styles.map((s) => s.name).join(', ')}</td>
+                  <td>{g.products.map((p) => p.name).join(', ')}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section tone materials" data-tone="light" aria-label="Materiales">
+    <div class="wrap materials__list">
+      {
+        guides.map((g) => (
+          <article class:list={['material', { 'material--with-image': g.image }]} aria-labelledby={g.id}>
+            {g.image && <Picture image={g.image} sizes="(min-width: 900px) 30vw, 100vw" class="material__image" />}
+            <div class="material__copy">
+              <h2 id={g.id} class="material__title display">
+                {g.name}
+              </h2>
+              <dl class="material__facts">
+                <div>
+                  <dt>Qué le hace el láser</dt>
+                  <dd>{g.process}</dd>
+                </div>
+                <div>
+                  <dt>Cómo se ve</dt>
+                  <dd>{g.result}</dd>
+                </div>
+                <div>
+                  <dt>Estilos en el Custom Lab</dt>
+                  <dd>
+                    <ul class="material__styles">
+                      {g.styles.map((s) => (
+                        <li>
+                          <strong>{s.name}.</strong> {s.description}
+                        </li>
+                      ))}
+                    </ul>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Dónde lo usamos</dt>
+                  <dd>
+                    <ul class="material__products">
+                      {g.products.map((p) => (
+                        <li>
+                          <a href={labProductHref(p.id)}>{p.name}</a>
+                        </li>
+                      ))}
+                    </ul>
+                  </dd>
+                </div>
+                {g.minTextHeight && (
+                  <div>
+                    <dt>Letra mínima legible</dt>
+                    <dd>{g.minTextHeight}</dd>
+                  </div>
+                )}
+                {g.care && (
+                  <div>
+                    <dt>Cuidado</dt>
+                    <dd>{g.care}</dd>
+                  </div>
+                )}
+              </dl>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="section tone closing" data-tone="dark" aria-labelledby="materiales-cierre">
+    <div class="wrap closing__grid">
+      <h2 id="materiales-cierre" class="closing__title display">Probá cómo queda tu grabado en cada material</h2>
+      <div class="closing__side">
+        <div class="closing__actions">
+          <a class="button button--primary" href={LAB_PATH}>Abrir el Custom Lab</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

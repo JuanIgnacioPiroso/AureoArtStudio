@@ -1,0 +1,48 @@
+---
+import { CATEGORIES } from '../content/site'
+import { categoryLink, type CategoryLink } from '../content/categories'
+import { business } from '../config/business'
+import Picture from '../components/Picture.astro'
+
+const items = CATEGORIES.filter((c) => c.enabled).map((c) => ({ ...c, to: categoryLink(c, business) }))
+
+const ACTION: Record<CategoryLink['kind'], string> = {
+  page: 'ver productos',
+  lab: 'diseñarlo en el Custom Lab',
+  whatsapp: 'consultar por WhatsApp (se abre en otra pestaña)',
+  email: 'consultar por email',
+}
+---
+
+<section id="productos" class="section tone" data-tone="light" aria-labelledby="productos-title">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="productos-title" class="section-title">Qué personalizamos</h2>
+      <p class="lede">Objetos para regalar, para usar todos los días o para representar a tu marca.</p>
+    </div>
+    <ul class="categories">
+      {
+        items.map((c) => (
+          <li class="category">
+            <Picture image={c.image} sizes="(min-width: 901px) 25vw, 50vw" />
+            <div class="category__text">
+              <h3 class="category__name display">
+                {/* El destino va en aria-label y no en el texto: Google lee el <h3>, el lector de pantalla el enlace. */}
+                <a
+                  class="category__link"
+                  href={c.to.href}
+                  aria-label={`${c.name}, ${ACTION[c.to.kind]}`}
+                  target={c.to.kind === 'whatsapp' ? '_blank' : undefined}
+                  rel={c.to.kind === 'whatsapp' ? 'noopener noreferrer' : undefined}
+                >
+                  {c.name}
+                </a>
+              </h3>
+              <p>{c.description}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

@@ -6,7 +6,7 @@ import { ALIGNS, STYLE_IDS, type Align, type DesignState, type FontId, type Meas
 /** Tipografías del formato v1 (antes de ampliar el catálogo). */
 const V1_FONTS = ['bodoni', 'cinzel', 'script', 'grotesk'] as const
 
-/** Proporciones del bloque de dos líneas del formato v1 (y de las propuestas del asistente). */
+/** Proporciones del bloque de dos líneas del formato v1. */
 export const SECONDARY_RATIO = 0.55
 export const LINE_GAP_RATIO = 0.45
 
@@ -43,7 +43,7 @@ export interface StackedLines {
 }
 
 /**
- * Convierte un bloque de líneas (formato v1 o propuesta del asistente) en capas de texto
+ * Convierte un bloque de líneas (formato v1) en capas de texto
  * sueltas que reproducen exactamente la misma composición.
  */
 export function stackedTextElements(block: StackedLines, surface: SurfaceDef, measure: MeasureText): TextElement[] {

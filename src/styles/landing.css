@@ -65,7 +65,9 @@
   color: var(--fg-muted);
   padding-block: 0.4rem;
   border-bottom: 1px solid transparent;
-  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+  transition:
+    color 0.2s var(--ease),
+    border-color 0.2s var(--ease);
 }
 .site-nav a:hover {
   color: var(--fg);
@@ -94,14 +96,16 @@
   width: 18px;
   height: 1.5px;
   background: currentColor;
-  transition: transform 0.25s var(--ease), opacity 0.2s;
+  transition:
+    transform 0.25s var(--ease),
+    opacity 0.2s;
 }
 .menu-toggle__bars {
   top: 21px;
 }
 .menu-toggle__bars::before,
 .menu-toggle__bars::after {
-  content: '';
+  content: "";
   left: 0;
 }
 .menu-toggle__bars::before {
@@ -167,12 +171,22 @@
   gap: clamp(2rem, 4vw, 4rem);
   align-items: center;
 }
+/* Mismo estilo que el título de «Confían en nosotros». */
+.hero__eyebrow {
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  margin-bottom: var(--s0);
+}
 .hero__title {
-  font-size: var(--step-6);
+  /* Como --step-6 pero con techo más bajo: el H1 no pasa de 3 líneas a 1440 px ni de 4 a 375 px. */
+  font-size: clamp(2.9rem, 1.6rem + 5.4vw, 3.8rem);
   line-height: 1.02;
   letter-spacing: -0.02em;
   margin-bottom: var(--s2);
-  font-variation-settings: 'opsz' 96;
+  font-variation-settings: "opsz" 96;
 }
 .hero__actions {
   display: flex;
@@ -280,7 +294,9 @@
   height: 100%;
   object-fit: cover;
 }
-.picture__flag {
+/* También marca «Con vista 3D» en las tarjetas de la galería. */
+.picture__flag,
+.work__flag {
   position: absolute;
   left: 0.6rem;
   bottom: 0.6rem;
@@ -291,101 +307,216 @@
   border-radius: var(--radius-s);
 }
 
+/* ───────── Confían en nosotros ───────── */
+.trusted.section {
+  padding-block: var(--s3);
+  border-bottom: 1px solid var(--rule);
+}
+.trusted__title {
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--fg-muted);
+}
+/* La pista tiene dos mitades iguales: al llegar a -50 % vuelve al inicio sin salto visible. */
+.trusted__marquee {
+  margin-top: var(--s2);
+  overflow: hidden;
+}
+.trusted__marquee:hover .trusted__track {
+  animation-play-state: paused;
+}
+.trusted__track {
+  display: flex;
+  width: max-content;
+  /* Fondo propio: la pista animada aísla la mezcla, y el multiply de los logos necesita el color de la franja. */
+  background: var(--bg);
+  animation: trusted-scroll var(--trusted-duration, 30s) linear infinite;
+}
+.trusted__logos {
+  --trusted-gap: var(--s4);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: var(--trusted-gap);
+  /* El espacio final iguala el hueco entre la última y la primera de la mitad siguiente. */
+  padding-right: var(--trusted-gap);
+}
+@keyframes trusted-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.trusted__item {
+  flex: none;
+}
+.trusted__logo {
+  display: block;
+  width: auto;
+  height: 56px;
+  max-width: 200px;
+  object-fit: contain;
+  /* El blanco de los logos con fondo opaco toma el color de la franja. */
+  mix-blend-mode: multiply;
+  filter: grayscale(1);
+  opacity: 0.6;
+  transition:
+    filter 0.3s var(--ease),
+    opacity 0.3s var(--ease);
+}
+.trusted__logo:hover {
+  filter: none;
+  opacity: 1;
+}
+@media (max-width: 560px) {
+  .trusted__logos {
+    --trusted-gap: var(--s3);
+  }
+  .trusted__logo {
+    height: 44px;
+  }
+}
+/* Sin movimiento: cada logo una sola vez, quieto, en una grilla centrada que salta de línea. */
+@media (prefers-reduced-motion: reduce) {
+  .trusted__track {
+    width: auto;
+    animation: none !important;
+  }
+  .trusted__logos {
+    flex: 1;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: var(--s2);
+    padding-inline: var(--gutter);
+  }
+  .trusted__track [aria-hidden="true"] {
+    display: none;
+  }
+}
+
+.trusted__more {
+  margin-top: var(--s1);
+  text-align: center;
+  font-size: var(--step--1);
+}
+/* Versión quieta (prop static): la misma grilla que el carrusel con movimiento reducido. */
+.trusted__logos--static {
+  margin-top: var(--s2);
+  flex-wrap: wrap;
+  justify-content: center;
+  row-gap: var(--s2);
+  padding-right: 0;
+}
+
 /* ───────── Categorías ───────── */
 .categories {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: clamp(1.5rem, 3vw, 2.6rem) clamp(1rem, 2.4vw, 2rem);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(1.25rem, 2vw, 1.75rem) clamp(0.75rem, 1.6vw, 1.25rem);
 }
+/* Tarjetas del mismo alto por fila: el texto crece hasta el pie. */
 .category {
-  grid-column: span 2;
-  display: grid;
-  grid-template-rows: auto 1fr;
-  gap: var(--s1);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s0);
 }
 .category .picture {
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 4 / 3;
 }
-.category--lead {
-  grid-column: span 4;
-  grid-row: span 2;
-}
-.category--lead .picture {
-  aspect-ratio: auto;
-  height: 100%;
-  min-height: 420px;
-}
-.category:nth-child(2) .picture,
-.category:nth-child(3) .picture {
-  aspect-ratio: 1.618 / 1;
+.category__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 .category__name {
-  font-size: var(--step-2);
+  font-size: var(--step-1);
   margin-bottom: var(--s-1);
 }
+/* Dos líneas como máximo, con el alto de las dos reservado aunque la descripción sea corta. */
 .category__text p {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  min-height: 2lh;
   color: var(--fg-muted);
   margin-bottom: var(--s0);
-  max-width: 40ch;
 }
-/* La cuarta categoría cierra la grilla en una franja horizontal. */
-.category:nth-child(4) {
-  grid-column: 1 / -1;
-  grid-template-columns: minmax(0, 1.618fr) minmax(0, 1fr);
-  grid-template-rows: auto;
-  align-items: end;
-  column-gap: var(--s3);
+/* El enlace del nombre se estira sobre toda la tarjeta: un clic en la foto o en la descripción también lo sigue. */
+.category__link {
+  color: inherit;
+  text-decoration: none;
 }
-.category:nth-child(4) .picture {
-  aspect-ratio: 2.4 / 1;
+.category__link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.category__link:focus-visible {
+  outline: none;
+}
+.category__link:focus-visible::after {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
+}
+.category:hover .category__name {
+  color: var(--accent);
 }
 @media (max-width: 900px) {
   .categories {
-    grid-template-columns: 1fr 1fr;
-  }
-  .category,
-  .category:nth-child(n) {
-    grid-column: span 1;
-    grid-template-columns: 1fr;
-  }
-  .category--lead {
-    grid-column: span 2;
-    grid-row: auto;
-  }
-  .category--lead .picture {
-    min-height: 0;
-    aspect-ratio: 1.618 / 1;
-  }
-  .category:nth-child(n + 2) .picture {
-    aspect-ratio: 1 / 1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @media (max-width: 560px) {
-  .categories {
-    grid-template-columns: 1fr;
-  }
-  .category--lead {
-    grid-column: span 1;
-  }
-  .category:nth-child(n + 2) .picture {
-    aspect-ratio: 1.618 / 1;
+  .category__text p {
+    display: none;
   }
 }
 
-/* ───────── Custom Lab (marco de sección) ───────── */
-.lab-section {
-  background:
-    linear-gradient(var(--carbon), var(--carbon)) padding-box;
-  border-top: 1px solid var(--rule);
+/* ───────── Página del Custom Lab ───────── */
+/* El Lab ocupa todo el ancho y el alto que queda debajo del header y del encabezado de una línea. */
+.lab-page {
+  --lab-head-h: 3.5rem;
+  padding-top: var(--header-h);
 }
-.section-head--lab {
-  grid-template-columns: minmax(0, 1.618fr) minmax(0, 1fr);
+.lab-page .lab {
+  --lab-h: max(560px, 100svh - var(--header-h) - var(--lab-head-h));
+}
+.lab-page__head {
+  height: var(--lab-head-h);
+  display: flex;
+  align-items: baseline;
+  gap: var(--s1);
+  padding: 0.9rem var(--gutter) 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+/* `text-wrap: balance` de los títulos pisa el `white-space`: se fuerza una sola línea. */
+.lab-page__head > * {
+  text-wrap: nowrap;
+}
+.lab-page__head .lab-section__name {
+  flex: none;
+}
+.lab-page__title {
+  min-width: 0;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .lab-section__name {
-  grid-column: 1 / -1;
+  margin: 0;
   font-family: var(--font-display);
   font-style: italic;
   font-size: var(--step-1);
@@ -415,12 +546,15 @@
   color: var(--fg);
   cursor: pointer;
   font-size: 0.92rem;
-  transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease), color 0.2s var(--ease);
+  transition:
+    border-color 0.2s var(--ease),
+    background-color 0.2s var(--ease),
+    color 0.2s var(--ease);
 }
 .chip:hover {
   border-color: var(--accent);
 }
-.chip[aria-pressed='true'] {
+.chip[aria-pressed="true"] {
   background: var(--fg);
   color: var(--bg);
   border-color: var(--fg);
@@ -433,7 +567,12 @@
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: var(--s3) var(--s2);
 }
+.gallery-more {
+  margin-top: var(--s3);
+  text-align: center;
+}
 .work__button {
+  position: relative;
   display: block;
   width: 100%;
   padding: 0;
@@ -442,6 +581,9 @@
   cursor: zoom-in;
   aspect-ratio: 4 / 3;
   overflow: hidden;
+}
+.work__button picture {
+  display: contents;
 }
 .work__button img {
   width: 100%;
@@ -480,9 +622,34 @@
   width: auto;
   margin-inline: auto;
 }
+/* Con captura del Lab: las dos imágenes lado a lado, y una debajo de la otra en móvil. */
+.lightbox__shots[data-pair] {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s0);
+  align-items: start;
+}
+.lightbox__shots[data-pair] img {
+  max-height: 70vh;
+}
+/* En móvil, apiladas y más bajas, para que las dos entren en la pantalla sin scroll. */
+@media (max-width: 560px) {
+  .lightbox__shots[data-pair] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .lightbox__shots[data-pair] img {
+    max-height: 32svh;
+  }
+}
 .lightbox figcaption {
   padding: var(--s1) var(--s1) 0;
   color: var(--ash-light);
+}
+.lightbox .lightbox__label {
+  padding: var(--s-1) var(--s1) 0;
+  font-size: var(--step--1);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 .lightbox figcaption strong {
   color: var(--ivory);
@@ -491,7 +658,12 @@
 .lightbox form {
   padding: var(--s1);
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
+  gap: var(--s0);
+}
+.lightbox__lab[hidden] {
+  display: none;
 }
 .lightbox .button {
   --fg: var(--ivory);
@@ -504,7 +676,9 @@
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  /* Una columna por paso: la página de empresas tiene cuatro o cinco según la muestra. */
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
   border-top: 1px solid var(--rule);
 }
 .process__step {
@@ -533,7 +707,7 @@
 }
 @media (max-width: 900px) {
   .process__steps {
-    grid-template-columns: 1fr;
+    grid-auto-flow: row;
     border-top: 0;
   }
   .process__step,
@@ -566,6 +740,9 @@
 .craft__copy .lede {
   margin-top: var(--s2);
   font-size: var(--step-0);
+}
+.craft__more {
+  margin-top: var(--s1);
 }
 .differentials {
   margin: var(--s3) 0 0;
@@ -624,7 +801,7 @@
   display: none;
 }
 .faq__item summary::after {
-  content: '';
+  content: "";
   position: absolute;
   right: 0.4rem;
   top: 50%;
@@ -670,6 +847,9 @@
   gap: var(--s0);
   margin-bottom: var(--s2);
 }
+.closing__side .note + .note {
+  margin-top: var(--s0);
+}
 .contact-links {
   list-style: none;
   margin: 0;
@@ -691,6 +871,338 @@
   .closing__grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ───────── Guía de materiales ───────── */
+.materials-intro {
+  padding-top: calc(var(--header-h) + clamp(2rem, 6vw, 5rem));
+}
+.materials-intro__title {
+  font-size: var(--step-6);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  max-width: 16ch;
+  margin-bottom: var(--s2);
+}
+/* La tabla se desplaza dentro de su caja: la página no gana scroll horizontal en móvil. */
+.materials-table {
+  margin-top: clamp(2rem, 5vw, 3rem);
+  overflow-x: auto;
+  border-top: 1px solid var(--rule);
+}
+.materials-table:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
+}
+.materials-table table {
+  width: 100%;
+  min-width: 820px;
+  /* `separate`: con `collapse`, Chrome pierde el borde de las celdas fijas al desplazar. */
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--step--1);
+  line-height: 1.5;
+}
+/* El rótulo queda fijo a la izquierda: no se corta con el ancho de la tabla. */
+.materials-table caption {
+  position: sticky;
+  left: 0;
+  max-width: calc(100vw - 2 * var(--gutter));
+  caption-side: top;
+  text-align: left;
+  padding-block: var(--s1);
+  color: var(--fg-muted);
+}
+.materials-table th,
+.materials-table td {
+  padding: var(--s1) var(--s1) var(--s1) 0;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--rule);
+}
+.materials-table thead th {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  color: var(--fg-muted);
+}
+/* La columna del material (y su encabezado) queda fija al desplazar la tabla. */
+.materials-table th:first-child {
+  position: sticky;
+  left: 0;
+  background: var(--bg);
+}
+.materials-table tbody th {
+  width: 10rem;
+  font-family: var(--font-display);
+  font-size: var(--step-0);
+  font-weight: 400;
+}
+.materials-table tbody th a {
+  color: inherit;
+}
+@media (max-width: 560px) {
+  .materials-table tbody th {
+    width: 7.5rem;
+    font-size: var(--step--1);
+  }
+}
+.materials__list {
+  display: grid;
+  gap: clamp(3rem, 7vw, 5rem);
+}
+.material {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.618fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: start;
+  padding-top: var(--s3);
+  border-top: 1px solid var(--rule);
+}
+.material__copy {
+  grid-column: 2;
+}
+.material__image {
+  aspect-ratio: 4 / 3;
+}
+.material__title {
+  font-size: var(--step-4);
+  margin-bottom: var(--s2);
+  scroll-margin-top: calc(var(--header-h) + var(--s2));
+}
+.material__facts {
+  margin: 0;
+  display: grid;
+  gap: var(--s2);
+}
+.material__facts dt {
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  margin-bottom: var(--s-1);
+}
+.material__facts dd {
+  margin: 0;
+  max-width: var(--measure);
+}
+.material__styles,
+.material__products {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.material__styles li + li {
+  margin-top: var(--s-1);
+}
+.material__products {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1) var(--s1);
+}
+@media (max-width: 900px) {
+  .material {
+    grid-template-columns: 1fr;
+  }
+  .material__copy {
+    grid-column: auto;
+  }
+}
+
+/* ───────── Páginas de categoría ───────── */
+.category-hero {
+  padding-top: calc(var(--header-h) + clamp(1.5rem, 4vw, 3rem));
+}
+.category-hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.618fr) minmax(0, 1fr);
+  gap: clamp(2rem, 4vw, 4rem);
+  align-items: center;
+}
+.category-hero__title {
+  font-size: var(--step-5);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--s2);
+}
+.category-hero__image {
+  aspect-ratio: 4 / 3;
+}
+@media (max-width: 900px) {
+  .category-hero__grid {
+    grid-template-columns: 1fr;
+  }
+}
+.breadcrumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+  list-style: none;
+  margin: 0 0 var(--s2);
+  padding: 0;
+  font-size: var(--step--1);
+  color: var(--fg-muted);
+}
+.breadcrumbs li + li::before {
+  content: "›";
+  margin-right: var(--s-1);
+}
+.breadcrumbs a {
+  color: inherit;
+}
+.lab-products {
+  list-style: none;
+  margin: clamp(2rem, 5vw, 3rem) 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  gap: var(--s3) var(--s2);
+}
+.lab-product {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-top: var(--s2);
+  border-top: 1px solid var(--rule);
+}
+.lab-product__name {
+  font-size: var(--step-2);
+  margin-bottom: var(--s0);
+}
+.lab-product__description {
+  color: var(--fg-muted);
+  margin-bottom: var(--s1);
+}
+.lab-product__facts {
+  flex: 1;
+  margin: 0 0 var(--s2);
+  display: grid;
+  align-content: start;
+  gap: var(--s1);
+  font-size: var(--step--1);
+  line-height: 1.5;
+}
+.lab-product__facts dt {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  color: var(--fg-muted);
+  margin-bottom: 0.15rem;
+}
+.lab-product__facts dd {
+  margin: 0;
+}
+.lab-product__zones {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.lab-product__zones strong {
+  font-weight: 600;
+}
+
+.category-materials {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+  gap: var(--s2);
+}
+.category-materials li {
+  padding-top: var(--s1);
+  border-top: 1px solid var(--rule);
+}
+.category-materials__name {
+  display: inline-block;
+  font-size: var(--step-1);
+  margin-bottom: var(--s-1);
+  color: inherit;
+}
+.category-materials__name:hover {
+  color: var(--accent);
+}
+.category-materials p {
+  color: var(--fg-muted);
+}
+.category-works__title {
+  margin-bottom: clamp(2rem, 5vw, 3rem);
+}
+
+/* ───────── Página para empresas ───────── */
+.corporate__title {
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+}
+.corporate-occasions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  gap: var(--s2);
+}
+.corporate-occasion {
+  padding-top: var(--s1);
+  border-top: 1px solid var(--rule);
+}
+.corporate-occasion__title {
+  font-size: var(--step-1);
+  margin-bottom: var(--s-1);
+}
+.corporate-occasion p {
+  color: var(--fg-muted);
+}
+.corporate-occasion__products {
+  margin-top: var(--s0);
+  font-size: var(--step--1);
+}
+.corporate-occasion__label {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+.corporate-order {
+  display: grid;
+  gap: var(--s4) var(--s3);
+}
+.corporate-order--split {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (max-width: 800px) {
+  .corporate-order--split {
+    grid-template-columns: 1fr;
+  }
+}
+.corporate-conditions {
+  margin: 0;
+  display: grid;
+  gap: var(--s1);
+}
+.corporate-conditions div {
+  padding-top: var(--s0);
+  border-top: 1px solid var(--rule);
+}
+.corporate-conditions dt {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  color: var(--fg-muted);
+  margin-bottom: 0.15rem;
+}
+.corporate-conditions dd {
+  margin: 0;
+}
+.corporate-logo {
+  margin: 0;
+  padding-left: 1.2em;
+  display: grid;
+  gap: var(--s0);
+  max-width: 38rem;
 }
 
 /* ───────── Footer ───────── */

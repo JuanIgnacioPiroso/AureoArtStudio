@@ -12,7 +12,7 @@ export function useLogoPicker(onError: (msg: string) => void) {
   async function onFile(file: File | undefined) {
     if (!file) return
     const s = useLab.getState()
-    const surface = getSurface(getProduct(s.design.productId), s.design.surfaceId)
+    const surface = getSurface(getProduct(s.design.productId), s.design.surfaceId, s.design.shapeId)
     try {
       const { assetId, aspect } = await importImage(file)
       const target = replacing.current ? s.design.elements.find((e) => e.id === replacing.current) : null

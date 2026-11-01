@@ -1,5 +1,5 @@
 import { textElement } from './elements'
-import type { EngravingStyleDef, FontCategory, FontId, MaterialDef, ProductDef, StyleId, SurfaceDef } from './types'
+import type { EngravingStyleDef, FontCategory, FontId, MaterialDef, ProductDef, ProductShapeDef, StyleId, SurfaceDef } from './types'
 
 /** 1 unidad de escena = 100 mm. */
 export const MM = 0.01
@@ -32,6 +32,144 @@ export const MATERIALS: Record<string, MaterialDef> = {
     metalness: 1,
     texture: 'brushed',
   },
+  'black-matte': {
+    id: 'black-matte',
+    name: 'Negro mate',
+    kind: 'coated',
+    color: '#2A2B2E',
+    roughness: 0.7,
+    metalness: 0,
+    texture: 'matte',
+  },
+  gold: {
+    id: 'gold',
+    name: 'Dorado',
+    kind: 'steel',
+    color: '#D4B05A',
+    roughness: 0.3,
+    metalness: 1,
+    texture: 'brushed',
+  },
+  'marble-white': {
+    id: 'marble-white',
+    name: 'Mármol blanco',
+    kind: 'stone',
+    color: '#ECEAE6',
+    roughness: 0.35,
+    metalness: 0,
+    texture: 'marble',
+  },
+  'acrylic-clear': {
+    id: 'acrylic-clear',
+    name: 'Acrílico transparente',
+    kind: 'glass',
+    // Tono de la muestra y de la vista plana; en 3D el acrílico es incoloro.
+    color: '#9DB4BE',
+    roughness: 0.04,
+    metalness: 0,
+    texture: 'clear',
+  },
+  // Calabaza: interior fijo de los mates imperial y camionero (se grabaría con quemado, como la madera).
+  gourd: {
+    id: 'gourd',
+    name: 'Calabaza',
+    kind: 'wood',
+    color: '#B8874A',
+    roughness: 0.6,
+    metalness: 0,
+    texture: 'gourd',
+  },
+  // Virolas de los mates imperial y camionero: no se eligen, pero se graban como el acero.
+  alpaca: {
+    id: 'alpaca',
+    name: 'Alpaca',
+    kind: 'steel',
+    color: '#D8D4CA',
+    roughness: 0.22,
+    metalness: 1,
+    texture: 'brushed',
+  },
+  'glass-clear': {
+    id: 'glass-clear',
+    name: 'Vidrio transparente',
+    kind: 'glass',
+    // Tono de la muestra y de la vista plana; en 3D el vidrio es incoloro.
+    color: '#A7BDC2',
+    roughness: 0.03,
+    metalness: 0,
+    texture: 'clear',
+  },
+  // Cueros de la billetera, el llavero y el cinturón. En los mates imperial y camionero son de aspecto: ahí se graba la virola.
+  'leather-black': {
+    id: 'leather-black',
+    name: 'Cuero negro',
+    kind: 'leather',
+    color: '#1E1C1B',
+    roughness: 0.7,
+    metalness: 0,
+    texture: 'leather',
+    // El láser deja un gris oscuro y mate, apenas más claro que el cuero.
+    engraveRgb: [104, 99, 94],
+  },
+  'leather-brown': {
+    id: 'leather-brown',
+    name: 'Cuero marrón',
+    kind: 'leather',
+    color: '#5A3522',
+    roughness: 0.62,
+    metalness: 0,
+    texture: 'leather',
+    engraveRgb: [30, 19, 13],
+  },
+  'leather-tan': {
+    id: 'leather-tan',
+    name: 'Cuero suela',
+    kind: 'leather',
+    color: '#B9824F',
+    roughness: 0.6,
+    metalness: 0,
+    texture: 'leather',
+    engraveRgb: [88, 50, 26],
+  },
+  // Costuras de los productos de cuero: no se eligen ni se graban.
+  thread: {
+    id: 'thread',
+    name: 'Hilo',
+    kind: 'coated',
+    color: '#E6DAC0',
+    roughness: 0.85,
+    metalness: 0,
+    texture: 'matte',
+  },
+  // Base del trofeo: no se elige ni se graba.
+  'black-acrylic': {
+    id: 'black-acrylic',
+    name: 'Acrílico negro',
+    kind: 'coated',
+    color: '#141518',
+    roughness: 0.25,
+    metalness: 0,
+    texture: 'matte',
+  },
+  // Plásticos fijos de los termos: no se eligen ni se graban.
+  'black-plastic': {
+    id: 'black-plastic',
+    name: 'Plástico negro',
+    kind: 'coated',
+    color: '#1B1C1E',
+    roughness: 0.6,
+    metalness: 0,
+    texture: 'matte',
+  },
+  'red-plastic': {
+    id: 'red-plastic',
+    name: 'Plástico rojo',
+    kind: 'coated',
+    color: '#C8231E',
+    roughness: 0.45,
+    metalness: 0,
+    texture: 'matte',
+  },
 }
 
 export const ENGRAVING_STYLES: Record<StyleId, EngravingStyleDef> = {
@@ -52,6 +190,30 @@ export const ENGRAVING_STYLES: Record<StyleId, EngravingStyleDef> = {
     name: 'Esmerilado',
     description: 'Acabado claro y satinado, más sutil.',
     kind: 'steel',
+  },
+  reveal: {
+    id: 'reveal',
+    name: 'Grabado a metal',
+    description: 'El láser retira la pintura y deja ver el acero.',
+    kind: 'coated',
+  },
+  carve: {
+    id: 'carve',
+    name: 'Bajorrelieve',
+    description: 'Letra hundida y oscura sobre la piedra.',
+    kind: 'stone',
+  },
+  etch: {
+    id: 'etch',
+    name: 'Grabado esmerilado',
+    description: 'Marca blanca y satinada dentro del acrílico.',
+    kind: 'glass',
+  },
+  'leather-mark': {
+    id: 'leather-mark',
+    name: 'Grabado láser',
+    description: 'El láser oscurece y hunde apenas el cuero.',
+    kind: 'leather',
   },
 }
 
@@ -150,6 +312,333 @@ const boardFace: SurfaceDef = {
   cameraOffset: [0, -1.3, 3.3],
 }
 
+/**
+ * Frente de un termo parado (Ø 90 mm): la Z local de la zona apunta hacia -Y, con la
+ * manija al costado. El centro va 5,75 mm hacia adentro para que la caja del decal (16 mm) abarque
+ * también los bordes laterales, que por la curvatura quedan 11,5 mm detrás del frente.
+ */
+function thermosFront(centerZ: number): SurfaceDef {
+  return {
+    id: 'front',
+    name: 'Frente',
+    part: 'body',
+    position: [0, -(0.45 - 0.0575), centerZ],
+    orientation: [Math.PI / 2, 0, 0],
+    widthMm: 60,
+    heightMm: 120,
+    depthMm: 16,
+    curved: true,
+    sizeRange: [5, 20],
+    cameraOffset: [0, 0.35, 2.3],
+  }
+}
+
+/**
+ * Vuelta completa de un termo (Ø 90 mm): tira de 250 × 120 mm centrada en el lado opuesto a la
+ * manija, con los dos bordes detrás de ella. handleSide: +1 = manija en +X, −1 = manija en −X.
+ * El frente (-Y) queda a un cuarto de vuelta del centro de la tira: 282,74 / 4 ≈ 70,7 mm.
+ */
+function thermosWrap(centerZ: number, handleSide: 1 | -1): SurfaceDef {
+  const centerAngle = handleSide === 1 ? Math.PI : 0
+  return {
+    id: 'wrap',
+    name: 'Vuelta completa',
+    part: 'body',
+    position: [-handleSide * 0.45, 0, centerZ],
+    // Como el frente, pero girado sobre el eje del termo hasta mirar al centro de la tira.
+    orientation: [Math.PI / 2, centerAngle + Math.PI / 2, 0],
+    widthMm: 250,
+    heightMm: 120,
+    // No se usa: la tira no se proyecta con un decal.
+    depthMm: 0,
+    curved: true,
+    sizeRange: [5, 20],
+    cameraOffset: [0, 0.35, 2.3],
+    wrap: { radiusMm: 45, centerAngle, frontOffsetMm: handleSide * 70.7 },
+  }
+}
+
+/** Chapa de la placa sobre base: 170 × 120 mm, con 10 mm de margen. Su cara está a 10 mm de la mesa. */
+const plaqueBasePlate: SurfaceDef = {
+  id: 'plate',
+  name: 'Chapa',
+  part: 'plate',
+  position: [0, 0, 0.1],
+  orientation: [0, 0, 0],
+  widthMm: 150,
+  heightMm: 100,
+  depthMm: 2,
+  curved: false,
+  sizeRange: [3, 20],
+  cameraOffset: [0, -0.75, 1.9],
+}
+
+/** Frente de la placa de pared: 360 × 260 mm, sin pisar los tornillos de las esquinas. */
+const plaqueWallFront: SurfaceDef = {
+  id: 'front',
+  name: 'Frente',
+  part: 'plate',
+  position: [0, 0, 0.03],
+  orientation: [0, 0, 0],
+  widthMm: 360,
+  heightMm: 260,
+  depthMm: 4,
+  curved: false,
+  sizeRange: [5, 40],
+  cameraOffset: [0, -1.7, 4.4],
+}
+
+/**
+ * Caras de la chapita parada (50 × 28 mm, 1 mm de espesor). La zona de 40 × 20 mm se corre 3 mm
+ * hacia el lado opuesto al agujero. La caja del decal (0,8 mm) toma sólo la cara de su lado.
+ * side: -1 = frente (mira hacia -Y), +1 = dorso (girado 180° sobre el eje vertical).
+ */
+function dogTagFace(side: 1 | -1): SurfaceDef {
+  return {
+    id: side === -1 ? 'front' : 'back',
+    name: side === -1 ? 'Frente' : 'Dorso',
+    part: 'tag',
+    position: [0.03, side * 0.005, 0.14],
+    orientation: [Math.PI / 2, side === -1 ? 0 : Math.PI, 0],
+    widthMm: 40,
+    heightMm: 20,
+    depthMm: 0.8,
+    curved: false,
+    sizeRange: [2.5, 8],
+    cameraOffset: [0, 0.3, 1],
+  }
+}
+
+/**
+ * Tapas de la billetera parada (110 × 90 mm, 12 mm de espesor), con el lomo a la izquierda mirando
+ * el frente. La zona de 80 × 60 mm queda adentro de la costura (a 4 mm del canto) y lejos del lomo.
+ * side: -1 = frente (mira hacia -Y), +1 = dorso (girado 180° sobre el eje vertical).
+ */
+function walletFace(side: 1 | -1): SurfaceDef {
+  return {
+    id: side === -1 ? 'front' : 'back',
+    name: side === -1 ? 'Frente' : 'Dorso',
+    part: 'body',
+    position: [0.01, side * 0.06, 0.45],
+    orientation: [Math.PI / 2, side === -1 ? 0 : Math.PI, 0],
+    widthMm: 80,
+    heightMm: 60,
+    depthMm: 2,
+    curved: false,
+    sizeRange: [4, 20],
+    cameraOffset: [0, 0.3, 1.5],
+  }
+}
+
+/**
+ * Caras del llavero parado (4 mm de espesor), con el punto más bajo de la pieza en la mesa.
+ * centerMm: centro de la zona desde el centro de la pieza; halfHeightMm: mitad del alto de la pieza,
+ * sin el ojal (como KEYCHAIN_HALF_HEIGHT_MM). La caja del decal (1,6 mm) toma sólo la cara de su lado.
+ * side: -1 = frente (mira hacia -Y), +1 = dorso (girado 180° sobre el eje vertical).
+ */
+function keychainFace(side: 1 | -1, widthMm: number, heightMm: number, centerMm: number, halfHeightMm: number): SurfaceDef {
+  return {
+    id: side === -1 ? 'front' : 'back',
+    name: side === -1 ? 'Frente' : 'Dorso',
+    part: 'body',
+    position: [0, side * 0.02, (halfHeightMm + centerMm) * MM],
+    orientation: [Math.PI / 2, side === -1 ? 0 : Math.PI, 0],
+    widthMm,
+    heightMm,
+    depthMm: 1.6,
+    curved: false,
+    sizeRange: [3, 12],
+    cameraOffset: [0, 0.25, 1],
+  }
+}
+
+const keychainFaces = (w: number, h: number, centerMm: number, halfHeightMm: number) => [
+  keychainFace(-1, w, h, centerMm, halfHeightMm),
+  keychainFace(1, w, h, centerMm, halfHeightMm),
+]
+
+/** Formas del llavero. Cada zona queda adentro de la costura (a 4 mm del borde); el ojal va arriba, fuera de la pieza. */
+const keychainShapes: ProductShapeDef[] = [
+  // La zona baja 4 mm: deja más aire debajo del ojal.
+  { id: 'rect', name: 'Rectángulo', surfaces: keychainFaces(25, 45, -4, 35) },
+  { id: 'round', name: 'Redondo', surfaces: keychainFaces(28, 28, 0, 25) },
+  // El escudo se angosta abajo: la zona sube 4 mm para no pisar la costura de la punta.
+  { id: 'shield', name: 'Escudo', surfaces: keychainFaces(30, 30, 4, 27.5) },
+]
+
+/**
+ * Frente del cinturón acostado (35 mm de ancho, 4 mm de espesor): 200 × 25 mm, entre la hebilla
+ * (que termina a 152,5 mm a la izquierda del centro) y los agujeros (desde 92,5 mm a la derecha).
+ * La costura va a 4 mm de cada borde largo.
+ */
+const beltFront: SurfaceDef = {
+  id: 'front',
+  name: 'Frente',
+  part: 'body',
+  position: [-0.48, 0, 0.02],
+  orientation: [0, 0, 0],
+  widthMm: 200,
+  heightMm: 25,
+  depthMm: 2,
+  curved: false,
+  sizeRange: [4, 18],
+  cameraOffset: [0, -0.6, 2.4],
+}
+
+/** Cuero elegible de los productos de cuero y su costura fija. */
+const leatherIds = ['leather-black', 'leather-brown', 'leather-tan']
+const leatherBody = { id: 'body', name: 'Cuero', fixedMaterialId: null }
+const leatherStitch = { id: 'stitch', name: 'Costura', fixedMaterialId: 'thread' }
+
+/**
+ * Frente del trofeo parado: la placa (150 × 200 mm, 10 mm de espesor) arranca a 20 mm de la mesa.
+ * Cada forma tiene su zona, con al menos 10 mm de margen dentro de la silueta y sobre la base.
+ * centerMm: altura del centro de la zona desde el borde de abajo de la placa.
+ */
+function trophyFront(widthMm: number, heightMm: number, centerMm: number): SurfaceDef {
+  return {
+    id: 'front',
+    name: 'Frente',
+    part: 'plate',
+    position: [0, -0.05, 0.2 + centerMm * MM],
+    orientation: [Math.PI / 2, 0, 0],
+    widthMm,
+    heightMm,
+    // Menos que el espesor: el decal no toca la cara de atrás.
+    depthMm: 4,
+    curved: false,
+    sizeRange: [3, 20],
+    cameraOffset: [0, 0.3, 2.2],
+  }
+}
+
+const trophyShapes: ProductShapeDef[] = [
+  // Ochavas de 35 mm: la zona de 120 × 120 mm deja 10 mm hasta los cortes.
+  { id: 'octagon', name: 'Octógono', surfaces: [trophyFront(120, 120, 105)] },
+  { id: 'rectangle', name: 'Rectángulo', surfaces: [trophyFront(130, 170, 105)] },
+  // La zona termina donde el arco ya está 10 mm por encima de sus esquinas.
+  { id: 'arch', name: 'Arco', surfaces: [trophyFront(120, 130, 85)] },
+  // La gota se angosta hacia arriba: la zona queda en la parte ancha.
+  { id: 'flame', name: 'Gota', surfaces: [trophyFront(90, 90, 65)] },
+]
+
+/**
+ * Frente de un mate parado: zona de 40 × 30 mm sobre la banda recta del cuerpo, mirando hacia -Y.
+ * Como en los termos, el centro va hacia adentro para que la caja del decal abarque los bordes,
+ * que por la curvatura quedan ~5 mm detrás del frente (en Ø 75, ~6 mm).
+ */
+function mateFront(radiusMm: number, centerZ: number): SurfaceDef {
+  return {
+    id: 'front',
+    name: 'Frente',
+    part: 'body',
+    position: [0, -(radiusMm - 3) * MM, centerZ],
+    orientation: [Math.PI / 2, 0, 0],
+    widthMm: 40,
+    heightMm: 30,
+    depthMm: 12,
+    curved: true,
+    sizeRange: [3, 15],
+    cameraOffset: [0, 0.25, 1.2],
+  }
+}
+
+/**
+ * Vuelta completa de un mate: tira de 30 mm de alto centrada en el frente (-Y). Los mates no
+ * tienen manija, así que la franja sin grabar queda atrás y el frente coincide con el centro.
+ */
+function mateWrap(radiusMm: number, widthMm: number, centerZ: number): SurfaceDef {
+  const centerAngle = -Math.PI / 2
+  return {
+    id: 'wrap',
+    name: 'Vuelta completa',
+    part: 'body',
+    position: [0, -radiusMm * MM, centerZ],
+    orientation: [Math.PI / 2, centerAngle + Math.PI / 2, 0],
+    widthMm,
+    heightMm: 30,
+    depthMm: 0,
+    curved: true,
+    sizeRange: [3, 15],
+    cameraOffset: [0, 0.25, 1.2],
+    wrap: { radiusMm, centerAngle, frontOffsetMm: 0, edge: 'back' },
+  }
+}
+
+/**
+ * «Boca» de una virola: el anillo plano de arriba, como zona cuadrada del diámetro de afuera que
+ * mira hacia arriba. Su Y apunta hacia atrás del mate: el texto se lee derecho mirándolo de frente.
+ */
+function rimMouth(outerMm: number, innerMm: number, topZ: number): SurfaceDef {
+  return {
+    id: 'mouth',
+    name: 'Boca',
+    part: 'rim',
+    position: [0, 0, topZ],
+    orientation: [0, 0, 0],
+    widthMm: outerMm,
+    heightMm: outerMm,
+    depthMm: 2,
+    curved: false,
+    sizeRange: [2.5, 8],
+    cameraOffset: [0, -0.55, 1.05],
+    ring: { outerMm, innerMm },
+  }
+}
+
+/** «Virola»: la banda del costado de la virola, como vuelta completa centrada en el frente. */
+function rimBand(radiusMm: number, widthMm: number, heightMm: number, centerZ: number): SurfaceDef {
+  return { ...mateWrap(radiusMm, widthMm, centerZ), name: 'Virola', part: 'rim', heightMm, sizeRange: [2.5, 6] }
+}
+
+/** Cuerpo de cuero (se elige el color), virola de alpaca y el interior de calabaza. */
+const leatherMateParts = [
+  { id: 'body', name: 'Cuero', fixedMaterialId: null },
+  { id: 'rim', name: 'Virola', fixedMaterialId: 'alpaca' },
+  { id: 'inside', name: 'Interior', fixedMaterialId: 'gourd' },
+]
+
+/**
+ * Frente de una copa o vaso parado: zona sobre la parte casi cilíndrica, mirando hacia -Y. La caja
+ * del decal arranca 2 mm afuera del frente y llega 4 mm detrás de los bordes de la zona, que por la
+ * curvatura quedan `sag` mm detrás del frente. Las medidas siguen los perfiles de glasswareProfiles.ts.
+ */
+function glassFront(radiusMm: number, centerZ: number, widthMm: number, heightMm: number): SurfaceDef {
+  const sag = radiusMm - Math.sqrt(radiusMm ** 2 - (widthMm / 2) ** 2)
+  const depthMm = sag + 6
+  return {
+    id: 'front',
+    name: 'Frente',
+    part: 'glass',
+    position: [0, -(radiusMm - (depthMm / 2 - 2)) * MM, centerZ],
+    orientation: [Math.PI / 2, 0, 0],
+    widthMm,
+    heightMm,
+    depthMm,
+    curved: true,
+    sizeRange: [3, 15],
+    cameraOffset: [0, 0.3, 1.5],
+  }
+}
+
+const glasswareShapes: ProductShapeDef[] = [
+  { id: 'wine', name: 'Copa de vino', surfaces: [glassFront(42.5, 1.55, 50, 40)] },
+  { id: 'flute', name: 'Copa de champagne', surfaces: [glassFront(35, 1.75, 50, 40)] },
+  { id: 'whisky', name: 'Vaso de whisky', surfaces: [glassFront(40, 0.52, 60, 50)] },
+  { id: 'mug', name: 'Jarro de cerveza', surfaces: [glassFront(42.5, 0.75, 60, 50)] },
+]
+
+/** Diseño inicial de los termos: un nombre y una frase, centrados. */
+const thermosElements = (prefix: string) => [
+  textElement({ id: `${prefix}-name`, text: 'Lucas', fontId: 'great-vibes', sizeMm: 16, y: 10 }),
+  textElement({ id: `${prefix}-phrase`, text: 'Mateando desde 2026', fontId: 'montserrat', sizeMm: 3.6, y: -9 }),
+]
+
+/** Sólo el cuerpo toma el acabado elegido; base y vaso son de acero y el resto, de plástico. */
+const thermosBody = { id: 'body', name: 'Cuerpo', fixedMaterialId: null }
+const thermosBase = { id: 'base', name: 'Base', fixedMaterialId: 'steel' }
+const thermosHandle = { id: 'handle', name: 'Manija', fixedMaterialId: 'black-plastic' }
+
 export const PRODUCTS: readonly ProductDef[] = [
   {
     id: 'knife',
@@ -196,6 +685,306 @@ export const PRODUCTS: readonly ProductDef[] = [
       ],
     },
   },
+  {
+    id: 'thermos-handle',
+    name: 'Termo 1 L con manija',
+    description: 'Termo de 1 L con tapa-vaso de acero y manija lateral. Se graba en el frente.',
+    modelId: 'thermos-handle-v1',
+    parts: [thermosBody, thermosBase, { id: 'cup', name: 'Vaso', fixedMaterialId: 'steel' }, thermosHandle],
+    selectablePart: 'body',
+    materialIds: ['steel', 'black-matte'],
+    surfaces: [thermosFront(1.3), thermosWrap(1.3, 1)],
+    camera: { position: [1, 3.7, 6.8], target: [0, 1.65, 0] },
+    frameRadius: 1.85,
+    defaultDesign: {
+      materialId: 'steel',
+      surfaceId: 'front',
+      styleId: 'mark-dark',
+      elements: thermosElements('thermos-handle'),
+    },
+  },
+  {
+    id: 'thermos-half',
+    name: 'Termo media manija',
+    description: 'Termo con asa en L, tapa negra y pico cebador. Se graba en el frente.',
+    modelId: 'thermos-half-v1',
+    parts: [
+      thermosBody,
+      thermosBase,
+      { id: 'cap', name: 'Tapa', fixedMaterialId: 'black-plastic' },
+      { id: 'spout', name: 'Pico cebador', fixedMaterialId: 'red-plastic' },
+      thermosHandle,
+    ],
+    selectablePart: 'body',
+    materialIds: ['steel', 'black-matte'],
+    surfaces: [thermosFront(1.27), thermosWrap(1.27, -1)],
+    camera: { position: [1, 3.5, 6.8], target: [0, 1.5, 0] },
+    frameRadius: 1.75,
+    defaultDesign: {
+      materialId: 'black-matte',
+      surfaceId: 'front',
+      styleId: 'reveal',
+      elements: thermosElements('thermos-half'),
+    },
+  },
+  {
+    id: 'plaque-base',
+    name: 'Placa sobre base de madera',
+    description: 'Chapa de 17 × 12 cm sobre una base de madera de 20 × 15 cm. Se graba en la chapa.',
+    modelId: 'plaque-base-v1',
+    parts: [
+      { id: 'plate', name: 'Chapa', fixedMaterialId: null },
+      { id: 'base', name: 'Base', fixedMaterialId: 'wood-dark' },
+    ],
+    selectablePart: 'plate',
+    materialIds: ['gold', 'steel'],
+    surfaces: [plaqueBasePlate],
+    camera: { position: [0, 3.4, 2.7], target: [0, 0, 0.05] },
+    frameRadius: 1.3,
+    defaultDesign: {
+      materialId: 'gold',
+      surfaceId: 'plate',
+      styleId: 'mark-dark',
+      elements: [
+        textElement({ id: 'plaque-base-title', text: 'En reconocimiento a', fontId: 'montserrat', sizeMm: 5, y: 30 }),
+        textElement({ id: 'plaque-base-name', text: 'Laura Méndez', fontId: 'cinzel', sizeMm: 12, y: 13 }),
+        textElement({ id: 'plaque-base-text', text: 'Por su dedicación y compromiso', fontId: 'montserrat', sizeMm: 5, y: -8 }),
+        textElement({ id: 'plaque-base-date', text: 'Buenos Aires · 2026', fontId: 'montserrat', sizeMm: 4, y: -30 }),
+      ],
+    },
+  },
+  {
+    id: 'plaque-wall',
+    name: 'Placa de pared',
+    description: 'Placa de 40 × 30 cm en acero o mármol, con tornillos en las esquinas. Se graba en el frente.',
+    modelId: 'plaque-wall-v1',
+    parts: [
+      { id: 'plate', name: 'Placa', fixedMaterialId: null },
+      { id: 'screws', name: 'Tornillos', fixedMaterialId: 'steel' },
+    ],
+    selectablePart: 'plate',
+    materialIds: ['steel', 'marble-white'],
+    surfaces: [plaqueWallFront],
+    camera: { position: [0, 5.2, 4.1], target: [0, 0, 0.05] },
+    frameRadius: 2.55,
+    defaultDesign: {
+      materialId: 'steel',
+      surfaceId: 'front',
+      styleId: 'mark-dark',
+      elements: [
+        textElement({ id: 'plaque-wall-name', text: 'Biblioteca Popular', fontId: 'cinzel', sizeMm: 20, y: 22 }),
+        textElement({ id: 'plaque-wall-date', text: 'Inaugurada el 24 de octubre de 2026', fontId: 'montserrat', sizeMm: 9, y: -22 }),
+      ],
+    },
+  },
+  {
+    id: 'dog-tag',
+    name: 'Chapita identificatoria',
+    description: 'Chapita de acero de 5 × 2,8 cm con cadena de bolitas. Se graba en el frente o en el dorso.',
+    modelId: 'dog-tag-v1',
+    parts: [
+      { id: 'tag', name: 'Chapita', fixedMaterialId: null },
+      { id: 'chain', name: 'Cadena', fixedMaterialId: 'steel' },
+    ],
+    selectablePart: 'tag',
+    materialIds: ['steel'],
+    surfaces: [dogTagFace(-1), dogTagFace(1)],
+    camera: { position: [0.3, 0.75, 1.6], target: [0, 0.12, 0] },
+    frameRadius: 0.5,
+    defaultDesign: {
+      materialId: 'steel',
+      surfaceId: 'front',
+      styleId: 'mark-dark',
+      elements: [textElement({ id: 'dog-tag-name', text: 'Tomás Ruiz', fontId: 'oswald', sizeMm: 5.5, y: 0 })],
+    },
+  },
+  {
+    id: 'trophy',
+    name: 'Trofeo de acrílico',
+    description: 'Placa de acrílico transparente de 15 × 20 cm sobre una base negra. Se graba en el frente.',
+    modelId: 'trophy-v1',
+    parts: [
+      { id: 'plate', name: 'Placa', fixedMaterialId: null },
+      { id: 'base', name: 'Base', fixedMaterialId: 'black-acrylic' },
+    ],
+    selectablePart: 'plate',
+    materialIds: ['acrylic-clear'],
+    // Las zonas que usan los lugares que no conocen las formas: las del octógono.
+    surfaces: trophyShapes[0]!.surfaces,
+    shapes: trophyShapes,
+    camera: { position: [0.8, 2.6, 5.5], target: [0, 1.1, 0] },
+    frameRadius: 1.3,
+    defaultDesign: {
+      materialId: 'acrylic-clear',
+      surfaceId: 'front',
+      styleId: 'etch',
+      elements: [
+        textElement({ id: 'trophy-title', text: 'Premio a la excelencia', fontId: 'montserrat', sizeMm: 6, y: 32 }),
+        textElement({ id: 'trophy-name', text: 'Laura Méndez', fontId: 'cinzel', sizeMm: 10, y: 8 }),
+        textElement({ id: 'trophy-year', text: '2026', fontId: 'montserrat', sizeMm: 7, y: -22 }),
+      ],
+    },
+  },
+  {
+    id: 'mate-wood',
+    name: 'Mate de madera',
+    description: 'Mate de madera torneado de una pieza, de 7,5 cm de diámetro. Se graba en el frente o alrededor.',
+    modelId: 'mate-wood-v1',
+    parts: [{ id: 'body', name: 'Mate', fixedMaterialId: null }],
+    selectablePart: 'body',
+    materialIds: ['wood-light', 'wood-dark'],
+    surfaces: [mateFront(37.5, 0.525), mateWrap(37.5, 210, 0.525)],
+    camera: { position: [0.5, 1.9, 3.4], target: [0, 0.46, 0] },
+    frameRadius: 0.68,
+    defaultDesign: {
+      materialId: 'wood-light',
+      surfaceId: 'front',
+      styleId: 'burn',
+      elements: [textElement({ id: 'mate-wood-name', text: 'Lucía', fontId: 'great-vibes', sizeMm: 11, y: 0 })],
+    },
+  },
+  {
+    id: 'mate-imperial',
+    name: 'Mate imperial',
+    description: 'Mate de calabaza forrado en cuero, sobre tres patas, con virola alta de alpaca. Se graba en la boca o alrededor de la virola.',
+    modelId: 'mate-imperial-v1',
+    parts: leatherMateParts,
+    selectablePart: 'body',
+    materialIds: ['leather-black', 'leather-brown'],
+    // Virola: banda de Ø 83 (de 93 a 109 mm de alto) y labio de Ø 88 / boca de Ø 64, a 115 mm.
+    surfaces: [rimMouth(88, 64, 1.15), rimBand(41.5, 230, 12, 1.01)],
+    camera: { position: [0.5, 2.3, 3.4], target: [0, 0.55, 0] },
+    frameRadius: 0.82,
+    ringTexts: { top: 'Familia Gómez', bottom: '2026' },
+    defaultDesign: {
+      materialId: 'leather-black',
+      surfaceId: 'mouth',
+      styleId: 'mark-dark',
+      // Se arman curvos en defaultDesign (store), con la medida real de la tipografía.
+      elements: [],
+    },
+  },
+  {
+    id: 'mate-camionero',
+    name: 'Mate camionero',
+    description: 'Mate de calabaza forrado en cuero, con virola ancha de alpaca. Se graba en la boca o alrededor de la virola.',
+    modelId: 'mate-camionero-v1',
+    parts: leatherMateParts,
+    selectablePart: 'body',
+    materialIds: ['leather-black', 'leather-brown'],
+    // Virola de Ø 78 / Ø 52, de 93 a 105 mm de alto.
+    surfaces: [rimMouth(78, 52, 1.05), rimBand(39, 220, 8, 0.99)],
+    camera: { position: [0.5, 2.2, 3.4], target: [0, 0.5, 0] },
+    frameRadius: 0.78,
+    ringTexts: { top: 'Mateando juntos', bottom: '2026' },
+    defaultDesign: {
+      materialId: 'leather-black',
+      surfaceId: 'mouth',
+      styleId: 'mark-dark',
+      // Se arman curvos en defaultDesign (store), con la medida real de la tipografía.
+      elements: [],
+    },
+  },
+  {
+    id: 'mate-steel',
+    name: 'Mate de acero',
+    description: 'Mate de acero de doble pared, de 8,5 cm de diámetro. Se graba en el frente o alrededor.',
+    modelId: 'mate-steel-v1',
+    parts: [{ id: 'body', name: 'Mate', fixedMaterialId: null }],
+    selectablePart: 'body',
+    materialIds: ['steel', 'black-matte'],
+    surfaces: [mateFront(42.5, 0.55), mateWrap(42.5, 230, 0.55)],
+    camera: { position: [0.5, 1.9, 3.4], target: [0, 0.48, 0] },
+    frameRadius: 0.72,
+    defaultDesign: {
+      materialId: 'steel',
+      surfaceId: 'front',
+      styleId: 'mark-dark',
+      elements: [textElement({ id: 'mate-steel-name', text: 'Pablo', fontId: 'great-vibes', sizeMm: 11, y: 0 })],
+    },
+  },
+  {
+    id: 'glassware',
+    name: 'Copas y vasos',
+    description: 'Copas de vino y de champagne, vaso de whisky y jarro de cerveza, de vidrio. Se graban en el frente.',
+    modelId: 'glassware-v1',
+    parts: [{ id: 'glass', name: 'Vidrio', fixedMaterialId: null }],
+    selectablePart: 'glass',
+    materialIds: ['glass-clear'],
+    // Las zonas que usan los lugares que no conocen las formas: las de la copa de vino.
+    surfaces: glasswareShapes[0]!.surfaces,
+    shapes: glasswareShapes,
+    camera: { position: [0.8, 2.6, 5.5], target: [0, 1.1, 0] },
+    frameRadius: 1.3,
+    defaultDesign: {
+      materialId: 'glass-clear',
+      surfaceId: 'front',
+      styleId: 'etch',
+      elements: [
+        textElement({ id: 'glassware-names', text: 'Sofía & Martín', fontId: 'great-vibes', sizeMm: 7, y: 5 }),
+        textElement({ id: 'glassware-date', text: '12 · 10 · 2026', fontId: 'montserrat', sizeMm: 3.2, y: -8 }),
+      ],
+    },
+  },
+  {
+    id: 'leather-wallet',
+    name: 'Billetera',
+    description: 'Billetera plegable de cuero, de 11 × 9 cm, con costura. Se graba en el frente o en el dorso.',
+    modelId: 'leather-wallet-v1',
+    parts: [leatherBody, leatherStitch],
+    selectablePart: 'body',
+    materialIds: leatherIds,
+    surfaces: [walletFace(-1), walletFace(1)],
+    camera: { position: [0.5, 1.1, 2.6], target: [0, 0.45, 0] },
+    frameRadius: 0.8,
+    defaultDesign: {
+      materialId: 'leather-brown',
+      surfaceId: 'front',
+      styleId: 'leather-mark',
+      elements: [
+        textElement({ id: 'wallet-name', text: 'Andrés', fontId: 'cinzel', sizeMm: 12, y: 5 }),
+        textElement({ id: 'wallet-year', text: '2026', fontId: 'montserrat', sizeMm: 5, y: -10 }),
+      ],
+    },
+  },
+  {
+    id: 'leather-keychain',
+    name: 'Llavero',
+    description: 'Llavero de cuero con costura y argolla de acero, rectangular, redondo o escudo. Se graba en el frente o en el dorso.',
+    modelId: 'leather-keychain-v1',
+    parts: [leatherBody, { id: 'ring', name: 'Argolla', fixedMaterialId: 'steel' }, leatherStitch],
+    selectablePart: 'body',
+    materialIds: leatherIds,
+    // Las zonas que usan los lugares que no conocen las formas: las del rectángulo.
+    surfaces: keychainShapes[0]!.surfaces,
+    shapes: keychainShapes,
+    camera: { position: [0.35, 0.95, 2.1], target: [0, 0.45, 0] },
+    frameRadius: 0.6,
+    defaultDesign: {
+      materialId: 'leather-tan',
+      surfaceId: 'front',
+      styleId: 'leather-mark',
+      elements: [textElement({ id: 'keychain-name', text: 'Nico', fontId: 'great-vibes', sizeMm: 8, y: 0 })],
+    },
+  },
+  {
+    id: 'leather-belt',
+    name: 'Cinturón',
+    description: 'Cinturón de cuero de 3,5 cm de ancho, con costura y hebilla de acero. Se graba al lado de la hebilla.',
+    modelId: 'leather-belt-v1',
+    parts: [leatherBody, { id: 'buckle', name: 'Hebilla', fixedMaterialId: 'steel' }, leatherStitch],
+    selectablePart: 'body',
+    materialIds: leatherIds,
+    surfaces: [beltFront],
+    camera: { position: [0.2, 3.4, 2.9], target: [0, 0, 0] },
+    frameRadius: 2,
+    defaultDesign: {
+      materialId: 'leather-black',
+      surfaceId: 'front',
+      styleId: 'leather-mark',
+      elements: [textElement({ id: 'belt-name', text: 'Ramiro Funes', fontId: 'cinzel', sizeMm: 11, y: 0 })],
+    },
+  },
 ]
 
 export function getProduct(id: string): ProductDef {
@@ -204,8 +993,21 @@ export function getProduct(id: string): ProductDef {
   return p
 }
 
-export function getSurface(product: ProductDef, surfaceId: string): SurfaceDef {
-  return product.surfaces.find((s) => s.id === surfaceId) ?? product.surfaces[0]!
+/** Forma efectiva: la del diseño si existe en el producto; si no, la primera. Null si el producto no tiene formas. */
+export function getShape(product: ProductDef, shapeId: string | undefined): ProductShapeDef | null {
+  if (!product.shapes?.length) return null
+  return product.shapes.find((s) => s.id === shapeId) ?? product.shapes[0]!
+}
+
+/** Zonas del producto para la forma elegida. */
+export function surfacesOf(product: ProductDef, shapeId: string | undefined): readonly SurfaceDef[] {
+  return getShape(product, shapeId)?.surfaces ?? product.surfaces
+}
+
+/** Zona del producto (en la forma elegida, si tiene formas); si no existe, la primera. */
+export function getSurface(product: ProductDef, surfaceId: string, shapeId?: string): SurfaceDef {
+  const surfaces = surfacesOf(product, shapeId)
+  return surfaces.find((s) => s.id === surfaceId) ?? surfaces[0]!
 }
 
 /** Material efectivo de una parte: fijo o el elegido por el usuario. */
