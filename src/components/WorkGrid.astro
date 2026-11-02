@@ -6,9 +6,12 @@ import { isImageAsset, isOwnPhoto, orderedWorks, type Work, type WorkImage } fro
 /**
  * Grilla de trabajos con su visor: la usan la galería de la home y las páginas de categoría.
  * Una sola por página: el visor refleja la obra abierta en `?obra=` y la abre al cargar.
+ * La galería de la home le avisa el filtro activo con el evento `works:filter` (id en `detail`) sobre `[data-works]`.
  */
 interface Props {
   works: readonly Work[]
+  /** Trabajos visibles antes de «Ver más». Sin límite si no se pasa. */
+  limit?: number
 }
 
 /**
@@ -30,6 +33,9 @@ const big = async (img: WorkImage): Promise<BigImage> => {
   return { src: out.src, width: Number(out.attributes.width), height: Number(out.attributes.height), alt: img.alt }
 }
 
+const { limit } = Astro.props
+const count = (n: number) => (n === 1 ? '1 trabajo' : `${n} trabajos`)
+
 const works = await Promise.all(
   orderedWorks(Astro.props.works).map(async (w) => ({
     ...w,
@@ -42,7 +48,8 @@ const works = await Promise.all(
 )
 ---
 
-<div data-works>
+<div data-works data-limit={limit}>
+  <p class="visually-hidden" role="status" data-works-count>{count(works.length)}</p>
   <ul class="works">
     {
       works.map((w) => (
@@ -103,6 +110,10 @@ const works = await Promise.all(
       ))
     }
   </ul>
+  {/* Lo muestra el script: sin JS se ven todos los trabajos y el botón no hace falta. */}
+  <div class="works-more" hidden data-works-more>
+    <button type="button" class="button button--ghost"></button>
+  </div>
   <dialog class="lightbox" aria-labelledby="lightbox-title" data-lightbox>
     <figure hidden>
       <div class="lightbox__shots" data-lightbox-shots>
@@ -114,6 +125,15 @@ const works = await Promise.all(
       <figcaption><strong id="lightbox-title"></strong></figcaption>
     </figure>
     <form method="dialog">
+      {/* Recorre los trabajos de la grilla (los del filtro activo en la home). Con uno solo, el script la oculta. */}
+      <div class="lightbox__nav" data-lightbox-nav>
+        <button type="button" class="button" data-lightbox-step="-1">
+          <span aria-hidden="true">←</span> Anterior
+        </button>
+        <button type="button" class="button" data-lightbox-step="1">
+          Siguiente <span aria-hidden="true">→</span>
+        </button>
+      </div>
       <a class="button button--primary lightbox__lab" hidden data-lightbox-lab>Diseñar algo parecido</a>
       <button class="button lightbox__close" type="submit">Cerrar</button>
     </form>
@@ -121,11 +141,20 @@ const works = await Promise.all(
 </div>
 
 <script>
-  /** Visor de obras. Refleja la obra abierta (`?obra=`) en la URL, sin sumar entradas al historial, y la abre al cargar. */
+  /**
+   * Filtro, «Ver más» y visor de obras. Con `data-limit`, cada filtro muestra sus primeros `limit` trabajos hasta que se
+   * toca su «Ver más», y lo recuerda. Las tarjetas se ocultan desde acá para que sin JS se vean todas. El visor refleja
+   * la obra abierta (`?obra=`) en la URL, sin sumar entradas al historial, y la abre al cargar.
+   */
   const WORK_PARAM = 'obra'
+  const ALL = 'todos'
 
   const root = document.querySelector<HTMLElement>('[data-works]')!
   const items = Array.from(root.querySelectorAll<HTMLLIElement>('[data-work-id]'))
+  const status = root.querySelector<HTMLElement>('[data-works-count]')!
+  const more = root.querySelector<HTMLElement>('[data-works-more]')!
+  const moreButton = more.querySelector('button')!
+  const limit = root.dataset.limit ? Number(root.dataset.limit) : Infinity
   const dialog = root.querySelector<HTMLDialogElement>('[data-lightbox]')!
   const figure = dialog.querySelector('figure')!
   const shots = figure.querySelector<HTMLElement>('[data-lightbox-shots]')!
@@ -135,6 +164,20 @@ const works = await Promise.all(
   const caption = figure.querySelector(':scope > figcaption')!
   const captionTitle = caption.querySelector('strong')!
   const labLink = dialog.querySelector<HTMLAnchorElement>('[data-lightbox-lab]')!
+  const nav = dialog.querySelector<HTMLElement>('[data-lightbox-nav]')!
+  const prevButton = nav.querySelector<HTMLButtonElement>('[data-lightbox-step="-1"]')!
+  const nextButton = nav.querySelector<HTMLButtonElement>('[data-lightbox-step="1"]')!
+  const counter = document.createElement('span')
+  counter.className = 'lightbox__count'
+
+  // La galería puede fijar el filtro antes de que corra este script (`data-active-filter`) o después (evento `works:filter`).
+  let filter = root.dataset.activeFilter ?? ALL
+  /** Filtros cuyo «Ver más» ya se tocó. */
+  const expanded = new Set<string>()
+  /** Trabajo abierto en el visor, o null. */
+  let openItem: HTMLLIElement | null = null
+  /** Último trabajo visto en el visor: al cerrar, el foco vuelve a su tarjeta. */
+  let lastItem: HTMLLIElement | null = null
 
   function writeParam(name: string, value: string | null) {
     const url = new URL(window.location.href)
@@ -142,6 +185,35 @@ const works = await Promise.all(
     else url.searchParams.delete(name)
     history.replaceState(history.state, '', url)
   }
+
+  const inFilter = (li: HTMLLIElement) => filter === ALL || li.dataset.category === filter
+  /** Trabajos del filtro activo, en orden: los que recorre el visor, visibles u ocultos por «Ver más». */
+  const filtered = () => items.filter(inFilter)
+
+  function render() {
+    const list = filtered()
+    // El trabajo abierto en el visor nunca queda oculto: si está detrás de «Ver más», la grilla se expande.
+    if (openItem && list.indexOf(openItem) >= limit) expanded.add(filter)
+    const visibleCount = expanded.has(filter) ? list.length : Math.min(list.length, limit)
+    for (const li of items) li.hidden = true
+    list.slice(0, visibleCount).forEach((li) => (li.hidden = false))
+    const collapsed = list.length - visibleCount
+    more.hidden = collapsed === 0
+    moreButton.textContent = `Ver más trabajos (${collapsed})`
+    status.textContent = visibleCount === 1 ? '1 trabajo' : `${visibleCount} trabajos`
+  }
+
+  root.addEventListener('works:filter', (e) => {
+    filter = (e as CustomEvent<string>).detail
+    render()
+  })
+
+  moreButton.addEventListener('click', () => {
+    expanded.add(filter)
+    render()
+    // El botón desaparece: el foco pasa a la primera tarjeta que estaba oculta.
+    filtered()[limit]?.querySelector<HTMLButtonElement>('.work__button')?.focus()
+  })
 
   /** Figura de la captura del Custom Lab, junto a la foto. Sólo se arma si el trabajo la tiene. */
   function labShot(d: DOMStringMap): HTMLElement {
@@ -176,8 +248,21 @@ const works = await Promise.all(
     else labLink.removeAttribute('href')
     labLink.hidden = !d.labHref
     captionTitle.textContent = d.title!
-    caption.replaceChildren(captionTitle, ` ${d.material}. ${d.detail}${d.illustrative ? ' Imagen ilustrativa.' : ''}`)
+    const text = ` ${d.material}. ${d.detail}${d.illustrative ? ' Imagen ilustrativa.' : ''}`
     figure.hidden = false
+    openItem = li
+    lastItem = li
+    if (li.hidden) render()
+    // Contador y flechas sobre los trabajos del filtro activo, incluidos los ocultos por «Ver más». Sin vuelta.
+    const list = filtered()
+    const index = list.indexOf(li)
+    const withNav = list.length > 1 && index >= 0
+    nav.hidden = !withNav
+    prevButton.disabled = index <= 0
+    nextButton.disabled = index >= list.length - 1
+    counter.textContent = `${index + 1} de ${list.length}`
+    if (withNav) caption.replaceChildren(captionTitle, ' ', counter, text)
+    else caption.replaceChildren(captionTitle, text)
     writeParam(WORK_PARAM, li.dataset.workId!)
     if (!dialog.open) dialog.showModal()
     // showModal enfoca el primer botón, que está al pie: el visor arranca desde arriba igual.
@@ -186,7 +271,34 @@ const works = await Promise.all(
 
   for (const li of items) li.querySelector('.work__button')!.addEventListener('click', () => openWork(li))
 
+  /** Pasa al trabajo anterior (-1) o siguiente (1) del filtro activo. En los extremos no hace nada. */
+  function step(delta: number) {
+    if (!openItem || nav.hidden) return
+    const list = filtered()
+    const next = list[list.indexOf(openItem) + delta]
+    if (!next) return
+    openWork(next)
+    // Si el botón que tenía el foco quedó deshabilitado (primero o último), el foco pasa al otro.
+    const focused = document.activeElement
+    if (focused instanceof HTMLButtonElement && focused.disabled) (focused === prevButton ? nextButton : prevButton).focus()
+  }
+
+  for (const button of [prevButton, nextButton]) {
+    button.addEventListener('click', () => step(Number(button.dataset.lightboxStep)))
+  }
+
+  dialog.addEventListener('keydown', (e) => {
+    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return
+    if (e.key === 'ArrowLeft') step(-1)
+    else if (e.key === 'ArrowRight') step(1)
+    else return
+    e.preventDefault()
+  })
+
   dialog.addEventListener('close', () => {
+    openItem = null
+    // El navegador devuelve el foco a la tarjeta que abrió el visor; va a la del último trabajo visto.
+    lastItem?.querySelector<HTMLButtonElement>('.work__button')?.focus()
     figure.hidden = true
     bigImg.removeAttribute('src')
     shots.querySelector('[data-lab-shot]')?.remove()
@@ -197,7 +309,9 @@ const works = await Promise.all(
     if (e.target === dialog) dialog.close()
   })
 
-  // Obra abierta desde la URL.
+  render()
+
+  // Obra abierta desde la URL, aunque esté detrás de «Ver más».
   const initial = items.find((li) => li.dataset.workId === new URLSearchParams(window.location.search).get(WORK_PARAM))
   if (initial) openWork(initial)
 </script>

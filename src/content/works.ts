@@ -17,6 +17,33 @@ import armadaArgentina from '../assets/works/18-armada-argentina.webp'
 import chapitaAdvanta from '../assets/works/19-chapa-advanta.webp'
 import chapitaOctavio from '../assets/works/20-chapa-octavio.webp'
 import diTella from '../assets/works/21-placa-centro-estudiantes-di-tella.jpg'
+import trofeoAesa from '../assets/works/23-trofeo-aesa-veolia.webp'
+import cajaCumpleanos from '../assets/works/24-caja-mdf-cumpleanos.webp'
+import mateNavegarEnPaz from '../assets/works/26-mate-acero-navegar-en-paz.webp'
+import panelUba from '../assets/works/27-panel-acero-uba.webp'
+import chapitasMascotas from '../assets/works/28-chapitas-hueso-mascotas.webp'
+import trofeoLinde from '../assets/works/29-trofeo-acrilico-linde.webp'
+import granitoPeron from '../assets/works/30-granito-peron-pj-tigre.webp'
+import marmolTigre from '../assets/works/31-marmol-municipio-tigre.webp'
+import portanombreAbogada from '../assets/works/32-portanombre-abogada.webp'
+import placaAmerisourcebergen from '../assets/works/33-placa-amerisourcebergen.webp'
+import marmolMalvinas from '../assets/works/34-marmol-heroes-de-malvinas.webp'
+import marmolAraSanJuan from '../assets/works/36-marmol-ara-san-juan.webp'
+import acrilicoEp167 from '../assets/works/37-acrilico-ep167-50-anos.webp'
+import marmolKirchner from '../assets/works/38-marmol-homenaje-pj-pilar.webp'
+import retratoMarmol from '../assets/works/39-retrato-grabado-en-marmol.webp'
+import marmolRimec6 from '../assets/works/40-marmol-rimec6-gral-viamonte.webp'
+import cuadrosSalud from '../assets/works/41-cuadros-direccion-general-salud.webp'
+import perroEnPiedra from '../assets/works/42-grabado-perro-sobre-piedra.webp'
+import placaLogias from '../assets/works/44-placa-bronce-estuche-logias.webp'
+import bandejaEnElTaller from '../assets/works/45-bandeja-acero-en-grabado.webp'
+import bronceEnElTaller from '../assets/works/46-grabado-bronce-en-proceso.webp'
+import bandejaCfj from '../assets/works/47-bandeja-oval-cfj.webp'
+import medallasPadel from '../assets/works/48-medallas-asociacion-padel.webp'
+import acrilicoLedTaval from '../assets/works/49-acrilico-led-taval-dervos.webp'
+import copasEnElRotativo from '../assets/works/50-grabado-copas-de-cristal.webp'
+import trofeoArteNuevo from '../assets/works/51-trofeo-vidrio-arte-nuevo.webp'
+import termoYpfColapinto from '../assets/works/52-termo-ypf-franco-colapinto.webp'
 import { CATEGORIES, type Category, type ImageAsset } from './site'
 
 /** Imagen importada desde src/assets/works/: astro:assets genera los tamaños y el formato en el build. */
@@ -45,11 +72,11 @@ export const isImageAsset = (photo: Work['photo']): photo is ImageAsset => typeo
 /** Una foto es propia si no es una imagen ilustrativa de terceros. */
 export const isOwnPhoto = (photo: Work['photo']): boolean => !(isImageAsset(photo) && photo.illustrative)
 
-/** Trabajos que la galería de la home muestra antes del botón «Ver más». */
-export const HOME_WORKS_LIMIT = 8
+/** Trabajos que muestra cada grilla (home, filtros y páginas de categoría) antes del botón «Ver más». */
+export const WORKS_LIMIT = 8
 
 /**
- * Trabajos de la galería, en el orden en que se muestran: los primeros HOME_WORKS_LIMIT son los que ve la home. Para
+ * Trabajos de la galería, en el orden en que se muestran: los primeros WORKS_LIMIT son los que ve cada grilla. Para
  * sumar uno, copiá la foto en src/assets/works/, importala y agregá una entrada acá (ver «Fotos» en el README).
  */
 export const WORKS: Work[] = [
@@ -66,6 +93,18 @@ export const WORKS: Work[] = [
     labProductId: 'plaque-wall',
   },
   {
+    id: 'w-termo-ypf-colapinto',
+    title: 'Termo con los logos de YPF y Franco Colapinto',
+    category: 'termos',
+    material: 'Acero con pintura negra mate',
+    detail: 'Logos de YPF y del piloto grabados a metal en el frente.',
+    photo: {
+      src: termoYpfColapinto,
+      alt: 'Termo negro mate con manija, grabado en el frente con el logo de YPF y el de Franco Colapinto a la vista del acero.',
+    },
+    labProductId: 'thermos-handle',
+  },
+  {
     id: 'w-armada-argentina',
     title: 'Reconocimiento de la Armada Argentina',
     category: 'placas',
@@ -78,16 +117,15 @@ export const WORKS: Work[] = [
     labProductId: 'plaque-base',
   },
   {
-    id: 'w-bomberos-quilmes',
-    title: '50 años de Bomberos Voluntarios de Quilmes',
-    category: 'placas',
-    material: 'Chapa negra sobre base de madera',
-    detail: 'Escudo y la dotación completa del destacamento en dos columnas.',
+    id: 'w-perro-en-piedra',
+    title: 'Retrato de un cachorro en piedra',
+    category: 'regalos',
+    material: 'Piedra',
+    detail: 'Grabado a partir de una foto, con el detalle del pelaje.',
     photo: {
-      src: bomberosQuilmes,
-      alt: 'Placa negra sobre madera de la Sociedad Bomberos Voluntarios de Quilmes, destacamento Ezpeleta, con el escudo, la dotación en dos columnas y la leyenda por sus 50 años de servicio.',
+      src: perroEnPiedra,
+      alt: 'Piedra pulida con el retrato grabado de un cachorro, hecho a partir de una foto, con el pelaje en detalle.',
     },
-    labProductId: 'plaque-base',
   },
   {
     id: 'w-marmol-hungria',
@@ -102,6 +140,18 @@ export const WORKS: Work[] = [
     labProductId: 'plaque-wall',
   },
   {
+    id: 'w-copas-en-el-rotativo',
+    title: 'Copas de cristal en el rotativo',
+    category: 'copas',
+    material: 'Cristal',
+    detail: 'Copas de vino en la máquina, mientras se graban.',
+    photo: {
+      src: copasEnElRotativo,
+      alt: 'Copas de vino de cristal montadas en el rotativo de la máquina láser, mientras se graban.',
+    },
+    labProductId: 'glassware',
+  },
+  {
     id: 'w-trofeo-nalco',
     title: 'Trofeo de reconocimiento para Nalco Water',
     category: 'placas',
@@ -114,6 +164,18 @@ export const WORKS: Work[] = [
     labProductId: 'trophy',
   },
   {
+    id: 'w-mate-navegar-en-paz',
+    title: 'Mate de acero «Navegar en paz»',
+    category: 'termos',
+    material: 'Acero inoxidable',
+    detail: 'Frase y un barco grabados en el borde de la boca.',
+    photo: {
+      src: mateNavegarEnPaz,
+      alt: 'Mate de acero inoxidable con la frase «Navegar en paz» y un barco grabados en el borde de la boca.',
+    },
+    labProductId: 'mate-steel',
+  },
+  {
     id: 'w-chapita-advanta',
     title: 'Chapita identificatoria para Advanta',
     category: 'placas',
@@ -124,6 +186,18 @@ export const WORKS: Work[] = [
       alt: 'Chapita de acero con cadena de bolitas, grabada con el logo de Advanta y la leyenda «Misión 023».',
     },
     labProductId: 'dog-tag',
+  },
+  {
+    id: 'w-bomberos-quilmes',
+    title: '50 años de Bomberos Voluntarios de Quilmes',
+    category: 'placas',
+    material: 'Chapa negra sobre base de madera',
+    detail: 'Escudo y la dotación completa del destacamento en dos columnas.',
+    photo: {
+      src: bomberosQuilmes,
+      alt: 'Placa negra sobre madera de la Sociedad Bomberos Voluntarios de Quilmes, destacamento Ezpeleta, con el escudo, la dotación en dos columnas y la leyenda por sus 50 años de servicio.',
+    },
+    labProductId: 'plaque-base',
   },
   {
     id: 'w-granito-forestal',
@@ -266,6 +340,276 @@ export const WORKS: Work[] = [
       alt: 'Placa dorada sobre madera con la consigna «Viva la libertad carajo» y la firma «Centro de Estudiantes Di Tella».',
     },
     labProductId: 'plaque-base',
+  },
+  {
+    id: 'w-panel-uba',
+    title: 'Inauguración en la Facultad de Filosofía y Letras (UBA)',
+    category: 'placas',
+    material: 'Acero inoxidable',
+    detail: 'Logo de la UBA, texto de la inauguración del edificio anexo y la nómina de autoridades.',
+    photo: {
+      src: panelUba,
+      alt: 'Panel de acero con el logo de la Universidad de Buenos Aires, el texto de la inauguración del edificio anexo de la Facultad de Filosofía y Letras y la nómina de autoridades.',
+    },
+    labProductId: 'plaque-wall',
+  },
+  {
+    id: 'w-trofeo-aesa',
+    title: 'Trofeo de reconocimiento para AESA Buenos Aires',
+    category: 'placas',
+    material: 'Acrílico bordó sobre base metálica',
+    detail: 'Logos de AESA y Veolia y reconocimiento por asistencia perfecta.',
+    photo: {
+      src: trofeoAesa,
+      alt: 'Trofeo bordó sobre base metálica con los logos de AESA y Veolia y un reconocimiento por asistencia perfecta.',
+    },
+    labProductId: 'trophy',
+  },
+  {
+    id: 'w-trofeo-linde',
+    title: 'Premio a la trayectoria de Linde',
+    category: 'placas',
+    material: 'Acrílico transparente y chapa plateada sobre base de madera',
+    detail: 'Logo recortado en acrílico y chapa con la mención por 20 años de servicio.',
+    photo: {
+      src: trofeoLinde,
+      alt: 'Trofeo con el logo de Linde recortado en acrílico transparente sobre base de madera y una chapa plateada con la mención por 20 años de servicio.',
+    },
+    labProductId: 'trophy',
+  },
+  {
+    id: 'w-marmol-tigre',
+    title: 'Cartel del Municipio de Tigre',
+    category: 'placas',
+    material: 'Mármol blanco',
+    detail: 'Logo con el jaguar y el nombre del municipio en letras grandes.',
+    photo: {
+      src: marmolTigre,
+      alt: 'Placa de mármol blanco con el logo del jaguar y la leyenda «Municipio de Tigre» en letras grandes.',
+    },
+    labProductId: 'plaque-wall',
+  },
+  {
+    id: 'w-marmol-ara-san-juan',
+    title: 'Homenaje a los tripulantes del ARA San Juan',
+    category: 'placas',
+    material: 'Mármol blanco',
+    detail: 'Escudos y texto por el quinto aniversario del naufragio.',
+    photo: {
+      src: marmolAraSanJuan,
+      alt: 'Placa de mármol blanco con el escudo del submarino ARA San Juan y la leyenda «En recuerdo de sus abnegados tripulantes en el Vº aniversario de su naufragio».',
+    },
+    labProductId: 'plaque-wall',
+  },
+  {
+    id: 'w-marmol-malvinas',
+    title: 'Placa del Edificio Héroes de Malvinas',
+    category: 'placas',
+    material: 'Mármol blanco',
+    detail: 'Nombre del edificio y el mapa de las islas pintado en celeste.',
+    photo: {
+      src: marmolMalvinas,
+      alt: 'Placa de mármol blanco con la leyenda «Edificio Héroes de Malvinas» y el mapa de las islas pintado en celeste.',
+    },
+    labProductId: 'plaque-wall',
+  },
+  {
+    id: 'w-marmol-rimec6',
+    title: 'Homenaje a los veteranos del RIMec 6 «Gral. Viamonte»',
+    category: 'placas',
+    material: 'Mármol blanco',
+    detail: 'Escudos, texto del bicentenario y la nómina de veteranos del regimiento.',
+    photo: {
+      src: marmolRimec6,
+      alt: 'Placa de mármol blanco con los escudos del Regimiento de Infantería Mecanizado 6 «General Viamonte», el texto por el bicentenario y la nómina de veteranos de Malvinas.',
+    },
+    labProductId: 'plaque-wall',
+  },
+  {
+    id: 'w-acrilico-ep167',
+    title: '50 años de la Escuela Primaria 167 de La Matanza',
+    category: 'placas',
+    material: 'Acrílico blanco',
+    detail: 'Logo del aniversario y la nómina del personal en columnas.',
+    photo: {
+      src: acrilicoEp167,
+      alt: 'Placa blanca con el logo por los 50 años de la Escuela Primaria 167 de La Matanza y la nómina del personal en columnas.',
+    },
+    labProductId: 'plaque-wall',
+  },
+  {
+    id: 'w-placa-amerisourcebergen',
+    title: 'Aniversario de 10 años en AmerisourceBergen',
+    category: 'placas',
+    material: 'Chapa dorada sobre base de madera',
+    detail: 'Saludo en letra manuscrita, dedicatoria y logo de la empresa.',
+    photo: {
+      src: placaAmerisourcebergen,
+      alt: 'Placa dorada sobre madera con un saludo en letra manuscrita, una dedicatoria por 10 años en la empresa y el logo de AmerisourceBergen.',
+    },
+    labProductId: 'plaque-base',
+  },
+  {
+    id: 'w-placa-logias',
+    title: 'Placa de hermanamiento entre logias',
+    category: 'placas',
+    material: 'Chapa dorada sobre madera, en estuche',
+    detail: 'Texto del hermanamiento, dos emblemas y guarda perimetral.',
+    photo: {
+      src: placaLogias,
+      alt: 'Placa dorada sobre madera dentro de un estuche abierto, con el texto del hermanamiento entre dos logias, sus emblemas y una guarda perimetral.',
+    },
+    labProductId: 'plaque-base',
+  },
+  {
+    id: 'w-cuadros-salud',
+    title: 'Reconocimiento de la Dirección General de Salud',
+    category: 'placas',
+    material: 'Chapa negra en marco dorado',
+    detail: 'Logo por los 100 años de la dirección y reconocimiento a la trayectoria.',
+    photo: {
+      src: cuadrosSalud,
+      alt: 'Cuadros con marco dorado y chapa negra con el logo por los 100 años de la Dirección General de Salud y un reconocimiento a la trayectoria.',
+    },
+  },
+  {
+    id: 'w-acrilico-led-taval',
+    title: 'Cartel con luz para Taval y Dervos',
+    category: 'placas',
+    material: 'Acrílico sobre base de luz LED',
+    detail: 'Logos de las dos empresas y mensaje por 10 años de relación comercial.',
+    photo: {
+      src: acrilicoLedTaval,
+      alt: 'Acrílico iluminado sobre una base de luz LED con los logos de Taval y Dervos y un mensaje por 10 años de relación comercial.',
+    },
+  },
+  {
+    id: 'w-trofeo-arte-nuevo',
+    title: 'Trofeo por los 40 años del Grupo Arte Nuevo',
+    category: 'placas',
+    material: 'Acrílico bordó sobre base metálica',
+    detail: 'Logo de la asociación y homenaje a su director.',
+    photo: {
+      src: trofeoArteNuevo,
+      alt: 'Trofeo bordó sobre base metálica con el logo del Grupo Arte Nuevo y un homenaje a su director por los 40 años de la asociación.',
+    },
+    labProductId: 'trophy',
+  },
+  {
+    id: 'w-bandeja-cfj',
+    title: 'Bandeja del Centro de Formación Judicial',
+    category: 'placas',
+    material: 'Bandeja oval de metal con borde dorado',
+    detail: 'Logo del centro y texto por los diez años del instituto.',
+    photo: {
+      src: bandejaCfj,
+      alt: 'Bandeja oval con borde dorado, grabada con el logo del Centro de Formación Judicial y un texto por los diez años del instituto.',
+    },
+  },
+  {
+    id: 'w-medallas-padel',
+    title: 'Medallas de la Asociación de Pádel',
+    category: 'placas',
+    material: 'Metal con cinta',
+    detail: 'Escudo de la asociación en medallas con cinta celeste y blanca.',
+    photo: {
+      src: medallasPadel,
+      alt: 'Medallas con cinta celeste y blanca, grabadas con el escudo de la Asociación de Pádel.',
+    },
+  },
+  {
+    id: 'w-portanombre-abogada',
+    title: 'Portanombre de escritorio',
+    category: 'placas',
+    material: 'Chapa negra sobre base de madera',
+    detail: 'Nombre, profesión y la balanza de la justicia.',
+    photo: {
+      src: portanombreAbogada,
+      alt: 'Portanombre de escritorio con chapa negra sobre madera, grabado con un nombre, la palabra «Abogada» y la balanza de la justicia.',
+    },
+    labProductId: 'plaque-base',
+  },
+  {
+    id: 'w-granito-peron',
+    title: 'Placa del Día de la Lealtad del PJ de Tigre',
+    category: 'placas',
+    material: 'Granito negro',
+    detail: 'Texto en conmemoración y logo del partido.',
+    photo: {
+      src: granitoPeron,
+      alt: 'Placa de granito negro con un texto en conmemoración del Día de la Lealtad y el logo del Partido Justicialista de Tigre.',
+    },
+    labProductId: 'plaque-wall',
+  },
+  {
+    id: 'w-marmol-kirchner',
+    title: 'Homenaje del PJ de Pilar',
+    category: 'placas',
+    material: 'Mármol blanco en caja de acrílico',
+    detail: 'Logo, fecha y texto del homenaje a Néstor Kirchner.',
+    photo: {
+      src: marmolKirchner,
+      alt: 'Placa de mármol blanco en una caja de acrílico con el logo del Partido Justicialista de Pilar, la fecha y un homenaje a Néstor Kirchner.',
+    },
+    labProductId: 'plaque-wall',
+  },
+  {
+    id: 'w-bandeja-en-el-taller',
+    title: 'Bandeja de acero en el taller',
+    category: 'placas',
+    material: 'Acero inoxidable',
+    detail: 'Dedicatoria por 42 años de servicio, en la máquina mientras se graba.',
+    photo: {
+      src: bandejaEnElTaller,
+      alt: 'Bandeja de acero en la cama de la máquina láser mientras se graba una dedicatoria por 42 años de servicio.',
+    },
+  },
+  {
+    id: 'w-bronce-en-el-taller',
+    title: 'Placa de bronce en el taller',
+    category: 'placas',
+    material: 'Bronce',
+    detail: 'Reconocimiento a un docente, en la máquina mientras se graba.',
+    photo: {
+      src: bronceEnElTaller,
+      alt: 'Placa de bronce en la máquina láser mientras se graba un reconocimiento a un docente.',
+    },
+    labProductId: 'plaque-wall',
+  },
+  {
+    id: 'w-caja-cumpleanos',
+    title: 'Caja de cumpleaños de MDF',
+    category: 'regalos',
+    material: 'MDF',
+    detail: 'Caja con encastres, «Happy Birthday» y Darth Vader en el frente.',
+    photo: {
+      src: cajaCumpleanos,
+      alt: 'Caja de MDF armada con encastres, con «Happy Birthday» y la figura de Darth Vader grabados en el frente.',
+    },
+  },
+  {
+    id: 'w-chapitas-mascotas',
+    title: 'Chapitas para mascotas',
+    category: 'regalos',
+    material: 'Acero inoxidable',
+    detail: 'Dos chapitas con forma de hueso, con el nombre y el dibujo de cada perro.',
+    photo: {
+      src: chapitasMascotas,
+      alt: 'Dos chapitas de acero con forma de hueso, cada una con el nombre y el dibujo de un perro.',
+    },
+    labProductId: 'dog-tag',
+  },
+  {
+    id: 'w-retrato-marmol',
+    title: 'Retrato grabado en mármol',
+    category: 'regalos',
+    material: 'Mármol blanco',
+    detail: 'Retrato a partir de una foto, con toda la escala de grises.',
+    photo: {
+      src: retratoMarmol,
+      alt: 'Placa de mármol blanco con un retrato grabado a partir de una foto, con toda la escala de grises.',
+    },
+    labProductId: 'plaque-wall',
   },
 ]
 

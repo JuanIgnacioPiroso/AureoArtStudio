@@ -567,7 +567,7 @@
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: var(--s3) var(--s2);
 }
-.gallery-more {
+.works-more {
   margin-top: var(--s3);
   text-align: center;
 }
@@ -654,6 +654,20 @@
 .lightbox figcaption strong {
   color: var(--ivory);
   font-weight: 500;
+}
+.lightbox .lightbox__count {
+  font-size: var(--step--1);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+/* Anterior y Siguiente a la izquierda; «Diseñar algo parecido» y «Cerrar» a la derecha. */
+.lightbox__nav {
+  display: flex;
+  gap: var(--s0);
+  margin-right: auto;
+}
+.lightbox__nav[hidden] {
+  display: none;
 }
 .lightbox form {
   padding: var(--s1);

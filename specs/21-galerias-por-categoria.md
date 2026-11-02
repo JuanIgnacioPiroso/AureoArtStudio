@@ -1,6 +1,6 @@
 # SPEC 21 — Galerías de trabajos por categoría
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 16, SPEC 18, SPEC 20
 > **Fecha:** 2026-11-01
 > **Objetivo:** Sumar 27 trabajos nuevos del taller repartidos en placas, termos y mates, copas y regalos, para que cada categoría muestre su propia galería, recorrible con flechas en el visor.

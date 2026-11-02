@@ -92,15 +92,24 @@ npm run typecheck  # astro check
      },
      ```
   6. En `alt`, describí lo que se ve: el objeto, el material y qué dice o muestra el grabado. No repitas el título ni empieces con «Foto de». `npm run test` falla si un `alt` queda vacío, si la categoría no existe o si `labProductId` no es un producto del Lab.
-  - Los trabajos se muestran en el orden de `WORKS`. La home muestra los primeros `HOME_WORKS_LIMIT` (8) y el resto detrás de «Ver más trabajos»: poné adelante los más representativos. Las páginas de categoría muestran todos los suyos.
+  - Los trabajos se muestran en el orden de `WORKS`. Cada grilla (la home, cada filtro y cada página de categoría) muestra los primeros `WORKS_LIMIT` (8) y el resto detrás de «Ver más trabajos»: poné adelante los más representativos y mezclá categorías en los primeros 8 de la home.
   - La barra de filtros aparece cuando hay trabajos de al menos dos categorías. Con una sola, no filtraría nada.
   - No publicar placas funerarias ni datos de particulares (nombres de difuntos, de familiares o de clientes que no pidieron aparecer) sin su permiso. Antes de publicar un reconocimiento con nombre, confirmarlo con el cliente. Quitar un trabajo es borrar su entrada en `WORKS` y su foto.
+  - No publicar nombres de menores (por ejemplo, en trofeos deportivos o escolares).
+  - `w-retrato-marmol`: confirmar que la persona del retrato es una figura pública o que dio permiso. Si no, quitarlo.
   - Materiales a confirmar con el taller (se ven en la tarjeta y en el visor; si alguno está mal, corregir `material` en `WORKS`):
     - `w-embajada-argentina` y `w-homenaje-cgt`: «Acero inoxidable».
     - `w-utn-fin-de-cursada`, `w-eseade-honoris-causa`, `w-bodega-iaccarini` y `w-di-tella`: «Chapa dorada sobre base de madera», ¿bronce o aluminio?
     - `w-arneg-jubilacion`: «Chapa dorada con separadores», ¿bronce o aluminio?
     - `w-municipio-tigre`: «Chapa dorada en cuadro con marco».
     - `w-bandeja-adicora`: «Vidrio con borde dorado». En la foto parece metal pulido.
+    - `w-perro-en-piedra`: «Piedra», ¿mármol o granito?
+    - `w-trofeo-aesa` y `w-trofeo-arte-nuevo`: «Acrílico bordó sobre base metálica», ¿vidrio o acrílico?
+    - `w-acrilico-ep167`: «Acrílico blanco».
+    - `w-placa-amerisourcebergen`: «Chapa dorada sobre base de madera», ¿bronce o aluminio?
+    - `w-placa-logias`: «Chapa dorada sobre madera, en estuche», ¿bronce?
+    - `w-bandeja-cfj`: «Bandeja oval de metal con borde dorado».
+    - `w-medallas-padel`: «Metal con cinta».
 - **Legales**: no hay páginas de privacidad ni términos, así que no se enlazan.
 
 ## Custom Lab: cómo agregar un producto

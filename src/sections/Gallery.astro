@@ -1,16 +1,15 @@
 ---
 import WorkGrid from '../components/WorkGrid.astro'
-import { HOME_WORKS_LIMIT, isOwnPhoto, WORKS, workFilters } from '../content/works'
+import { isOwnPhoto, WORKS, WORKS_LIMIT, workFilters } from '../content/works'
 
 const anyIllustrative = WORKS.some((w) => !isOwnPhoto(w.photo))
 const anyLabPreview = WORKS.some((w) => w.labPreview)
 const filters = workFilters()
 // Con una sola categoría, los filtros serían «Todos» y esa categoría: no filtran nada.
 const showFilters = filters.length > 2
-const count = (n: number) => (n === 1 ? '1 trabajo' : `${n} trabajos`)
 ---
 
-<section id="galeria" class="section tone" data-tone="dark" aria-labelledby="galeria-title" data-gallery data-limit={HOME_WORKS_LIMIT}>
+<section id="galeria" class="section tone" data-tone="dark" aria-labelledby="galeria-title" data-gallery>
   <div class="wrap">
     <div class="section-head">
       <h2 id="galeria-title" class="section-title">Trabajos y referencias</h2>
@@ -23,7 +22,9 @@ const count = (n: number) => (n === 1 ? '1 trabajo' : `${n} trabajos`)
         ) : anyLabPreview ? (
           <p class="lede">Piezas grabadas en el taller. En las que tienen vista 3D, comparala con el resultado.</p>
         ) : (
-          <p class="lede">Placas, trofeos y chapitas grabados en el taller para organismos, empresas y particulares.</p>
+          <p class="lede">
+            Placas, trofeos, mates, copas y regalos grabados en el taller para organismos, empresas y particulares.
+          </p>
         )
       }
     </div>
@@ -40,34 +41,20 @@ const count = (n: number) => (n === 1 ? '1 trabajo' : `${n} trabajos`)
       )
     }
 
-    <p class="visually-hidden" role="status" data-gallery-count>{count(WORKS.length)}</p>
-    <WorkGrid works={WORKS} />
-    {/* Lo muestra el script: sin JS se ven todos los trabajos y el botón no hace falta. */}
-    <div class="gallery-more" hidden data-gallery-more>
-      <button type="button" class="button button--ghost"></button>
-    </div>
+    <WorkGrid works={WORKS} limit={WORKS_LIMIT} />
   </div>
 </section>
 
 <script>
   /**
-   * Filtro por categoría de la galería y «Ver más». Refleja el filtro (`?cat=`) en la URL, sin sumar entradas al
-   * historial, y lo aplica al cargar. Con «Todos» muestra los primeros `data-limit` trabajos hasta que se toca «Ver más»;
-   * con una categoría, todos los de esa categoría. Las tarjetas se ocultan desde acá para que sin JS se vean todas.
+   * Filtro por categoría de la galería. Refleja el filtro (`?cat=`) en la URL, sin sumar entradas al historial, y lo
+   * aplica al cargar. La grilla (WorkGrid) se entera por el evento `works:filter` y aplica filtro, límite y «Ver más».
    */
   const CAT_PARAM = 'cat'
-  const WORK_PARAM = 'obra'
 
   const root = document.querySelector<HTMLElement>('[data-gallery]')!
   const chips = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-filter]'))
-  const items = Array.from(root.querySelectorAll<HTMLLIElement>('[data-work-id]'))
-  const status = root.querySelector<HTMLElement>('[data-gallery-count]')!
-  const more = root.querySelector<HTMLElement>('[data-gallery-more]')!
-  const moreButton = more.querySelector('button')!
-  const limit = Number(root.dataset.limit)
-
-  let current = 'todos'
-  let expanded = false
+  const grid = root.querySelector<HTMLElement>('[data-works]')!
 
   function writeParam(name: string, value: string | null) {
     const url = new URL(window.location.href)
@@ -77,20 +64,10 @@ const count = (n: number) => (n === 1 ? '1 trabajo' : `${n} trabajos`)
   }
 
   function applyFilter(id: string) {
-    current = id
-    let shown = 0
-    let collapsed = 0
-    items.forEach((li, i) => {
-      const inFilter = id === 'todos' || li.dataset.category === id
-      const visible = inFilter && (id !== 'todos' || expanded || i < limit)
-      li.hidden = !visible
-      if (visible) shown++
-      else if (inFilter) collapsed++
-    })
     for (const chip of chips) chip.setAttribute('aria-pressed', String(chip.dataset.filter === id))
-    more.hidden = collapsed === 0
-    moreButton.textContent = `Ver más trabajos (${collapsed})`
-    status.textContent = shown === 1 ? '1 trabajo' : `${shown} trabajos`
+    // `data-active-filter` por si la grilla todavía no escucha el evento: lo lee al arrancar.
+    grid.dataset.activeFilter = id
+    grid.dispatchEvent(new CustomEvent('works:filter', { detail: id }))
   }
 
   function setFilter(id: string) {
@@ -100,17 +77,7 @@ const count = (n: number) => (n === 1 ? '1 trabajo' : `${n} trabajos`)
 
   for (const chip of chips) chip.addEventListener('click', () => setFilter(chip.dataset.filter!))
 
-  moreButton.addEventListener('click', () => {
-    expanded = true
-    applyFilter(current)
-    // El botón desaparece: el foco pasa a la primera tarjeta que estaba oculta.
-    items[limit]?.querySelector<HTMLButtonElement>('.work__button')?.focus()
-  })
-
-  // Estado inicial desde la URL. Una obra abierta (`?obra=`) entre las ocultas expande la grilla.
-  const params = new URLSearchParams(window.location.search)
-  const workIndex = items.findIndex((li) => li.dataset.workId === params.get(WORK_PARAM))
-  if (workIndex >= limit) expanded = true
-  const cat = params.get(CAT_PARAM)
+  // Estado inicial desde la URL.
+  const cat = new URLSearchParams(window.location.search).get(CAT_PARAM)
   applyFilter(cat && chips.some((c) => c.dataset.filter === cat) ? cat : 'todos')
 </script>
