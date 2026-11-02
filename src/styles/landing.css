@@ -834,7 +834,9 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--s0);
-  margin-bottom: var(--s2);
+}
+.closing__actions + .note {
+  margin-top: var(--s2);
 }
 .closing__side .note + .note {
   margin-top: var(--s0);

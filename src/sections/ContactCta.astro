@@ -1,7 +1,6 @@
 ---
 import { LAB_PATH } from '../lab/intent'
-import { business } from '../config/business'
-import ContactLinks from '../components/ContactLinks.astro'
+import { business, hasDirectContact } from '../config/business'
 
 const wa = business.whatsapp
   ? `https://wa.me/${business.whatsapp}?text=${encodeURIComponent(`Hola, ${business.name}. Quiero hacer una consulta.`)}`
@@ -22,17 +21,20 @@ const wa = business.whatsapp
           )
         }
       </div>
-      <ContactLinks>
-        <Fragment slot="fallback">
-          <p class="note">
-            Diseñá tu pieza en el Custom Lab y, al final, copiá o descargá el resumen para pedir tu presupuesto.
-          </p>
-          <p class="note">
-            ¿Buscás otro objeto o un pedido para tu empresa? Diseñá algo parecido en el Custom Lab y contanos la idea en
-            el resumen.
-          </p>
-        </Fragment>
-      </ContactLinks>
+      {
+        // Los datos de contacto viven en el footer, que va justo debajo.
+        !hasDirectContact && (
+          <>
+            <p class="note">
+              Diseñá tu pieza en el Custom Lab y, al final, copiá o descargá el resumen para pedir tu presupuesto.
+            </p>
+            <p class="note">
+              ¿Buscás otro objeto o un pedido para tu empresa? Diseñá algo parecido en el Custom Lab y contanos la idea
+              en el resumen.
+            </p>
+          </>
+        )
+      }
     </div>
   </div>
 </section>
