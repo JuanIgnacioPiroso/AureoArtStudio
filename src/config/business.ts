@@ -21,13 +21,13 @@ export interface BusinessConfig {
 
 export const business: BusinessConfig = {
   name: 'AUREO Art Studio',
-  legalName: null,
+  legalName: 'AUREO Art Studio',
   whatsapp: '5491135646122',
   email: 'grabados@aureoartstudio.com',
   instagram: 'https://www.instagram.com/aureoartstudio/',
   city: 'Ciudad Autonoma de Buenos Aires',
   address: 'Roseti 1514',
-  siteUrl: null,
+  siteUrl: 'https://aureoartstudio.com/',
 }
 
 export const hasDirectContact = Boolean(business.whatsapp || business.email)

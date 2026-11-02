@@ -1,25 +1,59 @@
 ---
-import type { ImageAsset } from '../content/site'
+import { getImage } from 'astro:assets'
+import { isIllustrative, type SiteImage } from '../content/site'
 
 interface Props {
-  image: ImageAsset
+  image: SiteImage
   sizes: string
   class?: string
+  /** lazy salvo en lo que se ve al cargar (el hero). */
+  loading?: 'lazy' | 'eager'
+  fetchpriority?: 'high'
 }
 
-const { image, sizes, class: className } = Astro.props
+const { image, sizes, class: className, loading = 'lazy', fetchpriority } = Astro.props
+
+/** Las propias salen en webp a 800 y 1600 px, sin agrandar las más chicas; las ilustrativas traen sus dos .webp. */
+const WIDTHS = [800, 1600]
+
+const resolve = async (img: SiteImage) => {
+  if (isIllustrative(img)) {
+    return {
+      src: img.src,
+      srcset: `${img.srcSmall} 800w, ${img.src} 1600w`,
+      width: img.width,
+      height: img.height,
+      position: undefined,
+      illustrative: img.illustrative,
+    }
+  }
+  const widths = [...new Set(WIDTHS.map((w) => Math.min(w, img.src.width)))]
+  const outs = await Promise.all(widths.map((width) => getImage({ src: img.src, width, format: 'webp' })))
+  return {
+    src: outs.at(-1)!.src,
+    srcset: outs.map((o, i) => `${o.src} ${widths[i]}w`).join(', '),
+    width: img.src.width,
+    height: img.src.height,
+    position: img.position,
+    illustrative: false,
+  }
+}
+
+const pic = await resolve(image)
 ---
 
 <figure class:list={['picture', className]}>
   <img
-    src={image.src}
-    srcset={`${image.srcSmall} 800w, ${image.src} 1600w`}
+    src={pic.src}
+    srcset={pic.srcset}
     sizes={sizes}
-    width={image.width}
-    height={image.height}
+    width={pic.width}
+    height={pic.height}
     alt={image.alt}
-    loading="lazy"
+    style={pic.position ? `object-position: ${pic.position}` : undefined}
+    loading={loading}
+    fetchpriority={fetchpriority}
     decoding="async"
   />
-  {image.illustrative && <figcaption class="picture__flag">Imagen ilustrativa</figcaption>}
+  {pic.illustrative && <figcaption class="picture__flag">Imagen ilustrativa</figcaption>}
 </figure>

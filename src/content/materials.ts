@@ -1,6 +1,6 @@
 import { ENGRAVING_STYLES, MATERIALS, PRODUCTS, partMaterial } from '../lab/model/catalog'
 import type { EngravingStyleDef, ProductDef } from '../lab/model/types'
-import { IMAGES, type ImageAsset } from './site'
+import { IMAGES, type SiteImage } from './site'
 
 export const MATERIALS_SEO = {
   title: 'Grabado láser por material: madera, acero, vidrio y cuero',
@@ -22,7 +22,7 @@ export interface MaterialGuide {
   minTextHeight: string | null
   /** Pendiente del taller: cómo cuidar la pieza. */
   care: string | null
-  image: ImageAsset | null
+  image: SiteImage | null
 }
 
 /**
@@ -38,7 +38,7 @@ export const MATERIAL_GUIDES: readonly MaterialGuide[] = [
     result: 'Un tono marrón cálido que sigue la veta; en maderas claras contrasta más que en las oscuras.',
     minTextHeight: null,
     care: null,
-    image: IMAGES.box,
+    image: IMAGES.caja,
   },
   {
     id: 'acero',
@@ -48,7 +48,7 @@ export const MATERIAL_GUIDES: readonly MaterialGuide[] = [
     result: 'Una marca fina y de alto contraste, o una más sutil y satinada.',
     minTextHeight: null,
     care: null,
-    image: IMAGES.thermos,
+    image: IMAGES.mate,
   },
   {
     id: 'metal-pintado',
@@ -58,7 +58,7 @@ export const MATERIAL_GUIDES: readonly MaterialGuide[] = [
     result: 'Una marca plateada y brillante sobre el negro mate.',
     minTextHeight: null,
     care: null,
-    image: null,
+    image: IMAGES.termo,
   },
   {
     id: 'vidrio',
@@ -68,7 +68,7 @@ export const MATERIAL_GUIDES: readonly MaterialGuide[] = [
     result: 'Una marca blanca y satinada, como un esmerilado.',
     minTextHeight: null,
     care: null,
-    image: IMAGES.glass,
+    image: IMAGES.copas,
   },
   {
     id: 'marmol',
@@ -78,7 +78,7 @@ export const MATERIAL_GUIDES: readonly MaterialGuide[] = [
     result: 'Una letra hundida y más oscura que la piedra.',
     minTextHeight: null,
     care: null,
-    image: null,
+    image: IMAGES.hungria,
   },
   {
     id: 'cuero',

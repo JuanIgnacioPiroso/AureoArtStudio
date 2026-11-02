@@ -15,6 +15,7 @@ import {
   type CategoryDestination,
 } from '../../content/categories'
 import { CATEGORIES, type Category } from '../../content/site'
+import { WORKS_LIMIT } from '../../content/works'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import ContactCta from '../../sections/ContactCta.astro'
 import Faq from '../../sections/Faq.astro'
@@ -94,6 +95,14 @@ const MAIN_LABEL: Record<CategoryDestination['kind'], string> = {
             {MAIN_LABEL[main.kind]}
             {main.kind === 'whatsapp' && <span class="visually-hidden"> (se abre en otra pestaña)</span>}
           </a>
+          {/* La sección «Trabajos» queda al final, después de productos y materiales: el botón lleva directo. */}
+          {
+            works.length > 0 && (
+              <a class="button" href="#trabajos">
+                Ver trabajos ({works.length})
+              </a>
+            )
+          }
         </div>
       </div>
       <Picture image={c.image} sizes="(min-width: 901px) 40vw, 100vw" class="category-hero__image" />
@@ -142,12 +151,12 @@ const MAIN_LABEL: Record<CategoryDestination['kind'], string> = {
 
   {
     works.length > 0 && (
-      <section class="section tone" data-tone="light" aria-labelledby="trabajos-title">
+      <section id="trabajos" class="section tone" data-tone="light" aria-labelledby="trabajos-title">
         <div class="wrap">
           <h2 id="trabajos-title" class="section-title category-works__title">
             Trabajos
           </h2>
-          <WorkGrid works={works} />
+          <WorkGrid works={works} limit={WORKS_LIMIT} />
         </div>
       </section>
     )

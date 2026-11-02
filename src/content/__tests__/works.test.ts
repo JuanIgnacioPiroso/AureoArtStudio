@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { PRODUCTS } from '../../lab/model/catalog'
+import { categoryPagePath } from '../categories'
 import { CATEGORIES, IMAGES } from '../site'
-import { isOwnPhoto, orderedWorks, WORKS, workFilters } from '../works'
+import { isOwnPhoto, orderedWorks, WORKS, WORKS_LIMIT, workFilters } from '../works'
 
 describe('WORKS', () => {
   it('toda categoría existe en CATEGORIES', () => {
@@ -31,6 +32,28 @@ describe('WORKS', () => {
     const empty = WORKS.filter((w) => [w.title, w.material, w.detail, w.photo.alt].some((text) => !text.trim()))
     expect(empty.map((w) => w.id)).toEqual([])
   })
+
+  it('tiene 45 trabajos', () => {
+    expect(WORKS).toHaveLength(45)
+  })
+
+  it('termos, copas, regalos y placas tienen al menos un trabajo', () => {
+    for (const id of ['termos', 'copas', 'regalos', 'placas']) {
+      expect(WORKS.some((w) => w.category === id), id).toBe(true)
+    }
+  })
+
+  it('ningún trabajo está en una categoría sin página', () => {
+    const withoutPage = WORKS.filter((w) => {
+      const category = CATEGORIES.find((c) => c.id === w.category)
+      return !category || categoryPagePath(category) === null
+    })
+    expect(withoutPage.map((w) => w.id)).toEqual([])
+  })
+
+  it('los primeros WORKS_LIMIT trabajos tienen al menos 3 categorías distintas', () => {
+    expect(new Set(WORKS.slice(0, WORKS_LIMIT).map((w) => w.category)).size).toBeGreaterThanOrEqual(3)
+  })
 })
 
 describe('workFilters', () => {
@@ -47,8 +70,8 @@ describe('orderedWorks', () => {
   it('pone los trabajos propios antes que los ilustrativos, sin cambiar el orden dentro de cada grupo', () => {
     const base = WORKS[0]!
     const works = [
-      { ...base, id: 'ilus-1', photo: IMAGES.box },
-      { ...base, id: 'propio-1', photo: { ...IMAGES.box, illustrative: false } },
+      { ...base, id: 'ilus-1', photo: IMAGES.knife },
+      { ...base, id: 'propio-1', photo: { ...IMAGES.knife, illustrative: false } },
       { ...base, id: 'ilus-2', photo: IMAGES.board },
       { ...base, id: 'propio-2', photo: { ...IMAGES.board, illustrative: false } },
     ]
