@@ -86,9 +86,9 @@ export function buildQuoteMessage(design: DesignState, pageUrl: string, measure:
   return lines.join('\n')
 }
 
-export function whatsappLink(message: string): string | null {
-  if (!business.whatsapp) return null
-  return `https://wa.me/${business.whatsapp}?text=${encodeURIComponent(message)}`
+export function whatsappLink(message: string, whatsapp: string | null = business.whatsapp): string | null {
+  if (!whatsapp) return null
+  return `https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}`
 }
 
 export function mailtoLink(message: string, design: DesignState): string | null {

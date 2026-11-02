@@ -55,7 +55,7 @@ export function organizationSchema(b: BusinessConfig): object {
     description: DESCRIPTION,
     telephone: b.whatsapp ? `+${b.whatsapp}` : null,
     email: b.email,
-    sameAs: [b.instagram, b.facebook].filter((u): u is string => Boolean(u)),
+    sameAs: [b.instagram].filter((u): u is string => Boolean(u)),
     address: hasLocation
       ? compact({
           '@type': 'PostalAddress',

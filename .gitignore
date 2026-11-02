@@ -7,3 +7,6 @@ skills
 *.log
 .DS_Store
 .astro
+
+# Kit de marca local (no se versiona)
+brand/

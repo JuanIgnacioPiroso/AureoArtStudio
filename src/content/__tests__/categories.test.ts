@@ -10,7 +10,6 @@ const noContact: BusinessConfig = {
   whatsapp: null,
   email: null,
   instagram: null,
-  facebook: null,
   city: null,
   address: null,
   siteUrl: null,

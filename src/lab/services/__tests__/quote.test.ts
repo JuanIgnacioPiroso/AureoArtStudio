@@ -33,7 +33,7 @@ describe('buildQuoteMessage', () => {
   })
 
   it('sin número configurado no genera enlace de WhatsApp', () => {
-    expect(whatsappLink(msg)).toBeNull()
+    expect(whatsappLink(msg, null)).toBeNull()
   })
 })
 

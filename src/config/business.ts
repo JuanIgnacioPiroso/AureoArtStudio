@@ -12,7 +12,6 @@ export interface BusinessConfig {
   whatsapp: string | null
   email: string | null
   instagram: string | null
-  facebook: string | null
   /** Ciudad o zona de trabajo, ej. "Buenos Aires". */
   city: string | null
   address: string | null
@@ -23,12 +22,11 @@ export interface BusinessConfig {
 export const business: BusinessConfig = {
   name: 'AUREO Art Studio',
   legalName: null,
-  whatsapp: null,
-  email: null,
-  instagram: null,
-  facebook: null,
-  city: null,
-  address: null,
+  whatsapp: '5491135646122',
+  email: 'grabados@aureoartstudio.com',
+  instagram: 'https://www.instagram.com/aureoartstudio/',
+  city: 'Ciudad Autonoma de Buenos Aires',
+  address: 'Roseti 1514',
   siteUrl: null,
 }
 
