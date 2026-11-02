@@ -204,40 +204,15 @@
   background: #1d1f23;
   overflow: hidden;
 }
-.hero__media img {
-  width: 100%;
+/* Collage 2×2: cada celda recorta su foto (object-position por imagen en IMAGES). */
+.hero__collage {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+}
+.hero__collage .picture {
   height: 100%;
-  object-fit: cover;
-}
-.hero__trace {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-.hero__trace-line {
-  fill: none;
-  stroke: var(--champagne);
-  stroke-width: 2.4;
-  stroke-dasharray: 700;
-  stroke-dashoffset: 700;
-  animation: trace 1.6s 0.5s var(--ease) forwards;
-}
-.hero__trace-dot {
-  fill: var(--champagne);
-  opacity: 0;
-  animation: dot 0.4s 0.3s var(--ease) forwards;
-}
-@keyframes trace {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-@keyframes dot {
-  to {
-    opacity: 1;
-  }
 }
 .hero__caption {
   display: flex;

@@ -1,11 +1,14 @@
 ---
+import Picture from '../components/Picture.astro'
+import { IMAGES } from '../content/site'
 import { LAB_PATH } from '../lab/intent'
 
 /**
- * Hero: titular editorial y una vista real del Custom Lab. La línea dorada se "traza" una vez
- * sobre el grabado, como el paso del láser. El otro movimiento automático de la página es el carrusel
- * de logos de «Confían en nosotros» (TrustedBy.astro).
+ * Hero: titular editorial y un collage fijo de cuatro trabajos del taller, sin enlaces («Explorar trabajos» ya lleva a
+ * la galería). Cargan sin lazy porque se ven al abrir la página. El único movimiento automático de la página es el
+ * carrusel de logos de «Confían en nosotros» (TrustedBy.astro).
  */
+const COLLAGE = [IMAGES.termo, IMAGES.copas, IMAGES.perro, IMAGES.embajada]
 ---
 
 <section id="inicio" class="hero tone" data-tone="dark" aria-labelledby="hero-title">
@@ -23,22 +26,20 @@ import { LAB_PATH } from '../lab/intent'
       </div>
     </div>
     <figure class="hero__figure">
-      <div class="hero__media">
-        <img
-          src="/img/hero-lab.webp"
-          width="1600"
-          height="1000"
-          alt="Cuchillo con mango de madera oscura y el nombre «Martín» grabado en la hoja, en la vista 3D del Custom Lab"
-          fetchpriority="high"
-        />
-        <svg class="hero__trace" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-          <path class="hero__trace-line" d="M 990 530 L 1150 770 L 1480 770"></path>
-          <circle class="hero__trace-dot" cx="990" cy="530" r="7"></circle>
-        </svg>
+      <div class="hero__media hero__collage">
+        {
+          COLLAGE.map((image, i) => (
+            <Picture
+              image={image}
+              sizes="(min-width: 901px) 31vw, 50vw"
+              loading="eager"
+              fetchpriority={i === 0 ? 'high' : undefined}
+            />
+          ))
+        }
       </div>
       <figcaption class="hero__caption">
-        <span class="hero__caption-text">«Martín», grabado en la hoja.</span>
-        <span class="note">Vista del Custom Lab, el simulador 3D de esta página.</span>
+        <span class="hero__caption-text">Trabajos hechos en nuestro taller.</span>
       </figcaption>
     </figure>
   </div>

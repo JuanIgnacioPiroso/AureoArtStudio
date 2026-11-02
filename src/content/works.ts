@@ -1,28 +1,22 @@
-import type { ImageMetadata } from 'astro'
 import bodegaIaccarini from '../assets/works/01-bodega-iaccarini.webp'
 import arnegJubilacion from '../assets/works/02-arneg-jubilacion.webp'
 import bomberosQuilmes from '../assets/works/03-bomberos-quilmes.webp'
 import bandejaAdicora from '../assets/works/04-bandeja-adicora.webp'
 import utnFinDeCursada from '../assets/works/05-utn-fin-de-cursada.webp'
 import eseadeHonorisCausa from '../assets/works/06-eseade-honoris-causa.webp'
-import marmolHungria from '../assets/works/07-marmol-embajada-hungria.webp'
 import homenajeCgt from '../assets/works/09-homenaje-cgt.webp'
 import municipioTigre from '../assets/works/10-cuadro-municipio-tigre.webp'
 import ciudadMoto from '../assets/works/11-ciudad-moto.webp'
 import imaginario from '../assets/works/13-imaginario-galeria.webp'
 import granitoForestal from '../assets/works/14-granito-compania-forestal.webp'
 import trofeoNalco from '../assets/works/15-trofeo-vidrio-nalco.webp'
-import embajadaArgentina from '../assets/works/17-embajada-argentina.webp'
 import armadaArgentina from '../assets/works/18-armada-argentina.webp'
 import chapitaAdvanta from '../assets/works/19-chapa-advanta.webp'
 import chapitaOctavio from '../assets/works/20-chapa-octavio.webp'
 import diTella from '../assets/works/21-placa-centro-estudiantes-di-tella.jpg'
 import trofeoAesa from '../assets/works/23-trofeo-aesa-veolia.webp'
-import cajaCumpleanos from '../assets/works/24-caja-mdf-cumpleanos.webp'
-import mateNavegarEnPaz from '../assets/works/26-mate-acero-navegar-en-paz.webp'
 import panelUba from '../assets/works/27-panel-acero-uba.webp'
 import chapitasMascotas from '../assets/works/28-chapitas-hueso-mascotas.webp'
-import trofeoLinde from '../assets/works/29-trofeo-acrilico-linde.webp'
 import granitoPeron from '../assets/works/30-granito-peron-pj-tigre.webp'
 import marmolTigre from '../assets/works/31-marmol-municipio-tigre.webp'
 import portanombreAbogada from '../assets/works/32-portanombre-abogada.webp'
@@ -34,23 +28,16 @@ import marmolKirchner from '../assets/works/38-marmol-homenaje-pj-pilar.webp'
 import retratoMarmol from '../assets/works/39-retrato-grabado-en-marmol.webp'
 import marmolRimec6 from '../assets/works/40-marmol-rimec6-gral-viamonte.webp'
 import cuadrosSalud from '../assets/works/41-cuadros-direccion-general-salud.webp'
-import perroEnPiedra from '../assets/works/42-grabado-perro-sobre-piedra.webp'
 import placaLogias from '../assets/works/44-placa-bronce-estuche-logias.webp'
-import bandejaEnElTaller from '../assets/works/45-bandeja-acero-en-grabado.webp'
 import bronceEnElTaller from '../assets/works/46-grabado-bronce-en-proceso.webp'
 import bandejaCfj from '../assets/works/47-bandeja-oval-cfj.webp'
 import medallasPadel from '../assets/works/48-medallas-asociacion-padel.webp'
 import acrilicoLedTaval from '../assets/works/49-acrilico-led-taval-dervos.webp'
-import copasEnElRotativo from '../assets/works/50-grabado-copas-de-cristal.webp'
 import trofeoArteNuevo from '../assets/works/51-trofeo-vidrio-arte-nuevo.webp'
-import termoYpfColapinto from '../assets/works/52-termo-ypf-franco-colapinto.webp'
-import { CATEGORIES, type Category, type ImageAsset } from './site'
+import { CATEGORIES, IMAGES, type Category, type ImageAsset, type OwnImage } from './site'
 
 /** Imagen importada desde src/assets/works/: astro:assets genera los tamaños y el formato en el build. */
-export interface WorkImage {
-  src: ImageMetadata
-  alt: string
-}
+export type WorkImage = OwnImage
 
 export interface Work {
   id: string
@@ -86,10 +73,7 @@ export const WORKS: Work[] = [
     category: 'placas',
     material: 'Acero inoxidable',
     detail: 'Escudo nacional y nombre de la embajada en letras grandes.',
-    photo: {
-      src: embajadaArgentina,
-      alt: 'Placa de pared con el escudo argentino y la leyenda «Embajada de la República Argentina».',
-    },
+    photo: IMAGES.embajada,
     labProductId: 'plaque-wall',
   },
   {
@@ -98,10 +82,7 @@ export const WORKS: Work[] = [
     category: 'termos',
     material: 'Acero con pintura negra mate',
     detail: 'Logos de YPF y del piloto grabados a metal en el frente.',
-    photo: {
-      src: termoYpfColapinto,
-      alt: 'Termo negro mate con manija, grabado en el frente con el logo de YPF y el de Franco Colapinto a la vista del acero.',
-    },
+    photo: IMAGES.termo,
     labProductId: 'thermos-handle',
   },
   {
@@ -122,10 +103,7 @@ export const WORKS: Work[] = [
     category: 'regalos',
     material: 'Piedra',
     detail: 'Grabado a partir de una foto, con el detalle del pelaje.',
-    photo: {
-      src: perroEnPiedra,
-      alt: 'Piedra pulida con el retrato grabado de un cachorro, hecho a partir de una foto, con el pelaje en detalle.',
-    },
+    photo: IMAGES.perro,
   },
   {
     id: 'w-marmol-hungria',
@@ -133,10 +111,7 @@ export const WORKS: Work[] = [
     category: 'placas',
     material: 'Mármol blanco',
     detail: 'Escudo húngaro y texto por el centenario del Hogar Húngaro San Esteban.',
-    photo: {
-      src: marmolHungria,
-      alt: 'Placa de mármol blanco con el escudo de Hungría y el homenaje de la embajada al Hogar Húngaro San Esteban en su centenario, 1922–2022.',
-    },
+    photo: IMAGES.hungria,
     labProductId: 'plaque-wall',
   },
   {
@@ -145,10 +120,7 @@ export const WORKS: Work[] = [
     category: 'copas',
     material: 'Cristal',
     detail: 'Copas de vino en la máquina, mientras se graban.',
-    photo: {
-      src: copasEnElRotativo,
-      alt: 'Copas de vino de cristal montadas en el rotativo de la máquina láser, mientras se graban.',
-    },
+    photo: IMAGES.copas,
     labProductId: 'glassware',
   },
   {
@@ -169,10 +141,7 @@ export const WORKS: Work[] = [
     category: 'termos',
     material: 'Acero inoxidable',
     detail: 'Frase y un barco grabados en el borde de la boca.',
-    photo: {
-      src: mateNavegarEnPaz,
-      alt: 'Mate de acero inoxidable con la frase «Navegar en paz» y un barco grabados en el borde de la boca.',
-    },
+    photo: IMAGES.mate,
     labProductId: 'mate-steel',
   },
   {
@@ -371,10 +340,7 @@ export const WORKS: Work[] = [
     category: 'placas',
     material: 'Acrílico transparente y chapa plateada sobre base de madera',
     detail: 'Logo recortado en acrílico y chapa con la mención por 20 años de servicio.',
-    photo: {
-      src: trofeoLinde,
-      alt: 'Trofeo con el logo de Linde recortado en acrílico transparente sobre base de madera y una chapa plateada con la mención por 20 años de servicio.',
-    },
+    photo: IMAGES.linde,
     labProductId: 'trophy',
   },
   {
@@ -559,10 +525,7 @@ export const WORKS: Work[] = [
     category: 'placas',
     material: 'Acero inoxidable',
     detail: 'Dedicatoria por 42 años de servicio, en la máquina mientras se graba.',
-    photo: {
-      src: bandejaEnElTaller,
-      alt: 'Bandeja de acero en la cama de la máquina láser mientras se graba una dedicatoria por 42 años de servicio.',
-    },
+    photo: IMAGES.bandejaTaller,
   },
   {
     id: 'w-bronce-en-el-taller',
@@ -582,10 +545,7 @@ export const WORKS: Work[] = [
     category: 'regalos',
     material: 'MDF',
     detail: 'Caja con encastres, «Happy Birthday» y Darth Vader en el frente.',
-    photo: {
-      src: cajaCumpleanos,
-      alt: 'Caja de MDF armada con encastres, con «Happy Birthday» y la figura de Darth Vader grabados en el frente.',
-    },
+    photo: IMAGES.caja,
   },
   {
     id: 'w-chapitas-mascotas',

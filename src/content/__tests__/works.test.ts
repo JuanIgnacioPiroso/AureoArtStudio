@@ -70,8 +70,8 @@ describe('orderedWorks', () => {
   it('pone los trabajos propios antes que los ilustrativos, sin cambiar el orden dentro de cada grupo', () => {
     const base = WORKS[0]!
     const works = [
-      { ...base, id: 'ilus-1', photo: IMAGES.box },
-      { ...base, id: 'propio-1', photo: { ...IMAGES.box, illustrative: false } },
+      { ...base, id: 'ilus-1', photo: IMAGES.knife },
+      { ...base, id: 'propio-1', photo: { ...IMAGES.knife, illustrative: false } },
       { ...base, id: 'ilus-2', photo: IMAGES.board },
       { ...base, id: 'propio-2', photo: { ...IMAGES.board, illustrative: false } },
     ]
