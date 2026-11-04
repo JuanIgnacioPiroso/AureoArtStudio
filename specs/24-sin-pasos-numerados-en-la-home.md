@@ -1,6 +1,6 @@
 # SPEC 24 — Sin pasos numerados en la home
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 19, SPEC 23
 > **Fecha:** 2026-11-04
 > **Objetivo:** Quitar de la home la sección «Cómo trabajamos» (5 pasos numerados) y su enlace del menú, y dejar la lista de pasos sólo en `/regalos-empresariales/`.
