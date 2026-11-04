@@ -295,34 +295,24 @@
   text-align: center;
   color: var(--fg-muted);
 }
-/* La pista tiene dos mitades iguales: al llegar a -50 % vuelve al inicio sin salto visible. */
-.trusted__marquee {
-  margin-top: var(--s2);
-  overflow: hidden;
+.trusted__lede {
+  max-width: 52ch;
+  margin: var(--s-1) auto 0;
+  text-align: center;
+  font-size: var(--step--1);
+  color: var(--fg-muted);
 }
-.trusted__marquee:hover .trusted__track {
-  animation-play-state: paused;
-}
-.trusted__track {
-  display: flex;
-  width: max-content;
-  /* Fondo propio: la pista animada aísla la mezcla, y el multiply de los logos necesita el color de la franja. */
-  background: var(--bg);
-  animation: trusted-scroll var(--trusted-duration, 30s) linear infinite;
-}
+/* Cada logo una sola vez, quieto, en una grilla centrada que salta de línea. */
 .trusted__logos {
   --trusted-gap: var(--s4);
   list-style: none;
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
   gap: var(--trusted-gap);
-  /* El espacio final iguala el hueco entre la última y la primera de la mitad siguiente. */
-  padding-right: var(--trusted-gap);
-}
-@keyframes trusted-scroll {
-  to {
-    transform: translateX(-50%);
-  }
+  row-gap: var(--s2);
+  margin-top: var(--s2);
 }
 .trusted__item {
   flex: none;
@@ -353,36 +343,11 @@
     height: 44px;
   }
 }
-/* Sin movimiento: cada logo una sola vez, quieto, en una grilla centrada que salta de línea. */
-@media (prefers-reduced-motion: reduce) {
-  .trusted__track {
-    width: auto;
-    animation: none !important;
-  }
-  .trusted__logos {
-    flex: 1;
-    flex-wrap: wrap;
-    justify-content: center;
-    row-gap: var(--s2);
-    padding-inline: var(--gutter);
-  }
-  .trusted__track [aria-hidden="true"] {
-    display: none;
-  }
-}
 
 .trusted__more {
   margin-top: var(--s1);
   text-align: center;
   font-size: var(--step--1);
-}
-/* Versión quieta (prop static): la misma grilla que el carrusel con movimiento reducido. */
-.trusted__logos--static {
-  margin-top: var(--s2);
-  flex-wrap: wrap;
-  justify-content: center;
-  row-gap: var(--s2);
-  padding-right: 0;
 }
 
 /* ───────── Categorías ───────── */

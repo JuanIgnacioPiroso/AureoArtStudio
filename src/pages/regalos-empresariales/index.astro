@@ -178,7 +178,7 @@ const hasAnswers = faq.some((f) => f.a)
     </div>
   </section>
 
-  <TrustedBy static />
+  <TrustedBy corporateLink={false} />
 
   {/* Faq suma el JSON-LD FAQPage con las preguntas respondidas. */}
   {hasAnswers && <Faq items={faq} />}
