@@ -15,7 +15,6 @@ export const NAV = [
   { href: "/#productos", label: "Productos" },
   { href: "/custom-lab/", label: "Simulador 3D" },
   { href: "/#galeria", label: "Galería" },
-  { href: "/#proceso", label: "Cómo trabajamos" },
   { href: "/#preguntas", label: "Preguntas" },
   { href: "/#contacto", label: "Contacto" },
 ] as const;
@@ -351,29 +350,6 @@ export interface ProcessStep {
   title: string;
   text: string;
 }
-
-export const PROCESS = [
-  {
-    title: "Elegís el producto",
-    text: "Partís de uno de nuestros objetos o nos contás qué querés personalizar.",
-  },
-  {
-    title: "Personalizás el diseño",
-    text: "Probás textos, tipografías y ubicación en el Custom Lab, o nos mandás tu idea.",
-  },
-  {
-    title: "Revisamos tu idea",
-    text: "Chequeamos que el diseño sea viable en el material y la zona elegida, y te proponemos ajustes si hace falta.",
-  },
-  {
-    title: "Recibís el presupuesto",
-    text: "Te pasamos el presupuesto y coordinamos los detalles del pedido.",
-  },
-  {
-    title: "Grabamos y entregamos",
-    text: "Producimos la pieza y coordinamos la entrega con vos.",
-  },
-] as const;
 
 export const DIFFERENTIALS = [
   {

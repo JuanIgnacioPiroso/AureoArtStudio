@@ -32,6 +32,14 @@ En `/regalos-empresariales/` el proceso sí importa: logo y cantidad, propuesta,
   - se corrige el comentario de `steps` («por defecto, los de la home»);
   - el marcado (`#proceso`, `ol.process__steps`, `li.process__step`, números) no cambia.
 - **`src/styles/landing.css`:** regla nueva `.craft { border-top: 1px solid var(--rule); }`, para que la Galería y «Cada material pide su grabado» no queden pegadas, ya que las dos tienen fondo oscuro. Es la misma línea que separa los logos de «Productos».
+- **Scroll horizontal del footer a 375 px** (sumado durante la implementación, ver «Decisiones»). En el móvil, la columna «Contacto» cae en la primera columna de la grilla de dos (`≤ 900px`). El email (`grabados@aureoartstudio.com`, unos 236 px, sin cortes posibles) más la etiqueta de `6.5rem` la estiran a unos 350 px y empujan «Categorías» fuera de la pantalla (`scrollWidth` 504 en un viewport de 375). Pasa en todas las páginas, no sólo en la home.
+  - `src/components/layout/Footer.astro`: el `<div>` de «Contacto» recibe la clase `site-footer__contact`.
+  - `src/styles/landing.css`, dentro del `@media (max-width: 900px)` del footer:
+    - `.site-footer__grid` pasa a `grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)`, para que ningún contenido ensanche una columna;
+    - `.site-footer__contact` ocupa todo el ancho (`grid-column: 1 / -1`), igual que `.site-footer__brand`;
+    - `.site-footer .contact-links li` usa `grid-template-columns: 5rem minmax(0, 1fr)`, para que la etiqueta y el email entren en 343 px (375 menos los márgenes);
+    - `.site-footer .contact-links a` lleva `overflow-wrap: anywhere`, para que en pantallas más angostas que 375 px el email se corte en lugar de desbordar.
+  - En escritorio (`> 900px`) el footer no cambia.
 
 **No entra:**
 
@@ -67,6 +75,7 @@ interface Props {
 2. **Componente y datos.** En `Process.astro`, hacer obligatorias las props, borrar los valores por defecto y el import de `PROCESS`, y corregir el comentario. En `site.ts`, borrar `PROCESS`.
 3. **Separación.** En `landing.css`, sumar `.craft { border-top: 1px solid var(--rule); }`. Conviene ponerla en el bloque «Oficio y diferenciales».
 4. **Verificación.** Capturas con el Chromium de Playwright por CDP de la home (de la Galería a «Cada material pide su grabado») y de la sección de pasos de `/regalos-empresariales/`, a 1440 y a 375 px. Después, `npm run lint`, `npm run typecheck`, `npm run test` y `npm run build`.
+5. **Footer a 375 px.** Sumar la clase `site-footer__contact` en `Footer.astro` y las reglas del footer en el `@media (max-width: 900px)` de `landing.css`. Verificar `scrollWidth` en las 11 páginas de `dist/` a 375 px, y capturas del footer a 375, 900 y 1440 px, antes y después. Volver a correr `npm run lint`, `npm run typecheck`, `npm run test` y `npm run build`.
 
 ---
 
@@ -80,6 +89,9 @@ interface Props {
 - [ ] `dist/regalos-empresariales/index.html` sigue teniendo `#proceso` con el título «Cómo trabajamos con empresas», el mismo lede de antes y la misma cantidad de `li.process__step` que da `corporateSteps()`.
 - [ ] La sección de pasos de `/regalos-empresariales/` se ve igual que antes a 1440 y a 375 px.
 - [ ] La home no tiene scroll horizontal a 375 px.
+- [ ] Ninguna página de `dist/` tiene scroll horizontal a 375 px (`document.documentElement.scrollWidth` igual al ancho del viewport).
+- [ ] A 375 px, el footer muestra «Secciones» y «Categorías» lado a lado y «Contacto» debajo, a todo el ancho, con el email en una sola línea.
+- [ ] A 1440 px, el footer se ve igual que antes.
 - [ ] `npm run lint`, `npm run typecheck`, `npm run test` y `npm run build` terminan sin errores.
 
 ---
@@ -97,6 +109,11 @@ interface Props {
 - **Sí:** una línea de 1px entre la Galería y «Cada material pide su grabado». Es el cambio más chico que marca el corte entre dos secciones oscuras, y usa la misma regla que «Confían en nosotros» (SPEC 23).
 - **No:** dejarlas juntas sin nada. Se vería un solo bloque oscuro largo, con un espacio doble en el medio.
 - **No:** pasar «Cada material pide su grabado» a fondo claro. Cambia cómo se ve esa sección y la deja pegada a «Preguntas», que también es clara.
+- **Sí:** arreglar en esta spec el scroll horizontal del footer a 375 px. Apareció al verificar el criterio «la home no tiene scroll horizontal», ya estaba antes de esta spec (el build anterior también da `scrollWidth` 504) y el usuario pidió sumarlo acá en lugar de abrir otra spec.
+- **Sí:** «Contacto» a todo el ancho en el móvil. Es la columna con el contenido más largo, y así «Secciones» y «Categorías» quedan como par.
+- **No:** cortar el email siempre con `overflow-wrap: anywhere` sin achicar la etiqueta. A 375 px el email se partiría en dos líneas, y es el dato que más se copia.
+- **No:** apilar la etiqueta sobre el valor en el móvil. Alarga el footer y cambia más de lo necesario.
+- **No:** exigir 320 px en esta spec. Con el footer arreglado, a 320 px la home todavía mide 324: el título «Placas y reconocimientos» de las tarjetas de Productos (`.category__name`) no entra en 158 px. No es del footer ni de esta spec, y va en una spec propia.
 
 ---
 
@@ -107,6 +124,8 @@ interface Props {
 | Hay enlaces externos (redes, buscadores) a `/#proceso`. | El navegador abre la home arriba de todo, sin error. Es un ancla, no una página. |
 | La línea sola no alcanza y la Galería y los diferenciales se siguen leyendo como un solo bloque. | Se revisa en las capturas del paso 4. Si hace falta más, va en otra spec. |
 | El menú con 6 enlaces cambia el ancho del header en tamaños intermedios. | Hay menos texto, no más. Se revisa a 1440 px en las capturas. |
+| La etiqueta de `5rem` no alcanza para «Instagram» o «WhatsApp» en el footer móvil. | Las etiquetas van en `var(--step--1)` y miden menos de 5rem. Se revisa en la captura a 375 px. |
+| Si el email cambia por uno más largo, vuelve a desbordar. | `overflow-wrap: anywhere` lo corta en lugar de desbordar, y la columna ya no puede ensanchar la grilla. |
 
 ---
 
@@ -115,5 +134,6 @@ interface Props {
 - La sección de pasos de `/regalos-empresariales/`.
 - Una captura, fotos o un video del proceso.
 - Cambios en otros textos, en el orden de las secciones o en sus tonos.
+- El desborde de 4 px de las tarjetas de Productos a 320 px («Placas y reconocimientos»).
 
 Si alguno de estos cambios se hace, va en su propia spec.

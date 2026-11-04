@@ -680,6 +680,9 @@
 }
 
 /* ───────── Oficio y diferenciales ───────── */
+.craft {
+  border-top: 1px solid var(--rule);
+}
 .craft__grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.618fr);
@@ -1216,10 +1219,17 @@
 }
 @media (max-width: 900px) {
   .site-footer__grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
-  .site-footer__brand {
+  .site-footer__brand,
+  .site-footer__contact {
     grid-column: 1 / -1;
+  }
+  .site-footer .contact-links li {
+    grid-template-columns: 5rem minmax(0, 1fr);
+  }
+  .site-footer .contact-links a {
+    overflow-wrap: anywhere;
   }
 }
 
