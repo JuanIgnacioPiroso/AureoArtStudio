@@ -2,30 +2,32 @@
 import { getImage } from 'astro:assets'
 import { CORPORATE_PATH } from '../content/corporate'
 import { TRUSTED_LOGOS } from '../content/logos'
+import { CATEGORIES } from '../content/site'
+import { WORKS } from '../content/works'
 
 /**
  * Franja de logos de quienes confían en AUREO. Sin logos en src/assets/logos/ no se renderiza.
- * Carrusel en CSS puro: la pista tiene dos mitades iguales y se desplaza un 50 %, así el bucle no salta.
- * Con pocos logos, cada mitad repite el set hasta MIN_TRACK_ITEMS para que nunca quede un hueco.
- * Sólo los logos originales de la primera mitad son legibles; las copias llevan aria-hidden y alt="".
- * Con `static`, cada logo una sola vez en una grilla quieta, sin pista ni copias (como el carrusel con movimiento reducido).
- * El carrusel (la home) suma el enlace a la página de empresas; la versión quieta ya vive en ella.
+ * Grilla quieta: cada logo una sola vez, centrado y saltando de línea cuando no entra, con una bajada
+ * que dice qué tienen en común. Sin movimiento automático.
+ * La home suma el enlace a la página de empresas; esa página lo apaga con `corporateLink={false}`.
  * Las <img> se escriben a mano (con getImage para los raster) porque Astro imprime un alt="" dinámico
  * como `alt` sin valor, y los validadores lo marcan como falta de alt.
  */
 
 interface Props {
-  /** Grilla quieta en lugar del carrusel. */
-  static?: boolean
+  /** Muestra el enlace «Pedidos para empresas». false en la página de empresas, que ya es ese destino. */
+  corporateLink?: boolean
 }
 
-const { static: isStatic = false } = Astro.props
+const { corporateLink = true } = Astro.props
 
-const MIN_TRACK_ITEMS = 8
-
-const repeats = Math.ceil(MIN_TRACK_ITEMS / Math.max(TRUSTED_LOGOS.length, 1))
-const half = Array.from({ length: repeats }, (_, r) => TRUSTED_LOGOS.map((logo) => ({ logo, repeat: r > 0 }))).flat()
-const duration = `${half.length * 3}s`
+/**
+ * Trabajos institucionales con nombre, debajo de los logos (SPEC 26): cada uno abre su obra en la galería de la home.
+ * Los títulos salen de WORKS, así que un id que ya no exista se cae de la lista en lugar de romper.
+ */
+const CASE_IDS = ['w-embajada-argentina', 'w-marmol-ara-san-juan', 'w-panel-uba', 'w-armada-argentina'] as const
+const cases = CASE_IDS.flatMap((id) => WORKS.filter((w) => w.id === id))
+const plaques = CATEGORIES.find((c) => c.id === 'placas' && c.enabled)
 
 // SVG directo; raster optimizado a 56 px de alto con 1x y 2x, como hacía <Image>.
 interface LogoImg {
@@ -61,72 +63,52 @@ const images = new Map<string, LogoImg>(
         <h2 id="confian-title" class="trusted__title">
           Confían en nosotros
         </h2>
+        <p class="trusted__lede">Instituciones públicas, municipios y universidades que nos encargaron placas y reconocimientos.</p>
       </div>
-      {isStatic ? (
+      <div class="wrap">
+        <ul class="trusted__logos">
+          {TRUSTED_LOGOS.map((logo) => {
+            const img = images.get(logo.file)!
+            return (
+              <li class="trusted__item">
+                <img
+                  class="trusted__logo"
+                  src={img.src}
+                  srcset={img.srcset}
+                  width={img.width}
+                  height={img.height}
+                  alt={logo.name}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </li>
+            )
+          })}
+        </ul>
+      </div>
+      {corporateLink && cases.length > 0 && (
         <div class="wrap">
-          <ul class="trusted__logos trusted__logos--static">
-            {TRUSTED_LOGOS.map((logo) => {
-              const img = images.get(logo.file)!
-              return (
-                <li class="trusted__item">
-                  <img
-                    class="trusted__logo"
-                    src={img.src}
-                    srcset={img.srcset}
-                    width={img.width}
-                    height={img.height}
-                    alt={logo.name}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </li>
-              )
-            })}
+          <ul class="trusted__cases" aria-label="Algunos trabajos institucionales">
+            {cases.map((w) => (
+              <li>
+                <a class="text-link" href={`/?obra=${w.id}#galeria`}>
+                  {w.title}
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
-      ) : (
-        <div class="trusted__marquee">
-          <div class="trusted__track" style={`--trusted-duration: ${duration}`}>
-            {[false, true].map((copyHalf) => (
-              <ul class="trusted__logos" aria-hidden={copyHalf ? 'true' : undefined}>
-                {half.map(({ logo, repeat }) => {
-                  const copy = copyHalf || repeat
-                  const img = images.get(logo.file)!
-                  return (
-                    <li class="trusted__item" aria-hidden={copy ? 'true' : undefined}>
-                      {copy ? (
-                        <img
-                          class="trusted__logo"
-                          src={img.src}
-                          srcset={img.srcset}
-                          width={img.width}
-                          height={img.height}
-                          alt=""
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      ) : (
-                        <img
-                          class="trusted__logo"
-                          src={img.src}
-                          srcset={img.srcset}
-                          width={img.width}
-                          height={img.height}
-                          alt={logo.name}
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      )}
-                    </li>
-                  )
-                })}
-              </ul>
-            ))}
-          </div>
-        </div>
       )}
-      {!isStatic && (
+      {corporateLink && (
         <p class="wrap trusted__more">
+          {plaques && (
+            <>
+              <a class="text-link" href={`/${plaques.slug}/`}>
+                Placas y reconocimientos
+              </a>
+              <span aria-hidden="true"> · </span>
+            </>
+          )}
           <a class="text-link" href={CORPORATE_PATH}>
             Pedidos para empresas
           </a>

@@ -1,18 +1,14 @@
 ---
-import { PROCESS, type ProcessStep } from '../content/site'
+import type { ProcessStep } from '../content/site'
 
 interface Props {
-  /** Pasos; por defecto, los de la home. */
-  steps?: readonly ProcessStep[]
-  title?: string
-  lede?: string
+  /** Pasos numerados, en orden. */
+  steps: readonly ProcessStep[]
+  title: string
+  lede: string
 }
 
-const {
-  steps = PROCESS,
-  title = 'Cómo trabajamos',
-  lede = 'De la idea a la pieza grabada, en cinco pasos y con revisión antes de producir.',
-} = Astro.props
+const { steps, title, lede } = Astro.props
 ---
 
 <section id="proceso" class="section tone" data-tone="light" aria-labelledby="proceso-title">

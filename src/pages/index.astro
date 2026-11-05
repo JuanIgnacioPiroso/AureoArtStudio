@@ -10,7 +10,6 @@ import Differentials from '../sections/Differentials.astro'
 import Faq from '../sections/Faq.astro'
 import Gallery from '../sections/Gallery.astro'
 import Hero from '../sections/Hero.astro'
-import Process from '../sections/Process.astro'
 import TrustedBy from '../sections/TrustedBy.astro'
 
 const description = HOME_SEO.description(business.city)
@@ -23,7 +22,6 @@ const description = HOME_SEO.description(business.city)
   description={description}
   ogTitle={HOME_SEO.ogTitle}
   ogDescription={description}
-  fontsHref="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..700&family=Hanken+Grotesk:wght@400;500;600&display=swap"
 >
   <!--
     Enlaces viejos del Lab (?d= o ?producto= en la home): se mandan a su página antes de pintar nada.
@@ -43,7 +41,6 @@ const description = HOME_SEO.description(business.city)
   <TrustedBy />
   <Categories />
   <Gallery />
-  <Process />
   <Differentials />
   <Faq />
   <ContactCta />

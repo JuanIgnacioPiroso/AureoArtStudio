@@ -1,6 +1,6 @@
 # SPEC 23 — Logos de «Confían en nosotros» quietos y con contexto
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 09, SPEC 19
 > **Fecha:** 2026-11-04
 > **Objetivo:** Reemplazar el carrusel de logos de «Confían en nosotros» por una grilla quieta, con una bajada que diga quiénes son, y borrar el código del carrusel.

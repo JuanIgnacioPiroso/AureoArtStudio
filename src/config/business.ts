@@ -15,7 +15,15 @@ export interface BusinessConfig {
   /** Ciudad o zona de trabajo, ej. "Buenos Aires". */
   city: string | null
   address: string | null
-  /** URL pública del sitio, para Open Graph y enlaces de diseño. */
+  /** Código postal del taller, ej. "C1427". */
+  postalCode: string | null
+  /** Horario en el formato de schema.org, ej. "Mo-Fr 09:00-18:00". */
+  openingHours: string | null
+  /** Medios de pago, en texto, ej. "Transferencia, Mercado Pago, efectivo". */
+  paymentAccepted: string | null
+  /** Zonas de entrega: la primera es la ciudad del taller; "Argentina" significa envíos a todo el país. */
+  areaServed: readonly string[]
+  /** URL pública del sitio, con el host que responde sin redirigir (canonical, Open Graph, sitemap). */
   siteUrl: string | null
 }
 
@@ -25,9 +33,14 @@ export const business: BusinessConfig = {
   whatsapp: '5491135646122',
   email: 'grabados@aureoartstudio.com',
   instagram: 'https://www.instagram.com/aureoartstudio/',
-  city: 'Ciudad Autonoma de Buenos Aires',
+  city: 'Ciudad Autónoma de Buenos Aires',
   address: 'Roseti 1514',
-  siteUrl: 'https://aureoartstudio.com/',
+  postalCode: null,
+  openingHours: null,
+  paymentAccepted: 'Transferencia, Mercado Pago, efectivo',
+  areaServed: ['Ciudad Autónoma de Buenos Aires', 'Gran Buenos Aires', 'Argentina'],
+  // Con www: el dominio sin www redirige (308) a este host en Vercel.
+  siteUrl: 'https://www.aureoartstudio.com/',
 }
 
 export const hasDirectContact = Boolean(business.whatsapp || business.email)

@@ -295,34 +295,24 @@
   text-align: center;
   color: var(--fg-muted);
 }
-/* La pista tiene dos mitades iguales: al llegar a -50 % vuelve al inicio sin salto visible. */
-.trusted__marquee {
-  margin-top: var(--s2);
-  overflow: hidden;
+.trusted__lede {
+  max-width: 52ch;
+  margin: var(--s-1) auto 0;
+  text-align: center;
+  font-size: var(--step--1);
+  color: var(--fg-muted);
 }
-.trusted__marquee:hover .trusted__track {
-  animation-play-state: paused;
-}
-.trusted__track {
-  display: flex;
-  width: max-content;
-  /* Fondo propio: la pista animada aísla la mezcla, y el multiply de los logos necesita el color de la franja. */
-  background: var(--bg);
-  animation: trusted-scroll var(--trusted-duration, 30s) linear infinite;
-}
+/* Cada logo una sola vez, quieto, en una grilla centrada que salta de línea. */
 .trusted__logos {
   --trusted-gap: var(--s4);
   list-style: none;
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
   gap: var(--trusted-gap);
-  /* El espacio final iguala el hueco entre la última y la primera de la mitad siguiente. */
-  padding-right: var(--trusted-gap);
-}
-@keyframes trusted-scroll {
-  to {
-    transform: translateX(-50%);
-  }
+  row-gap: var(--s2);
+  margin-top: var(--s2);
 }
 .trusted__item {
   flex: none;
@@ -353,36 +343,22 @@
     height: 44px;
   }
 }
-/* Sin movimiento: cada logo una sola vez, quieto, en una grilla centrada que salta de línea. */
-@media (prefers-reduced-motion: reduce) {
-  .trusted__track {
-    width: auto;
-    animation: none !important;
-  }
-  .trusted__logos {
-    flex: 1;
-    flex-wrap: wrap;
-    justify-content: center;
-    row-gap: var(--s2);
-    padding-inline: var(--gutter);
-  }
-  .trusted__track [aria-hidden="true"] {
-    display: none;
-  }
-}
 
+.trusted__cases {
+  list-style: none;
+  margin: var(--s2) 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--s0) var(--s2);
+  font-size: var(--step--1);
+  text-align: center;
+}
 .trusted__more {
   margin-top: var(--s1);
   text-align: center;
   font-size: var(--step--1);
-}
-/* Versión quieta (prop static): la misma grilla que el carrusel con movimiento reducido. */
-.trusted__logos--static {
-  margin-top: var(--s2);
-  flex-wrap: wrap;
-  justify-content: center;
-  row-gap: var(--s2);
-  padding-right: 0;
 }
 
 /* ───────── Categorías ───────── */
@@ -573,6 +549,9 @@
   padding-top: var(--s0);
 }
 .work__title {
+  /* Es un <p> (SPEC 26): copia de los headings el interlineado y el balanceo. */
+  line-height: 1.08;
+  text-wrap: balance;
   font-family: var(--font-display);
   font-size: var(--step-1);
   margin-bottom: 0.2rem;
@@ -715,6 +694,9 @@
 }
 
 /* ───────── Oficio y diferenciales ───────── */
+.craft {
+  border-top: 1px solid var(--rule);
+}
 .craft__grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.618fr);
@@ -962,6 +944,9 @@
   margin-bottom: var(--s2);
   scroll-margin-top: calc(var(--header-h) + var(--s2));
 }
+.material__intro {
+  margin-bottom: var(--s1);
+}
 .material__facts {
   margin: 0;
   display: grid;
@@ -1095,6 +1080,12 @@
   font-weight: 600;
 }
 
+/* Texto estático debajo del Custom Lab: subtítulo de la lista de categorías. */
+.lab-about__subtitle {
+  font-size: var(--step-2);
+  font-weight: 400;
+  margin: 0 0 var(--s2);
+}
 .category-materials {
   list-style: none;
   margin: 0;
@@ -1251,10 +1242,17 @@
 }
 @media (max-width: 900px) {
   .site-footer__grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
-  .site-footer__brand {
+  .site-footer__brand,
+  .site-footer__contact {
     grid-column: 1 / -1;
+  }
+  .site-footer .contact-links li {
+    grid-template-columns: 5rem minmax(0, 1fr);
+  }
+  .site-footer .contact-links a {
+    overflow-wrap: anywhere;
   }
 }
 

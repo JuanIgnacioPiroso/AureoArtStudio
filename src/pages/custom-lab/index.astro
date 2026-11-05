@@ -1,7 +1,16 @@
 ---
+import JsonLd from '../../components/seo/JsonLd.astro'
+import { business } from '../../config/business'
+import { breadcrumbSchema, webApplicationSchema } from '../../config/seo'
+import { categoryPagePath } from '../../content/categories'
+import { CATEGORIES, LAB_SEO } from '../../content/site'
 import BaseLayout from '../../layouts/BaseLayout.astro'
-import { LAB_SEO } from '../../content/site'
 import CustomLab from '../../lab/CustomLab'
+
+// Categorías con objetos en el Lab y página propia: el texto de abajo enlaza a cada una.
+const labCategories = CATEGORIES.filter((c) => c.labProductIds.length > 0)
+  .map((c) => ({ name: c.name, description: c.description, href: categoryPagePath(c) }))
+  .filter((c): c is { name: string; description: string; href: string } => c.href !== null)
 ---
 
 <BaseLayout
@@ -11,8 +20,22 @@ import CustomLab from '../../lab/CustomLab'
   description={LAB_SEO.description}
   ogTitle="AUREO Custom Lab · Tu idea, antes de grabarla"
   ogDescription="Elegí un objeto, diseñá tu grabado y explorá una vista previa interactiva de tu creación."
-  fontsHref="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..700&family=Hanken+Grotesk:wght@400;500;600&family=Cinzel:wght@500&family=Pinyon+Script&family=Playfair+Display:wght@500&family=Cormorant+Garamond:wght@600&family=EB+Garamond:wght@500&family=Libre+Baskerville&family=Cinzel+Decorative&family=Abril+Fatface&family=Bebas+Neue&family=Oswald:wght@500&family=Montserrat:wght@500&family=Josefin+Sans:wght@500&family=Raleway:wght@500&family=Great+Vibes&family=Dancing+Script:wght@500&family=Allura&family=Space+Mono&display=swap"
 >
+  <Fragment slot="jsonld">
+    <JsonLd
+      data={breadcrumbSchema([
+        { name: 'Inicio', path: '/' },
+        { name: 'Custom Lab', path: '/custom-lab/' },
+      ])}
+    />
+    <JsonLd
+      data={webApplicationSchema(business, {
+        path: '/custom-lab/',
+        name: 'AUREO Custom Lab',
+        description: LAB_SEO.description,
+      })}
+    />
+  </Fragment>
   <section id="custom-lab" class="lab-page__section tone" data-tone="dark" aria-labelledby="lab-title">
     <div class="lab-page__head">
       <p class="lab-section__name" translate="no">AUREO Custom Lab</p>
@@ -22,5 +45,36 @@ import CustomLab from '../../lab/CustomLab'
     <CustomLab client:only="react">
       <div slot="fallback" class="lab-placeholder" role="status">Cargando el Custom Lab…</div>
     </CustomLab>
+  </section>
+
+  <!-- Debajo del simulador: qué es y qué se puede diseñar, en HTML estático (el Lab se pinta sólo en el cliente). -->
+  <section class="section tone" data-tone="light" aria-labelledby="lab-about-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="lab-about-title" class="section-title">Cómo funciona el simulador</h2>
+        <div>
+          <p class="lede">
+            El Custom Lab es un simulador de grabado láser en 3D. Elegís el objeto y el material, escribís un nombre,
+            una frase o una fecha, o subís tu logo, y ves el grabado sobre la pieza con las medidas reales de cada zona.
+            Al terminar generás un resumen con el diseño y nos lo mandás para pedir tu presupuesto. La vista es
+            orientativa: el tono final depende de cada pieza y de su material, y antes de grabar revisamos el diseño
+            con vos.
+          </p>
+        </div>
+      </div>
+      <h3 class="lab-about__subtitle display">Qué podés diseñar</h3>
+      <ul class="category-materials">
+        {
+          labCategories.map((c) => (
+            <li>
+              <a class="category-materials__name display" href={c.href}>
+                {c.name}
+              </a>
+              <p>{c.description}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
   </section>
 </BaseLayout>

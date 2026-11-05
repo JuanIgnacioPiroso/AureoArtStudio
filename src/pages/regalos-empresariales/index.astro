@@ -54,7 +54,7 @@ const hasAnswers = faq.some((f) => f.a)
   description={CORPORATE_SEO.description}
   ogTitle={CORPORATE_SEO.title}
   ogDescription={CORPORATE_SEO.description}
-  fontsHref="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..700&family=Hanken+Grotesk:wght@400;500;600&display=swap"
+  ogImage={category.image}
 >
   <Fragment slot="jsonld">
     <JsonLd
@@ -178,7 +178,7 @@ const hasAnswers = faq.some((f) => f.a)
     </div>
   </section>
 
-  <TrustedBy static />
+  <TrustedBy corporateLink={false} />
 
   {/* Faq suma el JSON-LD FAQPage con las preguntas respondidas. */}
   {hasAnswers && <Faq items={faq} />}

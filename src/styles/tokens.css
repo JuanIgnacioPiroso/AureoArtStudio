@@ -22,8 +22,8 @@
   --focus: var(--champagne);
 
   /* Tipografía */
-  --font-display: 'Bodoni Moda', 'Didot', 'Bodoni 72', Georgia, serif;
-  --font-ui: 'Hanken Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: var(--font-bodoni);
+  --font-ui: var(--font-grotesk);
   --step--1: 0.85rem;
   --step-0: 1.0625rem;
   --step-1: 1.33rem;

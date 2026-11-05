@@ -4,10 +4,25 @@ import type { DesignState, FontId, MeasureText } from './types'
 const REF_PX = 100
 let ctx: CanvasRenderingContext2D | null = null
 const capCache = new Map<FontId, number>()
+const familyCache = new Map<FontId, string>()
+
+/**
+ * Nombre real de la familia (con el hash de Astro) más el fallback, listo para `ctx.font` y `document.fonts`.
+ * Se lee de la variable CSS que genera `<Font>`; si todavía no está (tests, SSR), sólo el fallback y sin caché.
+ */
+export function fontFamily(fontId: FontId): string {
+  const cached = familyCache.get(fontId)
+  if (cached) return cached
+  const f = FONTS[fontId]
+  if (typeof document === 'undefined') return f.fallback
+  const family = getComputedStyle(document.documentElement).getPropertyValue(f.cssVariable).trim()
+  if (!family) return f.fallback
+  familyCache.set(fontId, family)
+  return family
+}
 
 export function fontCss(fontId: FontId, px: number): string {
-  const f = FONTS[fontId]
-  return `${f.weight} ${px}px ${f.family}, ${f.fallback}`
+  return `${FONTS[fontId].weight} ${px}px ${fontFamily(fontId)}`
 }
 
 function context(): CanvasRenderingContext2D | null {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { BusinessConfig } from '../../config/business'
 import { MATERIALS, PRODUCTS } from '../../lab/model/catalog'
-import { categoryHref, categoryLink, categoryProducts } from '../categories'
+import { categoryHref, categoryLink, categoryProducts, hasCategoryPage } from '../categories'
 import { CATEGORIES, GIFT_IDEA_PRODUCT_IDS, type Category } from '../site'
 
 const noContact: BusinessConfig = {
@@ -12,6 +12,10 @@ const noContact: BusinessConfig = {
   instagram: null,
   city: null,
   address: null,
+  postalCode: null,
+  openingHours: null,
+  paymentAccepted: null,
+  areaServed: [],
   siteUrl: null,
 }
 
@@ -84,6 +88,10 @@ describe('CATEGORIES', () => {
     expect(c.seo.description.length).toBeLessThanOrEqual(155)
     expect(c.seo.h1.trim()).not.toBe('')
     expect(c.seo.intro.trim()).not.toBe('')
+  })
+
+  it.each(CATEGORIES.filter(hasCategoryPage).map((c) => [c.id, c] as const))('el title de %s nombra la marca', (_, c) => {
+    expect(c.seo.title).toContain('AUREO')
   })
 })
 

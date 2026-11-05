@@ -28,7 +28,7 @@ export const CORPORATE_FAQ: readonly Faq[] = [
 export const CORPORATE_PATH = '/regalos-empresariales/'
 
 export const CORPORATE_SEO = {
-  title: 'Regalos empresariales con logo · grabado láser',
+  title: 'Regalos empresariales con logo en Buenos Aires · AUREO',
   description:
     'Grabamos el logo de tu empresa en cuchillos, mates, termos, tablas, copas y placas. Pedidos por cantidad, con vista 3D antes de producir.',
   h1: 'Regalos empresariales con el logo de tu marca',

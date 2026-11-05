@@ -3,7 +3,8 @@ import Picture from '../../components/Picture.astro'
 import JsonLd from '../../components/seo/JsonLd.astro'
 import { business } from '../../config/business'
 import { articleSchema } from '../../config/seo'
-import { MATERIAL_GUIDES, MATERIALS_SEO, productsFor, stylesFor } from '../../content/materials'
+import { LASERS, MATERIAL_GUIDES, MATERIALS_SEO, productsFor, stylesFor } from '../../content/materials'
+import { IMAGES } from '../../content/site'
 import { LAB_PATH, labProductHref } from '../../lab/intent'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 
@@ -21,7 +22,6 @@ const guides = MATERIAL_GUIDES.map((g) => ({ ...g, styles: stylesFor(g), product
   description={MATERIALS_SEO.description}
   ogTitle={MATERIALS_SEO.title}
   ogDescription={MATERIALS_SEO.description}
-  fontsHref="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..700&family=Hanken+Grotesk:wght@400;500;600&display=swap"
 >
   <JsonLd
     slot="jsonld"
@@ -55,6 +55,7 @@ const guides = MATERIAL_GUIDES.map((g) => ({ ...g, styles: stylesFor(g), product
               <th scope="col">Material</th>
               <th scope="col">Qué hace el láser</th>
               <th scope="col">Cómo se ve</th>
+              <th scope="col">Equipo</th>
               <th scope="col">Estilos en el Custom Lab</th>
               <th scope="col">Dónde lo usamos</th>
             </tr>
@@ -68,6 +69,7 @@ const guides = MATERIAL_GUIDES.map((g) => ({ ...g, styles: stylesFor(g), product
                   </th>
                   <td>{g.process}</td>
                   <td>{g.result}</td>
+                  <td>{LASERS[g.laser].name}</td>
                   <td>{g.styles.map((s) => s.name).join(', ')}</td>
                   <td>{g.products.map((p) => p.name).join(', ')}</td>
                 </tr>
@@ -97,6 +99,10 @@ const guides = MATERIAL_GUIDES.map((g) => ({ ...g, styles: stylesFor(g), product
                 <div>
                   <dt>Cómo se ve</dt>
                   <dd>{g.result}</dd>
+                </div>
+                <div>
+                  <dt>Equipo</dt>
+                  <dd>{LASERS[g.laser].name}</dd>
                 </div>
                 <div>
                   <dt>Estilos en el Custom Lab</dt>
@@ -139,6 +145,32 @@ const guides = MATERIAL_GUIDES.map((g) => ({ ...g, styles: stylesFor(g), product
           </article>
         ))
       }
+    </div>
+  </section>
+
+  <section class="section tone" data-tone="light" aria-labelledby="corte-title">
+    <div class="wrap materials__list">
+      <article class="material material--with-image" aria-labelledby="corte-title">
+        <Picture image={IMAGES.linde} sizes="(min-width: 900px) 30vw, 100vw" class="material__image" />
+        <div class="material__copy">
+          <h2 id="corte-title" class="material__title display">Grabado y corte láser</h2>
+          <p class="material__intro">
+            El grabado marca la superficie; el corte atraviesa la pieza. Con el láser CO₂ cortamos acrílico, MDF y madera
+            a medida, como el logo recortado en acrílico del trofeo de Linde, y en la misma pasada podemos grabar encima.
+            Con el rotativo, la pieza gira mientras se graba: así hacemos la vuelta completa de copas, vasos y termos.
+          </p>
+          <dl class="material__facts">
+            {
+              Object.values(LASERS).map((l) => (
+                <div>
+                  <dt>{l.name}</dt>
+                  <dd>{l.text}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </div>
+      </article>
     </div>
   </section>
 

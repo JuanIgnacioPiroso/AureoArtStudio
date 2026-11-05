@@ -50,7 +50,7 @@ export function organizationSchema(b: BusinessConfig): object {
     name: b.name,
     legalName: b.legalName,
     url: site,
-    logo: site ? `${site}/favicon.svg` : null,
+    logo: site ? `${site}/logo.png` : null,
     image: absoluteUrl(OG_IMAGE.path, b.siteUrl),
     description: DESCRIPTION,
     telephone: b.whatsapp ? `+${b.whatsapp}` : null,
@@ -61,9 +61,16 @@ export function organizationSchema(b: BusinessConfig): object {
           '@type': 'PostalAddress',
           streetAddress: b.address,
           addressLocality: b.city,
+          postalCode: b.postalCode,
           addressCountry: 'AR',
         })
       : null,
+    openingHours: b.openingHours,
+    paymentAccepted: b.paymentAccepted,
+    areaServed: b.areaServed.map((name) => ({
+      '@type': name === 'Argentina' ? 'Country' : 'AdministrativeArea',
+      name,
+    })),
   })
 }
 
@@ -212,5 +219,28 @@ export function serviceSchema(b: BusinessConfig, s: ServiceInput): object {
     url: absoluteUrl(s.path, b.siteUrl),
     provider: businessRef(b),
     areaServed: b.city ? { '@type': 'City', name: b.city } : null,
+  })
+}
+
+export interface WebApplicationInput {
+  path: string
+  name: string
+  description: string
+}
+
+/** JSON-LD `WebApplication` del simulador. `provider` apunta al negocio como en `serviceSchema`. */
+export function webApplicationSchema(b: BusinessConfig, a: WebApplicationInput): object {
+  return compact({
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: a.name,
+    description: a.description,
+    url: absoluteUrl(a.path, b.siteUrl),
+    applicationCategory: 'DesignApplication',
+    operatingSystem: 'Web',
+    browserRequirements: 'Requiere WebGL',
+    inLanguage: 'es-AR',
+    isAccessibleForFree: true,
+    provider: businessRef(b),
   })
 }

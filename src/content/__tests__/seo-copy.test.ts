@@ -30,9 +30,9 @@ describe('textos SEO', () => {
     expect(HOME_SEO.description('Tandil')).toContain('Tandil')
   })
 
-  it.each([null, 'Tandil'])('la description de la home nombra los cinco productos (ciudad: %s)', (city) => {
-    const description = HOME_SEO.description(city)
-    for (const product of ['cuchillos', 'tablas', 'mates', 'copas', 'cuero']) {
+  it.each([null, 'Tandil'])('la description de la home nombra placas y los cinco productos (ciudad: %s)', (city) => {
+    const description = HOME_SEO.description(city).toLowerCase()
+    for (const product of ['placas', 'cuchillos', 'tablas', 'mates', 'copas', 'cuero']) {
       expect(description).toContain(product)
     }
   })

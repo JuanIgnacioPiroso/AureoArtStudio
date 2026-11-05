@@ -1,4 +1,5 @@
 ---
+import { Font, getImage } from 'astro:assets'
 import '../styles/tokens.css'
 import '../styles/base.css'
 import '../styles/landing.css'
@@ -6,24 +7,54 @@ import DevConfigNotice from '../components/DevConfigNotice.astro'
 import Footer from '../components/layout/Footer.astro'
 import Header from '../components/layout/Header.astro'
 import { absoluteUrl, OG_IMAGE } from '../config/seo'
+import { isIllustrative, type SiteImage } from '../content/site'
+import { FONTS } from '../lab/model/catalog'
 
 interface Props {
-  page: 'home' | 'lab' | 'materiales' | 'categoria'
+  page: 'home' | 'lab' | 'materiales' | 'categoria' | '404'
   /** Ruta canónica de la página, sin query string (`/custom-lab/?d=…` declara `/custom-lab/`). */
   path: '/' | `/${string}/`
   title: string
   description: string
   ogTitle: string
   ogDescription: string
-  /** URL de Google Fonts de la página: la home carga sólo sus dos familias, el Lab suma las del editor. */
-  fontsHref: string
+  /** Foto propia para compartir la página; sin ella (o con una ilustrativa) va la OG general. */
+  ogImage?: SiteImage
+  /** Páginas que no van al índice (la 404). */
+  noindex?: boolean
 }
 
-const { page, path, title, description, ogTitle, ogDescription, fontsHref } = Astro.props
+const { page, path, title, description, ogTitle, ogDescription, ogImage: ogPhoto, noindex = false } = Astro.props
 
 // Sin `business.siteUrl` no hay URL absoluta: se omiten canonical y og:url, y og:image queda relativa.
-const canonicalUrl = absoluteUrl(path)
-const ogImage = absoluteUrl(OG_IMAGE.path) ?? OG_IMAGE.path
+// La 404 (noindex) no declara canonical: se sirve en cualquier URL rota.
+const canonicalUrl = noindex ? null : absoluteUrl(path)
+// La foto propia se recorta a 1,91:1, la proporción de la vista grande de WhatsApp, Facebook y X: 1200 × 630, o
+// más chica si la foto es más angosta (astro:assets no agranda). Las verticales perderían el grabado en el recorte:
+// esas páginas comparten la OG general.
+const ownOg = ogPhoto && !isIllustrative(ogPhoto) && ogPhoto.src.width >= ogPhoto.src.height ? ogPhoto : null
+const ogWidth = ownOg ? Math.min(OG_IMAGE.width, ownOg.src.width) : 0
+const og =
+  ownOg
+    ? await getImage({
+        src: ownOg.src,
+        width: ogWidth,
+        height: Math.round((ogWidth * OG_IMAGE.height) / OG_IMAGE.width),
+        fit: 'cover',
+        // `position` de la foto es CSS (`center 35%`) y sharp no lo entiende: recorta donde está el detalle.
+        position: 'attention',
+        format: 'jpg',
+      }).then((img) => ({
+        path: img.src,
+        width: Number(img.attributes.width),
+        height: Number(img.attributes.height),
+        alt: ownOg.alt,
+      }))
+    : OG_IMAGE
+const ogImage = absoluteUrl(og.path) ?? og.path
+
+// Las 17 de grabado sólo en el Lab y sin preload: `ensureFonts` (lab/model/measure.ts) las pide al usarlas.
+const labFonts = page === 'lab' ? Object.values(FONTS).filter((f) => f.id !== 'bodoni' && f.id !== 'grotesk') : []
 ---
 
 <!doctype html>
@@ -34,8 +65,10 @@ const ogImage = absoluteUrl(OG_IMAGE.path) ?? OG_IMAGE.path
     <slot name="head" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
     <meta name="theme-color" content="#16171A" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="es_AR" />
@@ -44,15 +77,15 @@ const ogImage = absoluteUrl(OG_IMAGE.path) ?? OG_IMAGE.path
     <meta property="og:description" content={ogDescription} />
     {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
     <meta property="og:image" content={ogImage} />
-    <meta property="og:image:width" content={String(OG_IMAGE.width)} />
-    <meta property="og:image:height" content={String(OG_IMAGE.height)} />
-    <meta property="og:image:alt" content={OG_IMAGE.alt} />
+    <meta property="og:image:width" content={String(og.width)} />
+    <meta property="og:image:height" content={String(og.height)} />
+    <meta property="og:image:alt" content={og.alt} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={ogTitle} />
     <meta name="twitter:description" content={ogDescription} />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href={fontsHref} />
+    <Font cssVariable="--font-bodoni" preload />
+    <Font cssVariable="--font-grotesk" preload />
+    {labFonts.map((f) => <Font cssVariable={f.cssVariable} />)}
     <slot name="jsonld" />
   </head>
   <body>
