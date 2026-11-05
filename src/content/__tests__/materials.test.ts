@@ -22,6 +22,11 @@ describe('MATERIAL_GUIDES', () => {
     expect(Object.keys(ENGRAVING_STYLES).filter((id) => !covered.has(id as keyof typeof ENGRAVING_STYLES))).toEqual([])
   })
 
+  it('los metales van con el láser de fibra y el resto con el CO₂', () => {
+    const fibra = MATERIAL_GUIDES.filter((g) => g.laser === 'fibra').map((g) => g.id)
+    expect(fibra).toEqual(['acero', 'metal-pintado'])
+  })
+
   it('los mates de cuero van con el acero (se graba la virola de alpaca), no con el cuero', () => {
     const products = (id: string) => productsFor(MATERIAL_GUIDES.find((g) => g.id === id)!).map((p) => p.id)
     expect(products('acero')).toContain('mate-imperial')

@@ -2,6 +2,8 @@
 import { getImage } from 'astro:assets'
 import { CORPORATE_PATH } from '../content/corporate'
 import { TRUSTED_LOGOS } from '../content/logos'
+import { CATEGORIES } from '../content/site'
+import { WORKS } from '../content/works'
 
 /**
  * Franja de logos de quienes confían en AUREO. Sin logos en src/assets/logos/ no se renderiza.
@@ -18,6 +20,14 @@ interface Props {
 }
 
 const { corporateLink = true } = Astro.props
+
+/**
+ * Trabajos institucionales con nombre, debajo de los logos (SPEC 26): cada uno abre su obra en la galería de la home.
+ * Los títulos salen de WORKS, así que un id que ya no exista se cae de la lista en lugar de romper.
+ */
+const CASE_IDS = ['w-embajada-argentina', 'w-marmol-ara-san-juan', 'w-panel-uba', 'w-armada-argentina'] as const
+const cases = CASE_IDS.flatMap((id) => WORKS.filter((w) => w.id === id))
+const plaques = CATEGORIES.find((c) => c.id === 'placas' && c.enabled)
 
 // SVG directo; raster optimizado a 56 px de alto con 1x y 2x, como hacía <Image>.
 interface LogoImg {
@@ -76,8 +86,29 @@ const images = new Map<string, LogoImg>(
           })}
         </ul>
       </div>
+      {corporateLink && cases.length > 0 && (
+        <div class="wrap">
+          <ul class="trusted__cases" aria-label="Algunos trabajos institucionales">
+            {cases.map((w) => (
+              <li>
+                <a class="text-link" href={`/?obra=${w.id}#galeria`}>
+                  {w.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {corporateLink && (
         <p class="wrap trusted__more">
+          {plaques && (
+            <>
+              <a class="text-link" href={`/${plaques.slug}/`}>
+                Placas y reconocimientos
+              </a>
+              <span aria-hidden="true"> · </span>
+            </>
+          )}
           <a class="text-link" href={CORPORATE_PATH}>
             Pedidos para empresas
           </a>

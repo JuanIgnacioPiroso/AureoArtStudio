@@ -24,7 +24,7 @@ export function FontPicker({ value, sample, onChange }: { value: FontId; sample:
         options={FONT_IDS.filter((id) => FONTS[id].category === category).map((id) => ({
           value: id,
           label: (
-            <span className="font-sample" style={{ fontFamily: `${FONTS[id].family}, ${FONTS[id].fallback}`, fontWeight: FONTS[id].weight }}>
+            <span className="font-sample" style={{ fontFamily: `var(${FONTS[id].cssVariable})`, fontWeight: FONTS[id].weight }}>
               {text}
             </span>
           ),

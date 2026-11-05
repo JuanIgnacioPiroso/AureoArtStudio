@@ -221,8 +221,8 @@ export interface FontDef {
   id: FontId
   name: string
   category: FontCategory
-  /** Familia CSS (cargada desde Google Fonts en index.html). */
-  family: string
+  /** Variable CSS que define la API de fuentes de Astro (astro.config.mjs): `--font-<id>`. */
+  cssVariable: `--font-${FontId}`
   weight: number
   /** Relación altura de mayúscula / tamaño de fuente estimada; en el navegador se mide (ver measure.ts). */
   capRatio: number
@@ -238,36 +238,36 @@ export const FONT_CATEGORY_LABEL: Record<FontCategory, string> = {
   technical: 'Técnicas',
 }
 
-const font = (id: FontId, name: string, category: FontCategory, family: string, weight: number, capRatio: number): FontDef => ({
+const font = (id: FontId, name: string, category: FontCategory, weight: number, capRatio: number): FontDef => ({
   id,
   name,
   category,
-  family: `"${family}"`,
+  cssVariable: `--font-${id}`,
   weight,
   capRatio,
   fallback: category === 'script' ? 'cursive' : category === 'technical' ? 'monospace' : category === 'modern' ? 'sans-serif' : 'serif',
 })
 
 export const FONTS: Record<FontId, FontDef> = {
-  bodoni: font('bodoni', 'Bodoni', 'classic', 'Bodoni Moda', 500, 0.68),
-  playfair: font('playfair', 'Playfair', 'classic', 'Playfair Display', 500, 0.71),
-  cormorant: font('cormorant', 'Cormorant', 'classic', 'Cormorant Garamond', 600, 0.63),
-  garamond: font('garamond', 'Garamond', 'classic', 'EB Garamond', 500, 0.65),
-  baskerville: font('baskerville', 'Baskerville', 'classic', 'Libre Baskerville', 400, 0.77),
-  cinzel: font('cinzel', 'Cinzel', 'display', 'Cinzel', 500, 0.7),
-  'cinzel-deco': font('cinzel-deco', 'Cinzel Decorative', 'display', 'Cinzel Decorative', 400, 0.7),
-  abril: font('abril', 'Abril Fatface', 'display', 'Abril Fatface', 400, 0.7),
-  bebas: font('bebas', 'Bebas Neue', 'display', 'Bebas Neue', 400, 0.7),
-  oswald: font('oswald', 'Oswald', 'display', 'Oswald', 500, 0.81),
-  grotesk: font('grotesk', 'Hanken Grotesk', 'modern', 'Hanken Grotesk', 500, 0.7),
-  montserrat: font('montserrat', 'Montserrat', 'modern', 'Montserrat', 500, 0.7),
-  josefin: font('josefin', 'Josefin Sans', 'modern', 'Josefin Sans', 500, 0.75),
-  raleway: font('raleway', 'Raleway', 'modern', 'Raleway', 500, 0.71),
-  script: font('script', 'Pinyon Script', 'script', 'Pinyon Script', 400, 0.62),
-  'great-vibes': font('great-vibes', 'Great Vibes', 'script', 'Great Vibes', 400, 0.6),
-  dancing: font('dancing', 'Dancing Script', 'script', 'Dancing Script', 500, 0.72),
-  allura: font('allura', 'Allura', 'script', 'Allura', 400, 0.6),
-  'space-mono': font('space-mono', 'Space Mono', 'technical', 'Space Mono', 400, 0.7),
+  bodoni: font('bodoni', 'Bodoni', 'classic', 500, 0.68),
+  playfair: font('playfair', 'Playfair', 'classic', 500, 0.71),
+  cormorant: font('cormorant', 'Cormorant', 'classic', 600, 0.63),
+  garamond: font('garamond', 'Garamond', 'classic', 500, 0.65),
+  baskerville: font('baskerville', 'Baskerville', 'classic', 400, 0.77),
+  cinzel: font('cinzel', 'Cinzel', 'display', 500, 0.7),
+  'cinzel-deco': font('cinzel-deco', 'Cinzel Decorative', 'display', 400, 0.7),
+  abril: font('abril', 'Abril Fatface', 'display', 400, 0.7),
+  bebas: font('bebas', 'Bebas Neue', 'display', 400, 0.7),
+  oswald: font('oswald', 'Oswald', 'display', 500, 0.81),
+  grotesk: font('grotesk', 'Hanken Grotesk', 'modern', 500, 0.7),
+  montserrat: font('montserrat', 'Montserrat', 'modern', 500, 0.7),
+  josefin: font('josefin', 'Josefin Sans', 'modern', 500, 0.75),
+  raleway: font('raleway', 'Raleway', 'modern', 500, 0.71),
+  script: font('script', 'Pinyon Script', 'script', 400, 0.62),
+  'great-vibes': font('great-vibes', 'Great Vibes', 'script', 400, 0.6),
+  dancing: font('dancing', 'Dancing Script', 'script', 500, 0.72),
+  allura: font('allura', 'Allura', 'script', 400, 0.6),
+  'space-mono': font('space-mono', 'Space Mono', 'technical', 400, 0.7),
 }
 
 const knifeBlade: SurfaceDef = {

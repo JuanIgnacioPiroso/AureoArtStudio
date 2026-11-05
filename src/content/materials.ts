@@ -8,6 +8,20 @@ export const MATERIALS_SEO = {
     'Cómo toma el grabado láser cada material: madera, acero, alpaca, vidrio, acrílico, mármol y cuero. Qué tono y contraste deja en cada uno.',
 }
 
+export type LaserId = 'fibra' | 'co2'
+
+/** Equipos del taller, para la guía de materiales y la sección de corte. */
+export const LASERS: Record<LaserId, { name: string; text: string }> = {
+  fibra: {
+    name: 'Láser de fibra',
+    text: 'Marca metales: acero inoxidable, alpaca, chapa dorada o plateada, bronce y metal pintado. Deja una línea muy fina, sin sacar material.',
+  },
+  co2: {
+    name: 'Láser CO₂',
+    text: 'Graba madera, MDF, cuero, vidrio, acrílico, mármol y granito, y corta acrílico, MDF y madera a medida.',
+  },
+}
+
 export interface MaterialGuide {
   /** id del ancla: /materiales/#acero */
   id: string
@@ -18,6 +32,8 @@ export interface MaterialGuide {
   process: string
   /** Cómo se ve la marca terminada. */
   result: string
+  /** Equipo con el que se graba: fibra para los metales, CO₂ para el resto (SPEC 26). */
+  laser: LaserId
   /** Pendiente del taller: tamaño mínimo de letra legible, p. ej. "2 mm de alto de mayúscula". */
   minTextHeight: string | null
   /** Pendiente del taller: cómo cuidar la pieza. */
@@ -36,6 +52,7 @@ export const MATERIAL_GUIDES: readonly MaterialGuide[] = [
     materialIds: ['wood-light', 'wood-dark'],
     process: 'El láser tuesta la capa de arriba de la madera, sin tinta.',
     result: 'Un tono marrón cálido que sigue la veta; en maderas claras contrasta más que en las oscuras.',
+    laser: 'co2',
     minTextHeight: null,
     care: null,
     image: IMAGES.caja,
@@ -46,6 +63,7 @@ export const MATERIAL_GUIDES: readonly MaterialGuide[] = [
     materialIds: ['steel', 'alpaca', 'gold'],
     process: 'El láser oxida la superficie del metal (marcado oscuro) o la vuelve mate (esmerilado), sin sacar material.',
     result: 'Una marca fina y de alto contraste, o una más sutil y satinada.',
+    laser: 'fibra',
     minTextHeight: null,
     care: null,
     image: IMAGES.mate,
@@ -56,6 +74,7 @@ export const MATERIAL_GUIDES: readonly MaterialGuide[] = [
     materialIds: ['black-matte'],
     process: 'El láser retira la pintura y deja ver el metal de abajo.',
     result: 'Una marca plateada y brillante sobre el negro mate.',
+    laser: 'fibra',
     minTextHeight: null,
     care: null,
     image: IMAGES.termo,
@@ -66,6 +85,7 @@ export const MATERIAL_GUIDES: readonly MaterialGuide[] = [
     materialIds: ['glass-clear', 'acrylic-clear'],
     process: 'El láser microfractura la superficie.',
     result: 'Una marca blanca y satinada, como un esmerilado.',
+    laser: 'co2',
     minTextHeight: null,
     care: null,
     image: IMAGES.copas,
@@ -76,6 +96,7 @@ export const MATERIAL_GUIDES: readonly MaterialGuide[] = [
     materialIds: ['marble-white'],
     process: 'El láser hunde apenas la piedra.',
     result: 'Una letra hundida y más oscura que la piedra.',
+    laser: 'co2',
     minTextHeight: null,
     care: null,
     image: IMAGES.hungria,
@@ -86,6 +107,7 @@ export const MATERIAL_GUIDES: readonly MaterialGuide[] = [
     materialIds: ['leather-black', 'leather-brown', 'leather-tan'],
     process: 'El láser quema y hunde apenas la flor del cuero.',
     result: 'Una marca más oscura que el cuero, que se nota al tacto.',
+    laser: 'co2',
     minTextHeight: null,
     care: null,
     image: IMAGES.leather,

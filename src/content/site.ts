@@ -21,11 +21,11 @@ export const NAV = [
 
 /** Textos del <head> de la home. La description nombra la ciudad cuando business.city está cargada. */
 export const HOME_SEO = {
-  title: "Grabado láser personalizado · cuchillos, mates y tablas",
+  title: "Grabado láser en CABA: placas, mates y regalos · AUREO",
   description: (city: string | null) =>
     city
-      ? `Grabado láser personalizado en ${city}: cuchillos, tablas, mates, copas y cuero. Probá tu diseño en 3D y pedí presupuesto.`
-      : "Grabamos nombres, fechas y logos en cuchillos, tablas, mates, copas y cuero. Probá tu diseño en 3D antes de pedir presupuesto.",
+      ? `Placas, trofeos y regalos grabados a láser en ${city}: cuchillos, tablas, mates, copas y cuero. Diseñalo en 3D y pedí presupuesto.`
+      : "Placas, trofeos y regalos grabados a láser: cuchillos, tablas, mates, copas y cuero. Diseñalo en 3D y pedí presupuesto sin compromiso.",
   ogTitle: "AUREO Art Studio · Grabados láser que dejan huella",
 } as const;
 
@@ -150,147 +150,35 @@ export interface Category {
   faq: readonly Faq[];
 }
 
+/**
+ * Categorías en el orden en que se muestran (home, footer, filtros de la galería): primero las que tienen fotos propias
+ * del taller y al final las que todavía usan una imagen ilustrativa (SPEC 26).
+ */
 export const CATEGORIES: Category[] = [
   {
-    id: "cuchillos",
-    slug: "cuchillos-grabados",
-    name: "Cuchillos y accesorios",
-    description: "Un nombre, iniciales o una fecha en la hoja o en el mango.",
-    image: IMAGES.knife,
-    labProductIds: ["knife"],
+    id: "placas",
+    slug: "placas-y-reconocimientos",
+    name: "Placas y reconocimientos",
+    description: "Placas para homenajes, inauguraciones y premios.",
+    image: IMAGES.embajada,
+    labProductIds: ["plaque-base", "plaque-wall", "dog-tag", "trophy"],
     inquiry: null,
     enabled: true,
     seo: {
-      title: "Cuchillos grabados con nombre · grabado láser",
+      title: "Placas y trofeos grabados en Buenos Aires · AUREO",
       description:
-        "Cuchillos con un nombre, iniciales, una fecha o tu logo grabados a láser en la hoja o en el mango. Probá el diseño en 3D y pedí presupuesto.",
-      h1: "Cuchillos grabados con tu nombre o tu logo",
+        "Placas, chapitas y trofeos grabados a láser para homenajes, inauguraciones y premios. Probá el texto en 3D y pedí presupuesto.",
+      h1: "Placas, trofeos y reconocimientos grabados",
       intro:
-        "Grabamos a láser nombres, iniciales, fechas y logos en la hoja de acero o en el mango de madera. Cada zona tiene medidas reales, así que podés probar el diseño en el Custom Lab antes de pedirlo.",
+        "Grabamos placas sobre base o de pared, chapitas y trofeos para homenajes, inauguraciones y premios. Probá el texto y la ubicación en el Custom Lab antes de pedirlo.",
     },
     faq: [
-      { q: "¿Se graba la hoja o el mango?", a: null },
-      { q: "¿El grabado se va con el uso o el afilado?", a: null },
+      {
+        q: "¿Cuánto texto entra en una placa?",
+        a: "Depende de la pieza: la chapa de la placa sobre base mide 17 × 12 cm, la placa de pared 40 × 30 cm, el trofeo de acrílico 15 × 20 cm y la chapita 5 × 2,8 cm. En el Custom Lab escribís el texto real y ves si entra con la tipografía y el tamaño que elijas.",
+      },
+      { q: "¿Hacen trofeos por cantidad?", a: null },
     ],
-  },
-  {
-    id: "tablas",
-    slug: "tablas-personalizadas",
-    name: "Tablas y madera",
-    description:
-      "Tablas para regalar o para el uso de todos los días, con el grabado sobre la cara principal.",
-    image: IMAGES.board,
-    labProductIds: ["board"],
-    inquiry: null,
-    enabled: true,
-    seo: {
-      title: "Tablas personalizadas grabadas a láser",
-      description:
-        "Tablas de madera con un nombre, una frase o un logo grabados a láser en la cara principal. Probá tu diseño en 3D y pedí presupuesto.",
-      h1: "Tablas de madera personalizadas",
-      intro:
-        "Grabamos a láser nombres, frases, fechas y logos sobre la cara principal de la tabla. Probá el texto, la tipografía y la ubicación en el Custom Lab antes de pedirla.",
-    },
-    faq: [
-      { q: "¿Se puede usar para cortar?", a: null },
-      { q: "¿Qué madera es?", a: null },
-    ],
-  },
-  {
-    id: "termos",
-    slug: "mates-y-termos-grabados",
-    name: "Termos y mates",
-    description:
-      "Termos y mates de acero, madera o cuero, con un nombre o una frase en el cuerpo o en la virola.",
-    image: IMAGES.termo,
-    labProductIds: [
-      "thermos-handle",
-      "thermos-half",
-      "mate-wood",
-      "mate-steel",
-      "mate-camionero",
-      "mate-imperial",
-    ],
-    inquiry: null,
-    enabled: true,
-    seo: {
-      title: "Mates y termos grabados con nombre o logo",
-      description:
-        "Mates de madera, acero o forrados en cuero y termos de acero con un nombre, una frase o un logo grabados a láser. Probá tu diseño en 3D y pedí presupuesto.",
-      h1: "Mates y termos grabados a láser",
-      intro:
-        "Grabamos nombres, frases y logos en termos, mates de madera, de acero, camioneros e imperiales, en el cuerpo o en la virola. Elegí el modelo, probá el diseño en 3D y pedí tu presupuesto.",
-    },
-    faq: [
-      { q: "¿Se graba la virola de alpaca?", a: null },
-      { q: "¿Puedo traer mi propio mate o termo?", a: null },
-    ],
-  },
-  {
-    id: "copas",
-    slug: "copas-y-vasos-grabados",
-    name: "Copas y vasos",
-    description:
-      "Copas, vasos y jarros de vidrio con nombres o una fecha grabados en esmerilado.",
-    image: IMAGES.copas,
-    labProductIds: ["glassware"],
-    inquiry: null,
-    enabled: true,
-    seo: {
-      title: "Copas y vasos grabados a láser · personalizados",
-      description:
-        "Copas, vasos y jarros de vidrio con nombres, iniciales o una fecha grabados en esmerilado. Probá tu diseño en 3D y pedí presupuesto.",
-      h1: "Copas y vasos grabados con nombres o fechas",
-      intro:
-        "Grabamos nombres, iniciales y fechas en copas, vasos y jarros de vidrio, con un acabado esmerilado. Probá el diseño en el Custom Lab antes de pedirlo.",
-    },
-    faq: [
-      { q: "¿Se pueden lavar en el lavavajillas?", a: null },
-      { q: "¿Hacen juegos para casamientos?", a: null },
-    ],
-  },
-  {
-    id: "cuero",
-    slug: "cuero-grabado",
-    name: "Cuero",
-    description:
-      "Billeteras, llaveros y cinturones de cuero con un nombre o iniciales grabados a láser.",
-    image: IMAGES.leather,
-    labProductIds: ["leather-wallet", "leather-keychain", "leather-belt"],
-    inquiry: null,
-    enabled: true,
-    seo: {
-      title: "Billeteras, llaveros y cinturones de cuero grabados",
-      description:
-        "Billeteras, llaveros y cinturones de cuero con un nombre, iniciales o un logo grabados a láser. Probá tu diseño en 3D y pedí presupuesto.",
-      h1: "Cuero grabado a láser",
-      intro:
-        "Grabamos a láser nombres, iniciales y logos en billeteras, llaveros y cinturones de cuero. Elegí la pieza y el color del cuero, y probá el diseño en el Custom Lab.",
-    },
-    faq: [
-      { q: "¿Qué colores de cuero hay?", a: null },
-      { q: "¿Se puede grabar un logo?", a: null },
-    ],
-  },
-  {
-    id: "regalos",
-    slug: "regalos-personalizados",
-    name: "Regalos personalizados",
-    description:
-      "Piezas con una dedicatoria pensada para una persona y una ocasión.",
-    image: IMAGES.perro,
-    labProductIds: [],
-    inquiry: "Quiero consultar por un regalo personalizado.",
-    enabled: true,
-    seo: {
-      title: "Regalos personalizados grabados a láser",
-      description:
-        "Regalos con un nombre, una fecha o una dedicatoria grabados a láser: cuchillos, tablas, mates, copas, cuero y placas. Contanos la ocasión.",
-      h1: "Regalos personalizados con grabado láser",
-      intro:
-        "Un regalo grabado lleva el nombre, la fecha o la frase de quien lo recibe. Te mostramos algunas ideas y te ayudamos a elegir la pieza y el diseño para cada ocasión.",
-    },
-    faq: [],
   },
   {
     id: "empresas",
@@ -313,25 +201,156 @@ export const CATEGORIES: Category[] = [
     faq: [],
   },
   {
-    id: "placas",
-    slug: "placas-y-reconocimientos",
-    name: "Placas y reconocimientos",
-    description: "Placas para homenajes, inauguraciones y premios.",
-    image: IMAGES.embajada,
-    labProductIds: ["plaque-base", "plaque-wall", "dog-tag", "trophy"],
+    id: "termos",
+    slug: "mates-y-termos-grabados",
+    name: "Termos y mates",
+    description:
+      "Termos y mates de acero, madera o cuero, con un nombre o una frase en el cuerpo o en la virola.",
+    image: IMAGES.termo,
+    labProductIds: [
+      "thermos-handle",
+      "thermos-half",
+      "mate-wood",
+      "mate-steel",
+      "mate-camionero",
+      "mate-imperial",
+    ],
     inquiry: null,
     enabled: true,
     seo: {
-      title: "Placas y reconocimientos grabados · trofeos",
+      title: "Mates y termos grabados con nombre o logo · AUREO",
       description:
-        "Placas, chapitas y trofeos grabados a láser para homenajes, inauguraciones y premios. Probá el texto en 3D y pedí presupuesto.",
-      h1: "Placas, trofeos y reconocimientos grabados",
+        "Mates de madera, acero o forrados en cuero y termos de acero con un nombre, una frase o un logo grabados a láser. Probá tu diseño en 3D y pedí presupuesto.",
+      h1: "Mates y termos grabados a láser",
       intro:
-        "Grabamos placas sobre base o de pared, chapitas y trofeos para homenajes, inauguraciones y premios. Probá el texto y la ubicación en el Custom Lab antes de pedirlo.",
+        "Grabamos nombres, frases y logos en termos, mates de madera, de acero, camioneros e imperiales, en el cuerpo o en la virola. Elegí el modelo, probá el diseño en 3D y pedí tu presupuesto.",
     },
     faq: [
-      { q: "¿Cuánto texto entra en una placa?", a: null },
-      { q: "¿Hacen trofeos por cantidad?", a: null },
+      {
+        q: "¿Se graba la virola de alpaca?",
+        a: "Sí. En el mate camionero y en el imperial, forrados en cuero, el grabado va en la boca o alrededor de la virola de alpaca. En los mates de madera y de acero se graba el frente o la vuelta completa del cuerpo.",
+      },
+      { q: "¿Puedo traer mi propio mate o termo?", a: null },
+    ],
+  },
+  {
+    id: "copas",
+    slug: "copas-y-vasos-grabados",
+    name: "Copas y vasos",
+    description:
+      "Copas, vasos y jarros de vidrio con nombres o una fecha grabados en esmerilado.",
+    image: IMAGES.copas,
+    labProductIds: ["glassware"],
+    inquiry: null,
+    enabled: true,
+    seo: {
+      title: "Copas y vasos personalizados grabados a láser · AUREO",
+      description:
+        "Copas, vasos y jarros de vidrio con nombres, iniciales o una fecha grabados en esmerilado. Probá tu diseño en 3D y pedí presupuesto.",
+      h1: "Copas y vasos grabados con nombres o fechas",
+      intro:
+        "Grabamos nombres, iniciales y fechas en copas, vasos y jarros de vidrio, con un acabado esmerilado. Probá el diseño en el Custom Lab antes de pedirlo.",
+    },
+    faq: [
+      { q: "¿Se pueden lavar en el lavavajillas?", a: null },
+      { q: "¿Hacen juegos para casamientos?", a: null },
+    ],
+  },
+  {
+    id: "regalos",
+    slug: "regalos-personalizados",
+    name: "Regalos personalizados",
+    description:
+      "Piezas con una dedicatoria pensada para una persona y una ocasión.",
+    image: IMAGES.perro,
+    labProductIds: [],
+    inquiry: "Quiero consultar por un regalo personalizado.",
+    enabled: true,
+    seo: {
+      title: "Regalos personalizados grabados a láser · AUREO",
+      description:
+        "Regalos con un nombre, una fecha o una dedicatoria grabados a láser: cuchillos, tablas, mates, copas, cuero y placas. Contanos la ocasión.",
+      h1: "Regalos personalizados con grabado láser",
+      intro:
+        "Un regalo grabado lleva el nombre, la fecha o la frase de quien lo recibe. Te mostramos algunas ideas y te ayudamos a elegir la pieza y el diseño para cada ocasión.",
+    },
+    faq: [],
+  },
+  {
+    id: "cuchillos",
+    slug: "cuchillos-grabados",
+    name: "Cuchillos y accesorios",
+    description: "Un nombre, iniciales o una fecha en la hoja o en el mango.",
+    image: IMAGES.knife,
+    labProductIds: ["knife"],
+    inquiry: null,
+    enabled: true,
+    seo: {
+      title: "Cuchillos grabados con nombre o logo · AUREO",
+      description:
+        "Cuchillos con un nombre, iniciales, una fecha o tu logo grabados a láser en la hoja o en el mango. Probá el diseño en 3D y pedí presupuesto.",
+      h1: "Cuchillos grabados con tu nombre o tu logo",
+      intro:
+        "Grabamos a láser nombres, iniciales, fechas y logos en la hoja de acero o en el mango de madera. Cada zona tiene medidas reales, así que podés probar el diseño en el Custom Lab antes de pedirlo.",
+    },
+    faq: [
+      {
+        q: "¿Se graba la hoja o el mango?",
+        a: "Los dos. La hoja es de acero de 20 cm y el láser la marca en oscuro o en esmerilado; el mango es de madera clara u oscura y el grabado queda tostado sobre la veta. En el Custom Lab elegís la zona y ves cuánto texto entra en cada una.",
+      },
+      { q: "¿El grabado se va con el uso o el afilado?", a: null },
+    ],
+  },
+  {
+    id: "tablas",
+    slug: "tablas-personalizadas",
+    name: "Tablas y madera",
+    description:
+      "Tablas para regalar o para el uso de todos los días, con el grabado sobre la cara principal.",
+    image: IMAGES.board,
+    labProductIds: ["board"],
+    inquiry: null,
+    enabled: true,
+    seo: {
+      title: "Tablas personalizadas grabadas a láser · AUREO",
+      description:
+        "Tablas de madera con un nombre, una frase o un logo grabados a láser en la cara principal. Probá tu diseño en 3D y pedí presupuesto.",
+      h1: "Tablas de madera personalizadas",
+      intro:
+        "Grabamos a láser nombres, frases, fechas y logos sobre la cara principal de la tabla. Probá el texto, la tipografía y la ubicación en el Custom Lab antes de pedirla.",
+    },
+    faq: [
+      { q: "¿Se puede usar para cortar?", a: null },
+      { q: "¿Qué madera es?", a: null },
+    ],
+  },
+  {
+    id: "cuero",
+    slug: "cuero-grabado",
+    name: "Cuero",
+    description:
+      "Billeteras, llaveros y cinturones de cuero con un nombre o iniciales grabados a láser.",
+    image: IMAGES.leather,
+    labProductIds: ["leather-wallet", "leather-keychain", "leather-belt"],
+    inquiry: null,
+    enabled: true,
+    seo: {
+      title: "Billeteras, llaveros y cinturones de cuero grabados · AUREO",
+      description:
+        "Billeteras, llaveros y cinturones de cuero con un nombre, iniciales o un logo grabados a láser. Probá tu diseño en 3D y pedí presupuesto.",
+      h1: "Cuero grabado a láser",
+      intro:
+        "Grabamos a láser nombres, iniciales y logos en billeteras, llaveros y cinturones de cuero. Elegí la pieza y el color del cuero, y probá el diseño en el Custom Lab.",
+    },
+    faq: [
+      {
+        q: "¿Qué colores de cuero hay?",
+        a: "Billeteras, llaveros y cinturones en cuero negro, marrón o suela. El grabado queda más oscuro que el cuero y se nota al tacto, así que contrasta más en los tonos claros.",
+      },
+      {
+        q: "¿Se puede grabar un logo?",
+        a: "Sí. Subí tu logo en el Custom Lab para verlo sobre la pieza; para grabarlo trabajamos mejor con archivos vectoriales (SVG, AI, EPS o PDF), aunque también evaluamos PNG o JPG.",
+      },
     ],
   },
 ];
@@ -385,11 +404,11 @@ export const PURCHASE_FAQ: readonly Faq[] = [
   },
   {
     q: "¿Cuánto tarda un pedido?",
-    a: "El tiempo de producción depende del producto y la cantidad de piezas. Una vez confirmado el diseño y el presupuesto, te informamos el plazo estimado de entrega.",
+    a: "Un pedido de una o pocas piezas tarda de 3 a 5 días hábiles desde que aprobás el diseño. Los pedidos por cantidad y los de empresas tienen su propio plazo, que te pasamos con el presupuesto.",
   },
   {
     q: "¿Hacen envíos? ¿A qué zonas?",
-    a: "Consultanos por las opciones de entrega y envío disponibles. Trabajamos con pedidos personalizados y coordinamos la entrega para que recibas tu producto donde lo necesites.",
+    a: "Sí. Podés retirar el pedido en el taller (Roseti 1514, CABA), recibirlo con envío en CABA y GBA o mandarlo al interior del país. El costo del envío depende de la zona y te lo pasamos junto con el presupuesto.",
   },
 ];
 
@@ -406,7 +425,7 @@ export const FAQ: Faq[] = [
   ...PURCHASE_FAQ,
   {
     q: "¿Cómo se paga?",
-    a: "Una vez confirmado el diseño y el presupuesto, te informamos los medios de pago disponibles para realizar tu pedido.",
+    a: "Por transferencia, Mercado Pago o en efectivo al retirar en el taller. Te pasamos los datos cuando confirmás el diseño y el presupuesto.",
   },
   {
     q: "¿Hacen pedidos por cantidad o para empresas?",

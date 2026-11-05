@@ -1,0 +1,59 @@
+---
+import { business } from '../config/business'
+import { categoryLink } from '../content/categories'
+import { CATEGORIES } from '../content/site'
+import BaseLayout from '../layouts/BaseLayout.astro'
+
+// Las mismas categorías que la home, para que un enlace roto no sea un callejón sin salida.
+const links = CATEGORIES.filter((c) => c.enabled).map((c) => ({
+  name: c.name,
+  description: c.description,
+  link: categoryLink(c, business),
+}))
+const description = 'La página que buscás no existe o cambió de dirección. Seguí por el inicio, el Custom Lab o una categoría.'
+---
+
+<BaseLayout
+  page="404"
+  path="/404/"
+  title="Página no encontrada · AUREO Art Studio"
+  description={description}
+  ogTitle="Página no encontrada · AUREO Art Studio"
+  ogDescription={description}
+  noindex
+>
+  <section class="section tone category-hero" data-tone="dark" aria-labelledby="error-title">
+    <div class="wrap">
+      <h1 id="error-title" class="category-hero__title display">No encontramos esta página</h1>
+      <p class="lede">Puede que el enlace esté mal escrito o que la página haya cambiado de dirección.</p>
+      <div class="hero__actions">
+        <a class="button button--primary" href="/">Ir al inicio</a>
+        <a class="button" href="/custom-lab/">Abrir el Custom Lab</a>
+      </div>
+    </div>
+  </section>
+  <section class="section tone" data-tone="light" aria-labelledby="error-categorias">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="error-categorias" class="section-title">Qué personalizamos</h2>
+      </div>
+      <ul class="category-materials">
+        {
+          links.map(({ name, description, link }) => (
+            <li>
+              <a
+                class="category-materials__name display"
+                href={link.href}
+                target={link.kind === 'whatsapp' ? '_blank' : undefined}
+                rel={link.kind === 'whatsapp' ? 'noopener noreferrer' : undefined}
+              >
+                {name}
+              </a>
+              <p>{description}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

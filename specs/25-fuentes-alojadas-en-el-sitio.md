@@ -25,13 +25,14 @@ El sitio se tiene que ver igual que hoy.
 
 - **Archivos de fuentes** en `src/assets/fonts/`, en woff2 recortado, con el `OFL.txt` de cada familia al lado:
   - **Del sitio** (de `brand/tipografia/`, que está fuera de git, así que se copian al repo ya procesados):
-    - `bodoni-moda.woff2`: variable con ejes `opsz` 6–96 y `wght` 400–700 (lo mismo que pide hoy la URL de Google);
-    - `hanken-grotesk.woff2`: variable con eje `wght` recortado a 400–600 (también lo que pide hoy).
+    - `bodoni-moda.woff2`: variable con los ejes completos, como la sirve Google; el `@font-face` declara `wght` 400–700, lo que pide hoy la URL;
+    - `hanken-grotesk.woff2`: variable con el eje completo; el `@font-face` declara `wght` 400–600 (también lo que pide hoy).
+    - Los ejes no se recortan: `varLib.instancer` redondea los contornos de los pesos intermedios y las letras dejan de coincidir con las de Google.
     - Recorte: latín básico + español (ASCII, `¡¿«»ÁÉÍÓÚÜÑáéíóúüñ`, `‘’“”`, `–—`, `…`, `·`, `•`, `€`, `°`, `×`, `ª º`).
   - **De grabado del Lab** (del repo `google/fonts`, licencia OFL), cada una en el mismo peso que pide hoy la URL del Lab, como archivo estático o como variable fijada a ese peso. Playfair Display 500, Cormorant Garamond 600, EB Garamond 500, Libre Baskerville 400, Cinzel 500, Cinzel Decorative 400, Abril Fatface 400, Bebas Neue 400, Oswald 500, Montserrat 500, Josefin Sans 500, Raleway 500, Pinyon Script 400, Great Vibes 400, Dancing Script 500, Allura 400 y Space Mono 400.
     - Recorte: Latin-1 + Latin Extended-A (`U+0000-00FF, U+0100-017F`), más `‘’“”–—…•€`. Así cubre nombres en portugués, alemán, polaco, etc.
   - Nombres de archivo en kebab-case de la familia (`playfair-display.woff2`, `space-mono.woff2`…).
-- **`scripts/subset-fonts.sh`**: regenera los 19 woff2 con `pyftsubset` (y `fonttools varLib.instancer` para fijar o recortar ejes). Lee los TTF de origen de una carpeta que se le pasa como argumento y escribe en `src/assets/fonts/`. No se corre en el build.
+- **`scripts/subset-fonts.sh`**: regenera los 19 woff2 con `pyftsubset` (y `fonttools varLib.instancer` para fijar el peso de las de grabado). Lee los TTF de origen de una carpeta que se le pasa como argumento y escribe en `src/assets/fonts/`. No se corre en el build.
 - **`astro.config.mjs`**: bloque `fonts` con el proveedor local (`fontProviders.local()`), una familia por fuente:
   - `--font-bodoni` (Bodoni Moda) con `fallbacks: ['Didot', 'Bodoni 72', 'Georgia', 'serif']`;
   - `--font-grotesk` (Hanken Grotesk) con `fallbacks: ['system-ui', '-apple-system', 'Segoe UI', 'sans-serif']`;
@@ -127,6 +128,7 @@ Variables CSS nuevas (las genera Astro): `--font-bodoni`, `--font-grotesk` y `--
 - **No:** el proveedor `google` de Astro, que baja las fuentes en cada build. El build dependería de Google y los archivos no quedarían versionados en el repo.
 - **Sí:** el Lab lee el nombre real desde la variable CSS. Así todo pasa por un solo mecanismo y el hash de Astro puede cambiar sin tocar el catálogo.
 - **No:** `@font-face` a mano con nombres literales sólo para las fuentes de grabado. Serían dos mecanismos para lo mismo.
+- **No:** recortar los ejes de Bodoni y Hanken. Ahorra unos 14 KB, pero `varLib.instancer` redondea los contornos de los pesos intermedios y en las capturas las letras dejaban de coincidir con las de Google. El rango de peso lo limita el `@font-face`.
 - **Sí:** recorte latín básico + español para Bodoni y Hanken. El sitio está en español y sus textos los controlamos nosotros.
 - **Sí:** recorte Latin-1 + Latin Extended-A para las de grabado. El cliente escribe lo que quiere (nombres con ç, ã, ß, ł), y una letra en la fuente de reserva arruinaría la vista previa del grabado.
 - **Sí:** archivos en `src/assets/fonts/` más un script. Astro recomienda no ponerlos en `public/`, porque se duplicarían, y el script permite regenerarlos sin repetir los pasos a mano.

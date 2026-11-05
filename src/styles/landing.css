@@ -344,6 +344,17 @@
   }
 }
 
+.trusted__cases {
+  list-style: none;
+  margin: var(--s2) 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--s0) var(--s2);
+  font-size: var(--step--1);
+  text-align: center;
+}
 .trusted__more {
   margin-top: var(--s1);
   text-align: center;
@@ -538,6 +549,9 @@
   padding-top: var(--s0);
 }
 .work__title {
+  /* Es un <p> (SPEC 26): copia de los headings el interlineado y el balanceo. */
+  line-height: 1.08;
+  text-wrap: balance;
   font-family: var(--font-display);
   font-size: var(--step-1);
   margin-bottom: 0.2rem;
@@ -930,6 +944,9 @@
   margin-bottom: var(--s2);
   scroll-margin-top: calc(var(--header-h) + var(--s2));
 }
+.material__intro {
+  margin-bottom: var(--s1);
+}
 .material__facts {
   margin: 0;
   display: grid;
@@ -1063,6 +1080,12 @@
   font-weight: 600;
 }
 
+/* Texto estático debajo del Custom Lab: subtítulo de la lista de categorías. */
+.lab-about__subtitle {
+  font-size: var(--step-2);
+  font-weight: 400;
+  margin: 0 0 var(--s2);
+}
 .category-materials {
   list-style: none;
   margin: 0;

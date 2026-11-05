@@ -8,6 +8,7 @@ import {
   itemListSchema,
   organizationSchema,
   serviceSchema,
+  webApplicationSchema,
   websiteSchema,
 } from '../seo'
 
@@ -19,6 +20,10 @@ const empty: BusinessConfig = {
   instagram: null,
   city: null,
   address: null,
+  postalCode: null,
+  openingHours: null,
+  paymentAccepted: null,
+  areaServed: [],
   siteUrl: null,
 }
 
@@ -30,6 +35,10 @@ const full: BusinessConfig = {
   instagram: 'https://instagram.com/aureo',
   city: 'Tandil',
   address: 'Calle 123',
+  postalCode: 'B7000',
+  openingHours: 'Mo-Fr 09:00-18:00',
+  paymentAccepted: 'Transferencia, efectivo',
+  areaServed: ['Tandil', 'Argentina'],
   siteUrl: 'https://example.com/',
 }
 
@@ -76,14 +85,27 @@ describe('organizationSchema', () => {
     expect(schema).toMatchObject({
       '@id': 'https://example.com/#negocio',
       url: 'https://example.com',
-      logo: 'https://example.com/favicon.svg',
+      logo: 'https://example.com/logo.png',
       image: 'https://example.com/og-image.png',
       legalName: 'Aureo SRL',
       telephone: '+5491112345678',
       email: 'hola@example.com',
       sameAs: ['https://instagram.com/aureo'],
-      address: { streetAddress: 'Calle 123', addressLocality: 'Tandil', addressCountry: 'AR' },
+      address: { streetAddress: 'Calle 123', addressLocality: 'Tandil', postalCode: 'B7000', addressCountry: 'AR' },
+      openingHours: 'Mo-Fr 09:00-18:00',
+      paymentAccepted: 'Transferencia, efectivo',
     })
+  })
+
+  it('areaServed marca "Argentina" como país y el resto como zonas', () => {
+    expect(organizationSchema(full)).toHaveProperty('areaServed', [
+      { '@type': 'AdministrativeArea', name: 'Tandil' },
+      { '@type': 'Country', name: 'Argentina' },
+    ])
+  })
+
+  it('omite areaServed sin zonas', () => {
+    expect(organizationSchema(empty)).not.toHaveProperty('areaServed')
   })
 
   it('omite sameAs si no hay redes', () => {
@@ -249,5 +271,25 @@ describe('itemListSchema', () => {
   it('sin siteUrl, los elementos van sin url', () => {
     const list = itemListSchema('Productos', entries, empty) as { itemListElement: object[] }
     expect(list.itemListElement[0]).not.toHaveProperty('url')
+  })
+})
+
+describe('webApplicationSchema', () => {
+  const input = { path: '/custom-lab/', name: 'AUREO Custom Lab', description: 'Simulador' }
+
+  it('describe el simulador con su URL y el negocio como proveedor', () => {
+    expect(webApplicationSchema(full, input)).toMatchObject({
+      '@type': 'WebApplication',
+      name: 'AUREO Custom Lab',
+      url: 'https://example.com/custom-lab/',
+      isAccessibleForFree: true,
+      provider: { '@id': (organizationSchema(full) as { '@id': string })['@id'] },
+    })
+  })
+
+  it('sin siteUrl omite url y nombra al negocio', () => {
+    const app = webApplicationSchema(empty, input) as Record<string, unknown>
+    expect(app).not.toHaveProperty('url')
+    expect(app.provider).toEqual({ '@type': 'Organization', name: 'AUREO Art Studio' })
   })
 })
