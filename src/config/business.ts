@@ -35,8 +35,8 @@ export const business: BusinessConfig = {
   instagram: 'https://www.instagram.com/aureoartstudio/',
   city: 'Ciudad Autónoma de Buenos Aires',
   address: 'Roseti 1514',
-  postalCode: null,
-  openingHours: null,
+  postalCode: '1427',
+  openingHours: 'Lu-Vi 09:00-18:00',
   paymentAccepted: 'Transferencia, Mercado Pago, efectivo',
   areaServed: ['Ciudad Autónoma de Buenos Aires', 'Gran Buenos Aires', 'Argentina'],
   // Con www: el dominio sin www redirige (308) a este host en Vercel.
